@@ -28,6 +28,7 @@ sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
 echo '[INFO] Umount all'
 sudo umount $FILESYSTEM_ROOT/sys
 sudo umount $FILESYSTEM_ROOT/proc
+sudo umount none
 
 ## Create root password
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
@@ -40,4 +41,5 @@ sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "root:sahL5d5V.UWtI
 
 ## Need sudo to compress because of the dev files
 echo '[INFO] Compress the file system into file'
-sudo tar czf $OUTPUT_FILE $FILESYSTEM_ROOT
+sudo tar --exclude ./fsroot/proc -czf fs.tar.gz ./fsroot
+
