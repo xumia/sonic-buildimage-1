@@ -1,6 +1,12 @@
 #!/bin/bash
+## This script is to automate the preparation for a debian file system, which will be used for
+## a ONIE installation image.
 
+## TODO: pre-install all the Azure Cloud Switch packages into the file system
+
+## Workding directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
+## Output file name for compressed file system
 OUTPUT_FILE=fs.tar.gz
 
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
