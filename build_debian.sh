@@ -7,20 +7,21 @@ OUTPUT_FILE=fs.tar.gz
 mkdir -p $FILESYSTEM_ROOT
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT apt-get -y update
+## Note: set lang to prevent locale warnings in your chroot
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 
 ## Create device files
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
 echo '[INFO] Mount all'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT mount none /proc -t proc
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
+sudo LANG=C chroot $FILESYSTEM_ROOT mount none /proc -t proc
+sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 echo '[INFO] Install makedev'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT apt-get -y install makedev
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev
 echo '[INFO] MAKEDEV'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install linux-image-amd64'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
 
 ## Umount all
 echo '[INFO] Umount all'
@@ -29,11 +30,11 @@ sudo umount $FILESYSTEM_ROOT/proc
 
 ## Create root password
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
-sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "root:sahL5d5V.UWtI" | chpasswd -e'
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "root:sahL5d5V.UWtI" | chpasswd -e'
 
 ## TODO: Install packages according to a list file
 #echo '[INFO] Install aptitude'
-#sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT apt-get -y install aptitude
+#sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install aptitude
 #aptitude -q -R --schedule-only install $(awk < aptlist.txt '{print $1}')    ## Mark install the packages at specified versions
 #aptitude -q -R --schedule-only install $(awk -F'[= ]' '{ print $1 }' < aptlist.txt)    ## Mark install the packages by names and ignore the versions
 #aptitude -q -R --schedule-only markauto $(awk -F'[= ]' 'match($3, /A/){ print $1 }' < aptlist.txt)   ## Mark some packages as automatic installing
