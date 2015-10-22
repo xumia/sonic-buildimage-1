@@ -34,12 +34,14 @@ sudo umount none
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 sudo LANG=C.UTF-8 chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "root:sahL5d5V.UWtI" | chpasswd -e'
 
+## TODO: Install packages according to a list file
 #aptitude -q -R --schedule-only install $(awk < aptlist.txt '{print $1}')    ## Mark install the packages at specified versions
-##aptitude -q -R --schedule-only install $(awk -F'[= ]' '{ print $1 }' < aptlist.txt)    ## Mark install the packages by names and ignore the versions
+#aptitude -q -R --schedule-only install $(awk -F'[= ]' '{ print $1 }' < aptlist.txt)    ## Mark install the packages by names and ignore the versions
 #aptitude -q -R --schedule-only markauto $(awk -F'[= ]' 'match($3, /A/){ print $1 }' < aptlist.txt)   ## Mark some packages as automatic installing
 #aptitude -y -o Dpkg::Options::="--force-confdef" install  ## Truly install the packages, will prompt several dialog to save old config
 
-## Need sudo to compress because of the dev files
+## Compress the whole file system into one output file
+## Need sudo because of the dev files
+## Exclude all virtual files under /proc, even if already umounted, sometimes the busy system delays the umounting
 echo '[INFO] Compress the file system into file'
-sudo tar --exclude ./fsroot/proc -czf fs.tar.gz ./fsroot
-
+sudo tar --exclude $FILESYSTEM_ROOT/proc -czf $OUTPUT_FILE $FILESYSTEM_ROOT
