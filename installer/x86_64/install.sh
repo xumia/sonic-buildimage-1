@@ -210,6 +210,11 @@ demo_install_uefi_grub()
     local demo_mnt="$1"
     local blk_dev="$2"
 
+    # make sure /boot/efi is mounted
+    if ! mount | grep -q "/boot/efi"; then
+        mount /boot/efi
+    fi
+
     # Look for the EFI system partition UUID on the same block device as
     # the ONIE-BOOT partition.
     local uefi_part=0
@@ -359,7 +364,7 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX \$ONIE_EXTRA_CMDLINE_LINUX DEMO_TYPE=$demo_type
+        linux   /boot/vmlinuz-3.16.0-4-amd64 root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
         echo    'Loading ONIE Demo $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
