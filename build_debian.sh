@@ -2,12 +2,15 @@
 ## This script is to automate the preparation for a debian file system, which will be used for
 ## a ONIE installation image.
 
-## TODO: pre-install all the Azure Cloud Switch packages into the file system
-
 ## Workding directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
 ## Output file name for compressed file system
 OUTPUT_FILE=fs.tar.gz
+## Default linux user name
+DEFAULT_USERNAME=acsadmin
+DEFAULT_USERINFO="ACS Admin User,,,"
+## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
+DEFAULT_PASSWORD="sagt7B6m/efN6"
 
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
@@ -34,9 +37,25 @@ echo '[INFO] Umount all'
 sudo umount $FILESYSTEM_ROOT/sys
 sudo umount $FILESYSTEM_ROOT/proc
 
-## Create root password
-## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "root:sahL5d5V.UWtI" | chpasswd -e'
+## Create user for the default user
+## Note: user should be in the group with the same name, and also in sudo group
+sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo $DEFAULT_USERNAME -c "$DEFAULT_USERINFO"
+## Create password for the default user
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
+
+## Pre-install the fundamental packages
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump sudo ntp
+
+## TODO: pre-install all the Azure Cloud Switch packages into the file system
+
+## Config DHCP for eth0
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces
+
+auto eth0
+allow-hotplug eth0
+iface eth0 inet dhcp
+
+EOF"
 
 ## TODO: Install packages according to a list file
 #echo '[INFO] Install aptitude'
