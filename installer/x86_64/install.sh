@@ -9,6 +9,7 @@ set -e
 
 cd $(dirname $0)
 . ./machine.conf
+. ./functions.installer
 
 echo "Demo Installer: platform: $platform"
 
@@ -29,6 +30,8 @@ demo_volume_label="ONIE-DEMO-${demo_type}"
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
     firmware="uefi"
+    # check if EFI variables can be created or not
+    efi_dummy_var_check
 else
     firmware="bios"
 fi
