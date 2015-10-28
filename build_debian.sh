@@ -57,7 +57,5 @@ iface eth0 inet dhcp
 
 EOF"
 
-## Compress the whole file system into one output file
-## Need sudo because of the dev files
-## Exclude all virtual files under /proc, even if already umounted, sometimes the busy system delays the umounting
+## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
