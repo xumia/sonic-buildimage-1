@@ -61,5 +61,3 @@ EOF"
 ## Need sudo because of the dev files
 ## Exclude all virtual files under /proc, even if already umounted, sometimes the busy system delays the umounting
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
-echo '[INFO] Compress the file system into file'
-sudo tar --exclude $FILESYSTEM_ROOT/proc -czf $OUTPUT_FILE $FILESYSTEM_ROOT

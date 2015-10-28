@@ -35,4 +35,4 @@ rm -f $cpio_archive
 ##rm -rf ${sysroot}/dev
 ##mkdir -p ${sysroot}/dev
 ##$device_script $sysroot
-cd $sysroot && find . | cpio --create -H newc > $cpio_archive
+cd $sysroot && find . -not -path './proc/*' | cpio --create -H newc > $cpio_archive
