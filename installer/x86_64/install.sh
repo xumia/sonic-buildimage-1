@@ -281,9 +281,7 @@ mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     exit 1
 }
 
-# Copy kernel and initramfs to demo file system
-##cp demo.vmlinuz demo.initrd $demo_mnt
-## DEBUG: instead, unzip the initramfs directly to the partition
+# Decompress the file for the file system directly to the partition
 cd $demo_mnt
 unxz < $(dirname $0)/demo.initrd | cpio -id
 mkdir -p proc
