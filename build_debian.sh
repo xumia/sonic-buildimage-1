@@ -10,7 +10,7 @@ OUTPUT_FILE=fs.tar.gz
 DEFAULT_USERNAME=acsadmin
 DEFAULT_USERINFO="ACS Admin User,,,"
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
-DEFAULT_PASSWORD="sagt7B6m/efN6"
+DEFAULT_PASSWORD="sahL5d5V.UWtI"
 
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
