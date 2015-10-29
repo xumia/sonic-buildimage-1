@@ -26,9 +26,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 hostname $HOSTNAME
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAME' >> /etc/hosts"
 
-## Fix setuid permission for ping, otherwise it will complain 'ping: icmp open socket: Operation not permitted'
-sudo LANG=C chroot $FILESYSTEM_ROOT chmod u+s /bin/ping
-
 ## Create device files
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
