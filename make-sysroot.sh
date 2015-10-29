@@ -35,4 +35,8 @@ rm -f $cpio_archive
 ##rm -rf ${sysroot}/dev
 ##mkdir -p ${sysroot}/dev
 ##$device_script $sysroot
-cd $sysroot && find . | cpio --create -H newc > $cpio_archive
+
+## Compress the whole file system into one output file
+## Need sudo because of the dev files, and also ownership for files and directories
+## Exclude all virtual files under /proc, even if already umounted, sometimes the busy system delays the umounting
+cd $sysroot && find . -not -path './proc/*' | cpio --create -H newc > $cpio_archive

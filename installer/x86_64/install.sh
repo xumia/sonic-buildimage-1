@@ -283,6 +283,7 @@ mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 
 # Decompress the file for the file system directly to the partition
 cd $demo_mnt
+# Note: MUST run cpio as root to keep file and directory ownership
 unxz < $(dirname $0)/demo.initrd | cpio -id
 mkdir -p proc
 cd --
