@@ -6,9 +6,12 @@
 FILESYSTEM_ROOT=./fsroot
 ## Output file name for compressed file system
 OUTPUT_FILE=fs.tar.gz
-## Default linux user name
+## Hostname for the linux image
+HOSTNAME=debian
+## Default user
 DEFAULT_USERNAME=acsadmin
 DEFAULT_USERINFO="ACS Admin User,,,"
+## Default password for the default user
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
 
@@ -18,6 +21,13 @@ echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 ## Note: set lang to prevent locale warnings in your chroot
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+
+## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
+hostname $HOSTNAME
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAME' >> /etc/hosts"
+
+## Fix setuid permission for ping, otherwise it will complain 'ping: icmp open socket: Operation not permitted'
+sudo LANG=C chroot $FILESYSTEM_ROOT chmod u+s /bin/ping
 
 ## Create device files
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
