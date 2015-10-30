@@ -41,8 +41,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
 
 ## Umount all
 echo '[INFO] Umount all'
-sudo umount $FILESYSTEM_ROOT/sys
-sudo umount $FILESYSTEM_ROOT/proc
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
 ## Note: user should be in the group with the same name, and also in sudo group
