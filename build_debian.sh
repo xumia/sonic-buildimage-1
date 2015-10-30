@@ -21,6 +21,8 @@ echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 ## Note: set lang to prevent locale warnings in your chroot
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+echo '[INFO] Install packages for building image'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
 ## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 hostname $HOSTNAME
@@ -29,11 +31,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAM
 ## Create device files
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
+## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount none /proc -t proc
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
-echo '[INFO] Install makedev'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install linux-image-amd64'
@@ -42,6 +43,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
 ## Umount all
 echo '[INFO] Umount all'
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
