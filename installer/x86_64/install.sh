@@ -318,7 +318,7 @@ grub_cfg=$(mktemp)
 [ -r ./platform.conf ] && . ./platform.conf
 
 DEFAULT_GRUB_SERIAL_COMMAND="serial --port=%%CONSOLE_PORT%% --speed=%%CONSOLE_SPEED%% --word=8 --parity=no --stop=1"
-DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS%%CONSOLE_DEV%%,%%CONSOLE_SPEED%%n8"
+DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS%%CONSOLE_DEV%%,%%CONSOLE_SPEED%%n8 quiet"
 GRUB_SERIAL_COMMAND=${GRUB_SERIAL_COMMAND:-"$DEFAULT_GRUB_SERIAL_COMMAND"}
 GRUB_CMDLINE_LINUX=${GRUB_CMDLINE_LINUX:-"$DEFAULT_GRUB_CMDLINE_LINUX"}
 export GRUB_SERIAL_COMMAND
@@ -366,9 +366,9 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
+        linux   /boot/vmlinuz-3.16.7-ckt11+ root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
         echo    'Loading ONIE Demo $demo_type initial ramdisk ...'
-        initrd  /boot/initrd.img-3.16.0-4-amd64
+        initrd  /boot/initrd.img-3.16.7-ckt11+
 }
 EOF
 
