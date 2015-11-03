@@ -18,23 +18,7 @@ device_script="$1"
     exit 1
 }
 
-sysroot="$2"
-[ -d "$sysroot" ] || {
-    echo "ERROR: Invalid sysroot directory specified: $sysroot"
-    exit 1
-}
-
-cpio_archive="$3"
-touch "$cpio_archive" || {
-    echo "ERROR: Unable to create output CPIO archive: $cpio_archive"
-    exit 1
-}
-rm -f $cpio_archive
-
 ##echo "==== Installing the basic set of devices ===="
 ##rm -rf ${sysroot}/dev
 ##mkdir -p ${sysroot}/dev
 ##$device_script $sysroot
-
-## Compress the whole file system into one output file
-cd $sysroot && find . | cpio --create -H newc > $cpio_archive

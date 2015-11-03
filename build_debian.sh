@@ -5,7 +5,7 @@
 ## Workding directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
 ## Output file name for compressed file system
-OUTPUT_FILE=fs.tar.gz
+OUTPUT_FILE=fs.img.gz
 ## Hostname for the linux image
 HOSTNAME=debian
 ## Default user
@@ -15,8 +15,21 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
 
+## Prepare a virtual block device
+device_file=$(mktemp)
+## Create a 1024M file with all zero content
+dd if=/dev/zero of=$device_file count=2000k
+## Connect 0 loopback device to the file
+sudo umount /dev/loop0
+sudo losetup -d /dev/loop0 || (echo "Failed to detach loopback device 0" >&2; exit 1)
+sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
+## Creat one partition on the device
+##sudo parted -s -a optimal /dev/loop0 mklabel msdos -- mkpart primary ext4 1 -1
+yes | sudo mkfs.ext4 /dev/loop0
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
+sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT
+
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 ## Note: set lang to prevent locale warnings in your chroot
@@ -68,3 +81,9 @@ EOF"
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
+
+## Dump the device to image
+sudo dd if=/dev/loop0 | gzip -c > $OUTPUT_FILE
+
+## Cleanup temp file for virtual device
+rm $device_file

@@ -6,6 +6,7 @@
 #  SPDX-License-Identifier:     GPL-2.0
 
 set -e
+DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 
 cd $(dirname $0)
 . ./machine.conf
@@ -271,6 +272,9 @@ mkfs.ext4 -L $demo_volume_label $demo_dev || {
 
 demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
 
+# Decompress the file for the file system directly to the partition
+gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
+
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
     echo "Error: Unable to create demo file system mount point"
@@ -280,13 +284,6 @@ mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
 }
-
-# Decompress the file for the file system directly to the partition
-cd $demo_mnt
-# Note: MUST run cpio as root to keep file and directory ownership
-unxz < $(dirname $0)/demo.initrd | cpio -id
-mkdir -p proc
-cd --
 
 # store installation log in demo file system
 onie-support $demo_mnt
