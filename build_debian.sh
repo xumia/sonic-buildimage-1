@@ -10,7 +10,7 @@ FILESYSTEM_ROOT=./fsroot
 ## Output file name for compressed file system
 OUTPUT_FILE=fs.img.gz
 ## Hostname for the linux image
-HOSTNAME=debian
+HOSTNAME=acs
 ## Default user
 DEFAULT_USERNAME=acsadmin
 DEFAULT_USERINFO="ACS Admin User,,,"
@@ -51,7 +51,7 @@ echo '[INFO] Install packages for building image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
 ## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
-hostname $HOSTNAME
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAME' >> /etc/hosts"
 
 ## Create device files
@@ -63,8 +63,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount none /proc -t proc
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
-echo '[INFO] Install linux-image-amd64'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install linux-image-amd64
+echo '[INFO] Install ACS linux kernel image'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.7-ckt11+_3.16.7-ckt11+-*_amd64.deb
 
 ## Umount all
 echo '[INFO] Umount all'
@@ -80,6 +81,11 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAUL
 
 ## Pre-install the fundamental packages
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump sudo ntp openssh-server python python-apt
+
+echo '[INFO] install apt-transport-sftp package for azure repository'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
+wget http://tux-devrepo.corp.microsoft.com/repos/tux-dev/pool/main/a/apt-transport-sftp/apt-transport-sftp_0.2.2.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i apt-transport-sftp_0.2.2.deb
 
 ## TODO: pre-install all the Azure Cloud Switch packages into the file system
 
