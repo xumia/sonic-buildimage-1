@@ -17,19 +17,27 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 ## Default password for the default user
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
+## Partition lable
+DEMO_VOLUME_LABEL="ONIE-DEMO-OS"
+## Partition size in MB
+DEMO_PART_SIZE=2048
 
 ## Prepare a virtual block device
 device_file=$(mktemp)
 trap "rm $device_file" exit
-## Create a 1024M file with all zero content
-dd if=/dev/zero of=$device_file count=2000k
+## Create a file with all zero content. It will hold all the content of the file system
+dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
 sudo umount /dev/loop0
 sudo losetup -d /dev/loop0 || (echo "Failed to detach loopback device 0" >&2; exit 1)
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 trap 'sudo losetup -d /dev/loop0' exit
-## Creat one partition on the device
-yes | sudo mkfs.ext4 /dev/loop0
+## Create filesystem on the device with a label
+sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
+    echo "Error: Unable to create file system on $demo_dev"
+    exit 1
+}
+
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
 sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT

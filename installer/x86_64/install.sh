@@ -264,16 +264,10 @@ eval $create_demo_partition $blk_dev
 demo_dev=$(echo $blk_dev | sed -e 's/\(mmcblk[0-9]\)/\1p/')$demo_part
 partprobe
 
-# Create filesystem on demo partition with a label
-mkfs.ext4 -L $demo_volume_label $demo_dev || {
-    echo "Error: Unable to create file system on $demo_dev"
-    exit 1
-}
-
-demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
-
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
+
+demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
 
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
