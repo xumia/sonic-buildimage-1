@@ -2,9 +2,6 @@
 
 DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 
-## Note: Do NOT use fakeroot because 'cpio --create' will lose file and directory ownership
-sudo ./make-sysroot.sh ./make-devices.pl
-
 CONSOLE_SPEED=9600 \
 CONSOLE_DEV=0 \
 CONSOLE_FLAG=0 \
