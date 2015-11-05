@@ -12,7 +12,7 @@ cd $(dirname $0)
 . ./machine.conf
 . ./functions.installer
 
-echo "Demo Installer: platform: $platform"
+echo "ONIE Installer: platform: $platform"
 
 # Install demo on same block device as ONIE
 blk_dev=$(blkid | grep ONIE-BOOT | awk '{print $1}' |  sed -e 's/[1-9][0-9]*:.*$//' | sed -e 's/\([0-9]\)\(p\)/\1/' | head -n 1)
@@ -26,7 +26,7 @@ blk_dev=$(blkid | grep ONIE-BOOT | awk '{print $1}' |  sed -e 's/[1-9][0-9]*:.*$
 # with "OS" or "DIAG".
 demo_type="%%DEMO_TYPE%%"
 
-demo_volume_label="ONIE-DEMO-${demo_type}"
+demo_volume_label="ACS-${demo_type}"
 
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
@@ -78,7 +78,7 @@ create_demo_gpt_partition()
     demo_part=$(( $last_part + 1 ))
 
     # Create new partition
-    echo "Creating new demo partition ${blk_dev}$demo_part ..."
+    echo "Creating new $demo_volume_label partition ${blk_dev}$demo_part ..."
 
     if [ "$demo_type" = "DIAG" ] ; then
         # set the GPT 'system partition' attribute bit for the DIAG
@@ -129,7 +129,7 @@ create_demo_msdos_partition()
     echo "Creating new demo partition ${blk_dev}$demo_part ..."
     parted -s --align optimal $blk_dev unit s \
       mkpart primary $demo_part_start $demo_part_end set $demo_part boot on || {
-        echo "ERROR: Problems creating demo msdos partition $demo_part on: $blk_dev"
+        echo "ERROR: Problems creating msdos partition $demo_part on: $blk_dev"
         exit 1
     }
     partprobe
@@ -271,7 +271,7 @@ demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -
 
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
-    echo "Error: Unable to create demo file system mount point"
+    echo "Error: Unable to create file system mount point"
     exit 1
 }
 mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
@@ -348,17 +348,17 @@ EOF
 fi
 
 # Add a menu entry for the DEMO OS
-demo_grub_entry="Demo $demo_type"
+demo_grub_entry="$demo_volume_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
         search --no-floppy --label --set=root $demo_volume_label
-        echo    'Loading ONIE Demo $demo_type kernel ...'
+        echo    'Loading $demo_volume_label $demo_type kernel ...'
         insmod gzio
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
         linux   /boot/vmlinuz-3.16.7-ckt11+ root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
-        echo    'Loading ONIE Demo $demo_type initial ramdisk ...'
+        echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.7-ckt11+
 }
 EOF
