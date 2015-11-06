@@ -126,14 +126,13 @@ create_demo_msdos_partition()
     demo_part_end=$(( $demo_part_start + ( $demo_part_size * $sectors_per_mb ) - 1 ))
 
     # Create new partition
-    echo "Creating new demo partition ${blk_dev}$demo_part ..."
+    echo "Creating new partition ${blk_dev}$demo_part ..."
     parted -s --align optimal $blk_dev unit s \
       mkpart primary $demo_part_start $demo_part_end set $demo_part boot on || {
         echo "ERROR: Problems creating msdos partition $demo_part on: $blk_dev"
         exit 1
     }
     partprobe
-
 }
 
 # For UEFI systems, create a new partition for the DEMO OS.

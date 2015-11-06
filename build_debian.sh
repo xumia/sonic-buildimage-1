@@ -24,13 +24,19 @@ DEMO_PART_SIZE=2048
 
 ## Prepare a virtual block device
 device_file=$(mktemp)
-trap "rm $device_file" exit
+
+function cleanup {
+    sudo umount -d /dev/loop0 2> /dev/null
+    sudo losetup -d /dev/loop0 2> /dev/null
+    sudo rm $device_file
+}
+trap cleanup exit
+
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
 sudo umount -d /dev/loop0 || (echo "Failed to umount or detach loopback device 0" >&2; exit 1)
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
-trap 'sudo losetup -d /dev/loop0 2> /dev/null' exit
 ## Create filesystem on the device with a label
 sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
     echo "Error: Unable to create file system on $demo_dev"
@@ -40,7 +46,6 @@ sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
 sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT
-trap 'sudo umount -d /dev/loop0 2> /dev/null' exit
 
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
@@ -98,6 +103,7 @@ iface eth0 inet dhcp
 EOF"
 
 ## Clean up apt
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 
 ## Dump the device to image
