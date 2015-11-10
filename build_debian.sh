@@ -26,6 +26,7 @@ DEMO_PART_SIZE=2048
 device_file=$(mktemp)
 
 function cleanup {
+    sudo fuser -km /dev/loop0
     sudo umount -d /dev/loop0 2> /dev/null
     sudo losetup -d /dev/loop0 2> /dev/null
     sudo rm $device_file
