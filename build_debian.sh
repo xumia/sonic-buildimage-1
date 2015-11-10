@@ -35,10 +35,11 @@ trap cleanup exit
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
+sudo fuser -km /dev/loop0
 sudo umount -d /dev/loop0 || (echo "Failed to umount or detach loopback device 0" >&2; exit 1)
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
-sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
+yes | sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
     echo "Error: Unable to create file system on $demo_dev"
     exit 1
 }

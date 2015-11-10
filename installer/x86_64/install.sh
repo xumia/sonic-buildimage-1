@@ -5,6 +5,12 @@
 #
 #  SPDX-License-Identifier:     GPL-2.0
 
+# Function definitions
+line_count() {
+    return $(echo $1 | wc -l)
+}
+
+# Main
 set -e
 DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 
@@ -266,7 +272,8 @@ partprobe
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
 
-demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
+demo_part_uuid="$(blkid | awk -F: "{if (\$1==\"$demo_dev\") print $2}" | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
+if [ "$(line_count $demo_part_uuid)" = 1 ]; then echo "Error: blkid output not expected" ; exit 1; fi
 
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
