@@ -5,6 +5,12 @@
 #
 #  SPDX-License-Identifier:     GPL-2.0
 
+# Function definitions
+line_count() {
+    return $(echo $1 | wc -l)
+}
+
+# Main
 set -e
 DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 
@@ -126,14 +132,13 @@ create_demo_msdos_partition()
     demo_part_end=$(( $demo_part_start + ( $demo_part_size * $sectors_per_mb ) - 1 ))
 
     # Create new partition
-    echo "Creating new demo partition ${blk_dev}$demo_part ..."
+    echo "Creating new partition ${blk_dev}$demo_part ..."
     parted -s --align optimal $blk_dev unit s \
       mkpart primary $demo_part_start $demo_part_end set $demo_part boot on || {
         echo "ERROR: Problems creating msdos partition $demo_part on: $blk_dev"
         exit 1
     }
     partprobe
-
 }
 
 # For UEFI systems, create a new partition for the DEMO OS.
@@ -267,7 +272,8 @@ partprobe
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
 
-demo_part_uuid="$(blkid | grep $demo_volume_label | awk -F: '{print $2}' | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
+demo_part_uuid="$(blkid | awk -F: "{if (\$1==\"$demo_dev\") print $2}" | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
+if [ "$(line_count $demo_part_uuid)" = 1 ]; then echo "Error: blkid output not expected" ; exit 1; fi
 
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
