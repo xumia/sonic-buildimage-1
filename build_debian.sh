@@ -109,5 +109,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 
 ## Dump the device to image
+sudo fuser -km /dev/loop0
 sudo umount -d /dev/loop0 || (echo "Failed to umount or detach loopback device 0 before gzip" >&2; exit 1)
 gzip -c < $device_file > $OUTPUT_FILE
