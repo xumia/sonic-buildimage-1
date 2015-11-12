@@ -21,12 +21,44 @@ cd $(dirname $0)
 echo "ONIE Installer: platform: $platform"
 
 # Install demo on same block device as ONIE
-blk_dev=$(blkid | grep ONIE-BOOT | awk '{print $1}' |  sed -e 's/[1-9][0-9]*:.*$//' | sed -e 's/\([0-9]\)\(p\)/\1/' | head -n 1)
+onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
+blk_dev=$(echo $onie_dev |  sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
+# Note: ONIE has no lsblk, so below will be empty string
+cur_part=$(which lsblk > /dev/null && lsblk -r | awk "{ if(\$7==\"/\") print \$1 }" || true)
 
 [ -b "$blk_dev" ] || {
     echo "Error: Unable to determine block device of ONIE install"
     exit 1
 }
+
+# If running in ONIE
+if [ "$onie_dev" = "$cur_part" ] || [ -z "$cur_part" ]; then
+    # The onie bin tool prefix
+    onie_bin=
+    # The persistent ONIE directory location
+    onie_root_dir=/mnt/onie-boot/onie
+    # The onie file system root
+    onie_initrd_tmp=/
+# Else running in normal Linux
+else
+    onie_mnt=$(mktemp -d) || {
+        echo "Error: Unable to create file system mount point"
+        exit 1
+    }
+    trap "fuser -km $onie_mnt || umount $onie_mnt || rm -r $onie_mnt || true" EXIT INT TERM HUP
+    mount $onie_dev $onie_mnt
+    onie_root_dir=$onie_mnt/onie
+    
+    onie_initrd_tmp=$(mktemp -d) || {
+        echo "Error: Unable to create file system mount point"
+        exit 1
+    }
+    trap "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
+    cd $onie_initrd_tmp
+    unxz < $onie_mnt/onie/initrd.img-3.2.35-onie | cpio -id
+    cd -
+    onie_bin="chroot $onie_initrd_tmp "
+fi
 
 # The build system prepares this script by replacing %%DEMO-TYPE%%
 # with "OS" or "DIAG".
@@ -44,7 +76,7 @@ else
 fi
 
 # determine ONIE partition type
-onie_partition_type=$(onie-sysinfo -t)
+onie_partition_type=$(${onie_bin}onie-sysinfo -t)
 # demo partition size in MB
 demo_part_size=2048
 if [ "$firmware" = "uefi" ] ; then
@@ -70,15 +102,14 @@ create_demo_gpt_partition()
 
     # Create a temp fifo and store string in variable
     tmpfifo=$(mktemp -u)
-    trap 'rm "$tmpfifo"' EXIT INT TERM HUP
+    trap "rm $tmpfifo || true" EXIT INT TERM HUP
     mkfifo -m 600 "$tmpfifo"
     
     # See if demo partition already exists
     demo_part=$(sgdisk -p $blk_dev | grep "$demo_volume_label" | awk '{print $1}')
     if [ -n "$demo_part" ] ; then
         # delete existing partitions
-        # TODO: if there are multiple partitions matched, we should delete each one, except the current OS's
-        cur_part=$(lsblk -r | awk "{ if(\$7==\"/\") print \$1 }")
+        # if there are multiple partitions matched, we should delete each one, except the current OS's
         echo "$demo_part" > $tmpfifo &
         while read -r demo_part0; do
             if [ "$demo_part0" = "$cur_part" ]; then continue; fi
@@ -92,7 +123,6 @@ create_demo_gpt_partition()
     fi
 
     # Find next available partition
-    # ASSUME: there are no more than 1000 partitions in a block device
 
     # Get the totoal number of partitions
     # Note: the double quotation marks for echo argument are necessary, otherwise the unquoted version replaces each sequence of
@@ -101,12 +131,13 @@ create_demo_gpt_partition()
     part_count=$(echo "$all_part" | wc -l)
     # Get the index of last partition
     last_part=$(echo "$all_part" | tail -n 1 | awk '{print $1}')
-    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 1000) print \$1}")
+    # ASSUME: there are no more than 99999 partitions in a block device
+    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 99999) print \$1}")
     demo_part=1
     echo "$all_part" > $tmpfifo &
     # Find the first available partition number
     while read -r used_part; do
-        echo "Partition #$used_part is in use! avail=$demo_part"
+        echo "Partition #$used_part is in use."
         if [ "$used_part" -ne "$demo_part" ]; then break; fi
         demo_part=`expr $demo_part + 1`
     done < $tmpfifo
@@ -196,7 +227,7 @@ demo_install_grub()
 
     # Pretend we are a major distro and install GRUB into the MBR of
     # $blk_dev.
-    grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
+    ${onie_bin} grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
         echo "ERROR: grub-install failed on: $blk_dev"
         exit 1
     }
@@ -225,8 +256,8 @@ demo_install_grub()
         # remove immutable flag if file exists during the update.
         [ -f "$core_img" ] && chattr -i $core_img
 
-        grub_install_log=$(mktemp)
-        grub-install --force --boot-directory="$demo_mnt" \
+        
+        ${onie_bin} grub_install_log=$(mktemp) grub-install --force --boot-directory="$demo_mnt" \
             --recheck "$demo_dev" > /$grub_install_log 2>&1 || {
             echo "ERROR: grub-install failed on: $demo_dev"
             cat $grub_install_log && rm -f $grub_install_log
@@ -269,7 +300,7 @@ demo_install_uefi_grub()
     }
 
     grub_install_log=$(mktemp)
-    grub-install \
+    ${onie_bin} grub-install \
         --no-nvram \
         --bootloader-id="$demo_volume_label" \
         --efi-directory="/boot/efi" \
@@ -309,22 +340,22 @@ demo_mnt=$(mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
+trap "fuser -km $demo_mnt || umount $demo_mnt || rm -r $demo_mnt || true" EXIT INT TERM HUP
 mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
 }
 
 # store installation log in demo file system
-onie-support $demo_mnt
+rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
+${onie_bin}onie-support /tmp
+mv $onie_initrd_tmp/tmp/onie-support.tar.bz2 $demo_mnt
 
 if [ "$firmware" = "uefi" ] ; then
     demo_install_uefi_grub "$demo_mnt" "$blk_dev"
 else
     demo_install_grub "$demo_mnt" "$blk_dev"
 fi
-
-# The persistent ONIE directory location
-onie_root_dir=/mnt/onie-boot/onie
 
 # Create a minimal grub.cfg that allows for:
 #   - configure the serial console
@@ -402,6 +433,7 @@ EOF
 # ONIE distribution.
 $onie_root_dir/grub.d/50_onie_grub >> $grub_cfg
 
+mkdir -p $demo_mnt/grub
 cp $grub_cfg $demo_mnt/grub/grub.cfg
 
 # Add entry to /etc/fstab
