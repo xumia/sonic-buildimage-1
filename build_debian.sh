@@ -86,7 +86,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo $DEFAULT_USERNAME -c "$DEFAU
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
 
 ## Pre-install the fundamental packages
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump sudo ntp openssh-server python python-apt
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump sudo ntp openssh-server python python-apt \
+        gdisk parted
 
 echo '[INFO] install apt-transport-sftp package for azure repository'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1

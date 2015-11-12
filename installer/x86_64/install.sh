@@ -68,20 +68,49 @@ create_demo_gpt_partition()
 {
     blk_dev="$1"
 
+    # Create a temp fifo and store string in variable
+    tmpfifo=$(mktemp -u)
+    trap 'rm "$tmpfifo"' EXIT INT TERM HUP
+    mkfifo -m 600 "$tmpfifo"
+    
     # See if demo partition already exists
     demo_part=$(sgdisk -p $blk_dev | grep "$demo_volume_label" | awk '{print $1}')
     if [ -n "$demo_part" ] ; then
-        # delete existing partition
-        sgdisk -d $demo_part $blk_dev || {
-            echo "Error: Unable to delete partition $demo_part on $blk_dev"
-            exit 1
-        }
-        partprobe
+        # delete existing partitions
+        # TODO: if there are multiple partitions matched, we should delete each one, except the current OS's
+        cur_part=$(lsblk -r | awk "{ if(\$7==\"/\") print \$1 }")
+        echo "$demo_part" > $tmpfifo &
+        while read -r demo_part0; do
+            if [ "$demo_part0" = "$cur_part" ]; then continue; fi
+            echo "deleting partition $demo_part0 ..."
+            sgdisk -d $demo_part0 $blk_dev || {
+                echo "Error: Unable to delete partition $demo_part0 on $blk_dev"
+                exit 1
+            }
+            partprobe
+        done < $tmpfifo
     fi
 
     # Find next available partition
-    last_part=$(sgdisk -p $blk_dev | tail -n 1 | awk '{print $1}')
-    demo_part=$(( $last_part + 1 ))
+    # ASSUME: there are no more than 1000 partitions in a block device
+
+    # Get the totoal number of partitions
+    # Note: the double quotation marks for echo argument are necessary, otherwise the unquoted version replaces each sequence of
+    #   one or more blanks, tabs and newlines with a single space.
+    # Ref: http://stackoverflow.com/questions/613572/capturing-multiple-line-output-to-a-bash-variable
+    part_count=$(echo "$all_part" | wc -l)
+    # Get the index of last partition
+    last_part=$(echo "$all_part" | tail -n 1 | awk '{print $1}')
+    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 1000) print \$1}")
+    demo_part=1
+    echo "$all_part" > $tmpfifo &
+    # Find the first available partition number
+    while read -r used_part; do
+        echo "Partition #$used_part is in use! avail=$demo_part"
+        if [ "$used_part" -ne "$demo_part" ]; then break; fi
+        demo_part=`expr $demo_part + 1`
+    done < $tmpfifo
+    echo "Partition #$demo_part is available"
 
     # Create new partition
     echo "Creating new $demo_volume_label partition ${blk_dev}$demo_part ..."
