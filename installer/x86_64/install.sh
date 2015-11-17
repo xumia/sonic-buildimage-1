@@ -12,19 +12,25 @@ line_count() {
 
 # Main
 set -e
-DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
-
 cd $(dirname $0)
+
+DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 . ./machine.conf
 . ./functions.installer
 
 echo "ONIE Installer: platform: $platform"
 
+# Make sure run as root or under 'sudo'
+if [ $(id -u) -ne 0 ]
+    then echo "Please run as root"
+    exit 1
+fi
+
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
 blk_dev=$(echo $onie_dev |  sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
 # Note: ONIE has no lsblk, so below will be empty string
-cur_part=$(which lsblk > /dev/null && lsblk -r | awk "{ if(\$7==\"/\") print \$1 }" || true)
+cur_part=$(which lsblk > /dev/null && (lsblk -r | awk "{ if(\$7==\"/\") printf \"/dev/%s\n\", \$1 }") || true)
 
 [ -b "$blk_dev" ] || {
     echo "Error: Unable to determine block device of ONIE install"
@@ -95,7 +101,7 @@ fi
 # arg $1 -- base block device
 #
 # Returns the created partition number in $demo_part
-demo_part=
+demo_part=""
 create_demo_gpt_partition()
 {
     blk_dev="$1"
@@ -110,7 +116,8 @@ create_demo_gpt_partition()
     if [ -n "$demo_part" ] ; then
         # delete existing partitions
         # if there are multiple partitions matched, we should delete each one, except the current OS's
-        echo "$demo_part" > $tmpfifo &
+        # Note: You can use any character as a separator for sed, not just '/'
+        echo "$demo_part" | sed s?.*?$blk_dev\&?g > $tmpfifo &
         while read -r demo_part0; do
             if [ "$demo_part0" = "$cur_part" ]; then continue; fi
             echo "deleting partition $demo_part0 ..."
@@ -122,17 +129,14 @@ create_demo_gpt_partition()
         done < $tmpfifo
     fi
 
-    # Find next available partition
-
-    # Get the totoal number of partitions
+    # ASSUME: there are no more than 99999 partitions in a block device
+    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 99999) print \$1}")
+    # Get the index of last partition
     # Note: the double quotation marks for echo argument are necessary, otherwise the unquoted version replaces each sequence of
     #   one or more blanks, tabs and newlines with a single space.
     # Ref: http://stackoverflow.com/questions/613572/capturing-multiple-line-output-to-a-bash-variable
-    part_count=$(echo "$all_part" | wc -l)
-    # Get the index of last partition
     last_part=$(echo "$all_part" | tail -n 1 | awk '{print $1}')
-    # ASSUME: there are no more than 99999 partitions in a block device
-    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 99999) print \$1}")
+    # Find next available partition
     demo_part=1
     echo "$all_part" > $tmpfifo &
     # Find the first available partition number
