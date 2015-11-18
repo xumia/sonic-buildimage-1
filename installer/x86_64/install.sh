@@ -51,7 +51,7 @@ else
         echo "Error: Unable to create file system mount point"
         exit 1
     }
-    trap "fuser -km $onie_mnt || umount $onie_mnt || rm -r $onie_mnt || true" EXIT INT TERM HUP
+    trap "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true" EXIT INT TERM HUP
     mount $onie_dev $onie_mnt
     onie_root_dir=$onie_mnt/onie
     
@@ -344,7 +344,7 @@ demo_mnt=$(mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
-trap "fuser -km $demo_mnt || umount $demo_mnt || rm -r $demo_mnt || true" EXIT INT TERM HUP
+trap "fuser -km $demo_mnt || umount $demo_mnt || rmdir $demo_mnt || true" EXIT INT TERM HUP
 mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
@@ -447,8 +447,8 @@ UUID=$demo_part_uuid /               ext4    errors=remount-ro 0       1
 EOF
 
 # clean up
-umount $demo_mnt || {
+fuser -km $demo_mnt || umount $demo_mnt || {
     echo "Error: Problems umounting $demo_mnt"
-}
+} || true
 
 cd /
