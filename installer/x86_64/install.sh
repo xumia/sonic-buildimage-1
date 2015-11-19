@@ -231,6 +231,8 @@ demo_install_grub()
 
     # Pretend we are a major distro and install GRUB into the MBR of
     # $blk_dev.
+    # TODO: add trap
+    ${onie_bin} mount none /proc -t proc
     ${onie_bin} grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
         echo "ERROR: grub-install failed on: $blk_dev"
         exit 1
@@ -336,9 +338,6 @@ partprobe
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
 
-demo_part_uuid="$(blkid | awk -F: "{if (\$1==\"$demo_dev\") print $2}" | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
-if [ "$(line_count $demo_part_uuid)" = 1 ]; then echo "Error: blkid output not expected" ; exit 1; fi
-
 # Mount demo filesystem
 demo_mnt=$(mktemp -d) || {
     echo "Error: Unable to create file system mount point"
@@ -367,6 +366,7 @@ fi
 #   - a menu entry for the DEMO OS
 #   - menu entries for ONIE
 
+# TODO: add trap
 grub_cfg=$(mktemp)
 
 # Set a few GRUB_xxx environment variables that will be picked up and
@@ -427,7 +427,7 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.7-ckt11+ root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
+        linux   /boot/vmlinuz-3.16.7-ckt11+ root=$demo_dev ro $GRUB_CMDLINE_LINUX
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.7-ckt11+
 }
@@ -443,7 +443,7 @@ cp $grub_cfg $demo_mnt/grub/grub.cfg
 # Add entry to /etc/fstab
 mkdir -p $demo_mnt/etc
 cat <<EOF >> $demo_mnt/etc/fstab
-UUID=$demo_part_uuid /               ext4    errors=remount-ro 0       1
+$demo_dev /               ext4    errors=remount-ro 0       1
 EOF
 
 # clean up
