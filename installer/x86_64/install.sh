@@ -233,7 +233,7 @@ demo_install_grub()
 
     # Pretend we are a major distro and install GRUB into the MBR of
     # $blk_dev.
-    # TODO: add trap
+    trap "${onie_bin} fuser -km /proc || umount /proc || true" EXIT INT TERM HUP
     ${onie_bin} mount none /proc -t proc
     ${onie_bin} grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
         echo "ERROR: grub-install failed on: $blk_dev"
@@ -368,8 +368,8 @@ fi
 #   - a menu entry for the DEMO OS
 #   - menu entries for ONIE
 
-# TODO: add trap
 grub_cfg=$(mktemp)
+trap "rm $grub_cfg || true" EXIT INT TERM HUP
 
 # Set a few GRUB_xxx environment variables that will be picked up and
 # used by the 50_onie_grub script.  This is similiar to what an OS
