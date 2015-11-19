@@ -118,11 +118,11 @@ create_demo_gpt_partition()
         # if there are multiple partitions matched, we should delete each one, except the current OS's
         # Note: You can use any character as a separator for sed, not just '/'
         echo "$demo_part" | sed s?.*?$blk_dev\&?g > $tmpfifo &
-        while read -r demo_part0; do
-            if [ "$demo_part0" = "$cur_part" ]; then continue; fi
-            echo "deleting partition $demo_part0 ..."
-            sgdisk -d $demo_part0 $blk_dev || {
-                echo "Error: Unable to delete partition $demo_part0 on $blk_dev"
+        while read -r part_index; do
+            if [ "$part_index" = "$cur_part" ]; then continue; fi
+            echo "deleting partition $part_index ..."
+            sgdisk -d $part_index $blk_dev || {
+                echo "Error: Unable to delete partition $part_index on $blk_dev"
                 exit 1
             }
             partprobe
@@ -339,12 +339,12 @@ partprobe
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
 
 # Mount demo filesystem
-demo_mnt=$(mktemp -d) || {
+demo_mnt=$(${onie_bin} mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
-trap "fuser -km $demo_mnt || umount $demo_mnt || rmdir $demo_mnt || true" EXIT INT TERM HUP
-mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
+trap "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true" EXIT INT TERM HUP
+${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
 }
@@ -437,18 +437,13 @@ EOF
 # ONIE distribution.
 $onie_root_dir/grub.d/50_onie_grub >> $grub_cfg
 
-mkdir -p $demo_mnt/grub
-cp $grub_cfg $demo_mnt/grub/grub.cfg
+mkdir -p $onie_initrd_tmp/$demo_mnt/grub
+cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
 
 # Add entry to /etc/fstab
-mkdir -p $demo_mnt/etc
-cat <<EOF >> $demo_mnt/etc/fstab
+mkdir -p $onie_initrd_tmp/$demo_mnt/etc
+cat <<EOF >> $onie_initrd_tmp/$demo_mnt/etc/fstab
 $demo_dev /               ext4    errors=remount-ro 0       1
 EOF
-
-# clean up
-fuser -km $demo_mnt || umount $demo_mnt || {
-    echo "Error: Problems umounting $demo_mnt"
-} || true
 
 cd /
