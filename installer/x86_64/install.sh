@@ -117,9 +117,9 @@ create_demo_gpt_partition()
         # delete existing partitions
         # if there are multiple partitions matched, we should delete each one, except the current OS's
         # Note: You can use any character as a separator for sed, not just '/'
-        echo "$demo_part" | sed s?.*?$blk_dev\&?g > $tmpfifo &
+        echo "$demo_part" > $tmpfifo &
         while read -r part_index; do
-            if [ "$part_index" = "$cur_part" ]; then continue; fi
+            if [ "$blk_dev$part_index" = "$cur_part" ]; then continue; fi
             echo "deleting partition $part_index ..."
             sgdisk -d $part_index $blk_dev || {
                 echo "Error: Unable to delete partition $part_index on $blk_dev"
@@ -157,6 +157,8 @@ create_demo_gpt_partition()
     else
         attr_bitmask="0x0"
     fi
+    # TODO: the partion is always create after the last partionion in the device
+    #   and not use any empty space between
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
         --change-name=${demo_part}:$demo_volume_label $blk_dev || {
