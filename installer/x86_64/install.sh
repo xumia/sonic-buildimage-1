@@ -70,7 +70,12 @@ fi
 # with "OS" or "DIAG".
 demo_type="%%DEMO_TYPE%%"
 
+# The build system prepares this script by replacing %%GIT_REVISION%%
+# with git revision hash as a version identifier
+git_revision="%%GIT_REVISION%%"
+
 demo_volume_label="ACS-${demo_type}"
+demo_volume_revision_label="ACS-${demo_type}-${git_revision}"
 
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
@@ -161,7 +166,7 @@ create_demo_gpt_partition()
     #   and not use any empty space between
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
-        --change-name=${demo_part}:$demo_volume_label $blk_dev || {
+        --change-name=${demo_part}:$demo_volume_revision_label $blk_dev || {
         echo "Error: Unable to create partition $demo_part on $blk_dev"
         exit 1
     }
