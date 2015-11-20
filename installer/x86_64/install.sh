@@ -236,9 +236,7 @@ demo_install_grub()
 
     # Pretend we are a major distro and install GRUB into the MBR of
     # $blk_dev.
-    trap "${onie_bin} fuser -km /proc || umount /proc || true" EXIT INT TERM HUP
-    ${onie_bin} mount none /proc -t proc
-    ${onie_bin} grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
+    grub-install --boot-directory="$onie_initrd_tmp/$demo_mnt" --recheck "$blk_dev" || {
         echo "ERROR: grub-install failed on: $blk_dev"
         exit 1
     }
@@ -267,8 +265,8 @@ demo_install_grub()
         # remove immutable flag if file exists during the update.
         [ -f "$core_img" ] && chattr -i $core_img
 
-        
-        ${onie_bin} grub_install_log=$(mktemp) grub-install --force --boot-directory="$demo_mnt" \
+        grub_install_log=$(mktemp)
+        grub-install --force --boot-directory="$onie_initrd_tmp/$demo_mnt" \
             --recheck "$demo_dev" > /$grub_install_log 2>&1 || {
             echo "ERROR: grub-install failed on: $demo_dev"
             cat $grub_install_log && rm -f $grub_install_log
@@ -311,9 +309,9 @@ demo_install_uefi_grub()
     }
 
     grub_install_log=$(mktemp)
-    ${onie_bin} grub-install \
+    grub-install \
         --no-nvram \
-        --bootloader-id="$demo_volume_label" \
+        --bootloader-id="$onie_initrd_tmp/$demo_volume_label" \
         --efi-directory="/boot/efi" \
         --boot-directory="$demo_mnt" \
         --recheck \
@@ -356,7 +354,7 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 
 # store installation log in demo file system
 rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
-${onie_bin}onie-support /tmp
+${onie_bin} onie-support /tmp
 mv $onie_initrd_tmp/tmp/onie-support.tar.bz2 $demo_mnt
 
 if [ "$firmware" = "uefi" ] ; then

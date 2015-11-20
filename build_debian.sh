@@ -37,7 +37,7 @@ trap cleanup exit
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
 sudo fuser -km /dev/loop0
-sudo umount -d /dev/loop0 || (echo "Failed to umount or detach loopback device 0" >&2; exit 1)
+sudo umount -d /dev/loop0 > /dev/null 2>&1
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
 yes | sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
@@ -88,6 +88,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAUL
 ## Pre-install the fundamental packages
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump sudo ntp openssh-server python python-apt \
         gdisk parted
+
+## Pre-install grub for image OS future partition manipulation
+## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install grub-pc grub2
 
 echo '[INFO] install apt-transport-sftp package for azure repository'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
