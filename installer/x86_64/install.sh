@@ -162,8 +162,6 @@ create_demo_gpt_partition()
     else
         attr_bitmask="0x0"
     fi
-    # TODO: the partion is always create after the last partionion in the device
-    #   and not use any empty space between
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
         --change-name=${demo_part}:$demo_volume_revision_label $blk_dev || {
@@ -425,7 +423,7 @@ EOF
 fi
 
 # Add a menu entry for the DEMO OS
-demo_grub_entry="$demo_volume_label"
+demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
         search --no-floppy --label --set=root $demo_volume_label
