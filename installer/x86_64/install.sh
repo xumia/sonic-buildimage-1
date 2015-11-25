@@ -63,7 +63,8 @@ else
     }
     trap "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
     cd $onie_initrd_tmp
-    unxz < $onie_mnt/onie/initrd.img-3.2.35-onie | cpio -id
+    # Note: use wildcard in filename below to prevent hard-code version
+    cat $onie_mnt/onie/initrd.img-*-onie | unxz | cpio -id
     cd -
     onie_bin="chroot $onie_initrd_tmp"
 fi
