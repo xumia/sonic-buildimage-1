@@ -47,16 +47,17 @@ def print_partitions(blkdev):
    
 ## Get the current boot partition index
 def get_boot_partition(blkdev):
-    out = runcmd('sudo lsblk -r')
+    out = runcmd('cat /proc/mounts')
+    if out is None: return None
+    
     ## Parse command output and return the current boot partition index
-    logger.info('lsblk find {0}'.format(blkdev))
     for line in out.splitlines():
-        m = re.match(r'{0}(\d+) \d+:\d+ \d+ ({1})\w \d+ part /$'.format(blkdev, re_fixedp), line)
+        m = re.match(r'{0}(\d+) / .*'.format(blkdev), line)
         if not m: continue
         index = m.group(1)
         return int(index)
     else:
-        logger.error('Unexpected lsblk output: %s', out)
+        logger.error('Unexpected /proc/mounts output: %s', out)
         return None
     
 def set_boot_partition(blkdev, index):
@@ -94,25 +95,26 @@ def main():
     for line in out.splitlines():
         m = re.match(r'/dev/(\w+)\d+: LABEL="ONIE-BOOT"', line)
         if not m: continue
-        blkdev = m.group(1)
-        blkdevp = '/dev/' + blkdev
+        blkdev = '/dev/' + m.group(1)
         logger.info('blkdev = {0}'.format(blkdev))
         break
     else:
         logger.error('Cannot find block device containing ONIE')
         return -1
+        
+    cur = get_boot_partition(blkdev)
+    print 'Current rootfs partition is: {0}'.format(cur)
     
     ## Handle the command line
     if args.index is None:
-        print_partitions(blkdevp)
+        print_partitions(blkdev)
     elif args.index > 0:
-        cur = get_boot_partition(blkdev)
         logger.info("cur={0}".format(cur))
         if cur is None: return -1
         if cur == args.index:
             logger.info('No action needed, the partition is already the boot partition.')
         else:
-            set_boot_partition(blkdevp, args.index)
+            set_boot_partition(blkdev, args.index)
     else:
         logger.error('Index should be large than 0.')
     
