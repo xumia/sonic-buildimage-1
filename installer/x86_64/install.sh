@@ -28,7 +28,7 @@ fi
 
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
-blk_dev=$(echo $onie_dev |  sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
+blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
 # Note: ONIE has no lsblk, so below will be empty string
 cur_part=$(which lsblk > /dev/null && (lsblk -r | awk "{ if(\$7==\"/\") printf \"/dev/%s\n\", \$1 }") || true)
 
@@ -47,6 +47,7 @@ if [ "$onie_dev" = "$cur_part" ] || [ -z "$cur_part" ]; then
     onie_initrd_tmp=/
 # Else running in normal Linux
 else
+    # Mount ONIE-BOOT partition
     onie_mnt=$(mktemp -d) || {
         echo "Error: Unable to create file system mount point"
         exit 1
@@ -55,6 +56,7 @@ else
     mount $onie_dev $onie_mnt
     onie_root_dir=$onie_mnt/onie
     
+    # Mount initrd inside ONIE-BOOT partition
     onie_initrd_tmp=$(mktemp -d) || {
         echo "Error: Unable to create file system mount point"
         exit 1
@@ -63,7 +65,7 @@ else
     cd $onie_initrd_tmp
     unxz < $onie_mnt/onie/initrd.img-3.2.35-onie | cpio -id
     cd -
-    onie_bin="chroot $onie_initrd_tmp "
+    onie_bin="chroot $onie_initrd_tmp"
 fi
 
 # The build system prepares this script by replacing %%DEMO-TYPE%%
@@ -87,7 +89,7 @@ else
 fi
 
 # determine ONIE partition type
-onie_partition_type=$(${onie_bin}onie-sysinfo -t)
+onie_partition_type=$(${onie_bin} onie-sysinfo -t)
 # demo partition size in MB
 demo_part_size=2048
 if [ "$firmware" = "uefi" ] ; then
