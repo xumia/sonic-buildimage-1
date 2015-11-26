@@ -6,9 +6,23 @@
 #  SPDX-License-Identifier:     GPL-2.0
 
 # Function definitions
-line_count() {
-    return $(echo $1 | wc -l)
+# wc -l
+line_count() { return $(echo $1 | wc -l); }
+
+# Appends a command to a trap, which is needed because default trap behavior is to replace
+# previous trap for the same signal
+# - 1st arg:  code to add
+# - ref: http://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+_trap_push() {
+    local next="$1"
+    eval "trap_push() {
+        local oldcmd='$(echo "$next" | sed -e s/\'/\'\\\\\'\'/g)'
+        local newcmd=\"\$1; \$oldcmd\"
+        trap -- \"\$newcmd\" EXIT INT TERM HUP
+        _trap_push \"\$newcmd\"
+    }"
 }
+_trap_push true
 
 # Main
 set -e
@@ -52,7 +66,7 @@ else
         echo "Error: Unable to create file system mount point"
         exit 1
     }
-    trap "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true" EXIT INT TERM HUP
+    trap_push "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true" EXIT INT TERM HUP
     mount $onie_dev $onie_mnt
     onie_root_dir=$onie_mnt/onie
     
@@ -61,7 +75,7 @@ else
         echo "Error: Unable to create file system mount point"
         exit 1
     }
-    trap "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
+    trap_push "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
     cd $onie_initrd_tmp
     # Note: use wildcard in filename below to prevent hard-code version
     cat $onie_mnt/onie/initrd.img-*-onie | unxz | cpio -id
@@ -116,7 +130,7 @@ create_demo_gpt_partition()
 
     # Create a temp fifo and store string in variable
     tmpfifo=$(mktemp -u)
-    trap "rm $tmpfifo || true" EXIT INT TERM HUP
+    trap_push "rm $tmpfifo || true" EXIT INT TERM HUP
     mkfifo -m 600 "$tmpfifo"
     
     # See if demo partition already exists
@@ -349,7 +363,7 @@ demo_mnt=$(${onie_bin} mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
-trap "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true" EXIT INT TERM HUP
+trap_push "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true" EXIT INT TERM HUP
 ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
@@ -373,7 +387,7 @@ fi
 #   - menu entries for ONIE
 
 grub_cfg=$(mktemp)
-trap "rm $grub_cfg || true" EXIT INT TERM HUP
+trap_push "rm $grub_cfg || true" EXIT INT TERM HUP
 
 # Set a few GRUB_xxx environment variables that will be picked up and
 # used by the 50_onie_grub script.  This is similiar to what an OS
