@@ -43,8 +43,8 @@ fi
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
 blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
-# Note: ONIE has no lsblk, so below will be empty string
-cur_part=$(which lsblk > /dev/null && (lsblk -r | awk "{ if(\$7==\"/\") printf \"/dev/%s\n\", \$1 }") || true)
+# Note: ONIE has no mount setting for / with device node, so below will be empty string
+cur_part=$(cat /proc/mounts | awk "{ if(\$2==\"/\") print \$1 }" | grep $blk_dev || true)
 
 [ -b "$blk_dev" ] || {
     echo "Error: Unable to determine block device of ONIE install"
