@@ -26,9 +26,9 @@ DEMO_PART_SIZE=2048
 device_file=$(mktemp)
 
 function cleanup {
-    sudo fuser -km /dev/loop0
-    sudo umount -d /dev/loop0 2> /dev/null
-    sudo losetup -d /dev/loop0 2> /dev/null
+    sudo fuser -km /dev/loop0 || true
+    sudo umount -d /dev/loop0 2> /dev/null || true
+    sudo losetup -d /dev/loop0 2> /dev/null || true
     sudo rm $device_file
 }
 trap cleanup exit
@@ -36,8 +36,8 @@ trap cleanup exit
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
-sudo fuser -km /dev/loop0
-sudo umount -d /dev/loop0 > /dev/null 2>&1
+sudo fuser -km /dev/loop0 || true
+sudo umount -d /dev/loop0 > /dev/null 2>&1 || true
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
 yes | sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
@@ -75,11 +75,17 @@ echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.7-ckt11+_3.16.7-ckt11+-*_amd64.deb
 
+## Install docker
+echo '[INFO] Install dcoker'
+curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
+sudo chroot fsroot service docker stop
+sudo chroot fsroot service dbus stop
+
 ## Umount all
 echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
