@@ -86,11 +86,14 @@ sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo $DEFAULT_USERNAME -c "$DEFAU
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
 
 ## Pre-install the fundamental packages
+## Note: gdisk is needed for sgdisk in install.sh
+## Note: parted is needed for partprobe in install.sh
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump ntp openssh-server python python-apt \
         gdisk parted
 
 ## Pre-install grub for image OS future partition manipulation
 ## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
+## Note: grub2 is needed for grub-install in install.sh
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install grub-pc grub2
 
 echo '[INFO] install apt-transport-sftp package for azure repository'
