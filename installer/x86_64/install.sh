@@ -6,33 +6,93 @@
 #  SPDX-License-Identifier:     GPL-2.0
 
 # Function definitions
-line_count() {
-    return $(echo $1 | wc -l)
+# wc -l
+line_count() { return $(echo $1 | wc -l); }
+
+# Appends a command to a trap, which is needed because default trap behavior is to replace
+# previous trap for the same signal
+# - 1st arg:  code to add
+# - ref: http://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+_trap_push() {
+    local next="$1"
+    eval "trap_push() {
+        local oldcmd='$(echo "$next" | sed -e s/\'/\'\\\\\'\'/g)'
+        local newcmd=\"\$1; \$oldcmd\"
+        trap -- \"\$newcmd\" EXIT INT TERM HUP
+        _trap_push \"\$newcmd\"
+    }"
 }
+_trap_push true
 
 # Main
 set -e
-DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
-
 cd $(dirname $0)
+
+DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 . ./machine.conf
 . ./functions.installer
 
 echo "ONIE Installer: platform: $platform"
 
+# Make sure run as root or under 'sudo'
+if [ $(id -u) -ne 0 ]
+    then echo "Please run as root"
+    exit 1
+fi
+
 # Install demo on same block device as ONIE
-blk_dev=$(blkid | grep ONIE-BOOT | awk '{print $1}' |  sed -e 's/[1-9][0-9]*:.*$//' | sed -e 's/\([0-9]\)\(p\)/\1/' | head -n 1)
+onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
+blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
+# Note: ONIE has no mount setting for / with device node, so below will be empty string
+cur_part=$(cat /proc/mounts | awk "{ if(\$2==\"/\") print \$1 }" | grep $blk_dev || true)
 
 [ -b "$blk_dev" ] || {
     echo "Error: Unable to determine block device of ONIE install"
     exit 1
 }
 
+# If running in ONIE
+if [ "$onie_dev" = "$cur_part" ] || [ -z "$cur_part" ]; then
+    # The onie bin tool prefix
+    onie_bin=
+    # The persistent ONIE directory location
+    onie_root_dir=/mnt/onie-boot/onie
+    # The onie file system root
+    onie_initrd_tmp=/
+# Else running in normal Linux
+else
+    # Mount ONIE-BOOT partition
+    onie_mnt=$(mktemp -d) || {
+        echo "Error: Unable to create file system mount point"
+        exit 1
+    }
+    trap_push "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true" EXIT INT TERM HUP
+    mount $onie_dev $onie_mnt
+    onie_root_dir=$onie_mnt/onie
+    
+    # Mount initrd inside ONIE-BOOT partition
+    onie_initrd_tmp=$(mktemp -d) || {
+        echo "Error: Unable to create file system mount point"
+        exit 1
+    }
+    trap_push "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
+    cd $onie_initrd_tmp
+    # Note: use wildcard in filename below to prevent hard-code version
+    cat $onie_mnt/onie/initrd.img-*-onie | unxz | cpio -id
+    cd -
+    onie_bin="chroot $onie_initrd_tmp"
+fi
+
 # The build system prepares this script by replacing %%DEMO-TYPE%%
 # with "OS" or "DIAG".
 demo_type="%%DEMO_TYPE%%"
 
+# The build system prepares this script by replacing %%GIT_REVISION%%
+# with git revision hash as a version identifier
+git_revision="%%GIT_REVISION%%"
+
 demo_volume_label="ACS-${demo_type}"
+demo_volume_revision_label="ACS-${demo_type}-${git_revision}"
 
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
@@ -44,7 +104,7 @@ else
 fi
 
 # determine ONIE partition type
-onie_partition_type=$(onie-sysinfo -t)
+onie_partition_type=$(${onie_bin} onie-sysinfo -t)
 # demo partition size in MB
 demo_part_size=2048
 if [ "$firmware" = "uefi" ] ; then
@@ -63,25 +123,51 @@ fi
 # arg $1 -- base block device
 #
 # Returns the created partition number in $demo_part
-demo_part=
+demo_part=""
 create_demo_gpt_partition()
 {
     blk_dev="$1"
 
+    # Create a temp fifo and store string in variable
+    tmpfifo=$(mktemp -u)
+    trap_push "rm $tmpfifo || true" EXIT INT TERM HUP
+    mkfifo -m 600 "$tmpfifo"
+    
     # See if demo partition already exists
     demo_part=$(sgdisk -p $blk_dev | grep "$demo_volume_label" | awk '{print $1}')
     if [ -n "$demo_part" ] ; then
-        # delete existing partition
-        sgdisk -d $demo_part $blk_dev || {
-            echo "Error: Unable to delete partition $demo_part on $blk_dev"
-            exit 1
-        }
-        partprobe
+        # delete existing partitions
+        # if there are multiple partitions matched, we should delete each one, except the current OS's
+        # Note: You can use any character as a separator for sed, not just '/'
+        echo "$demo_part" > $tmpfifo &
+        while read -r part_index; do
+            if [ "$blk_dev$part_index" = "$cur_part" ]; then continue; fi
+            echo "deleting partition $part_index ..."
+            sgdisk -d $part_index $blk_dev || {
+                echo "Error: Unable to delete partition $part_index on $blk_dev"
+                exit 1
+            }
+            partprobe
+        done < $tmpfifo
     fi
 
+    # ASSUME: there are no more than 99999 partitions in a block device
+    all_part=$(sgdisk -p $blk_dev | awk "{if (\$1 > 0 && \$1 <= 99999) print \$1}")
+    # Get the index of last partition
+    # Note: the double quotation marks for echo argument are necessary, otherwise the unquoted version replaces each sequence of
+    #   one or more blanks, tabs and newlines with a single space.
+    # Ref: http://stackoverflow.com/questions/613572/capturing-multiple-line-output-to-a-bash-variable
+    last_part=$(echo "$all_part" | tail -n 1 | awk '{print $1}')
     # Find next available partition
-    last_part=$(sgdisk -p $blk_dev | tail -n 1 | awk '{print $1}')
-    demo_part=$(( $last_part + 1 ))
+    demo_part=1
+    echo "$all_part" > $tmpfifo &
+    # Find the first available partition number
+    while read -r used_part; do
+        echo "Partition #$used_part is in use."
+        if [ "$used_part" -ne "$demo_part" ]; then break; fi
+        demo_part=`expr $demo_part + 1`
+    done < $tmpfifo
+    echo "Partition #$demo_part is available"
 
     # Create new partition
     echo "Creating new $demo_volume_label partition ${blk_dev}$demo_part ..."
@@ -95,7 +181,7 @@ create_demo_gpt_partition()
     fi
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
-        --change-name=${demo_part}:$demo_volume_label $blk_dev || {
+        --change-name=${demo_part}:$demo_volume_revision_label $blk_dev || {
         echo "Error: Unable to create partition $demo_part on $blk_dev"
         exit 1
     }
@@ -167,7 +253,7 @@ demo_install_grub()
 
     # Pretend we are a major distro and install GRUB into the MBR of
     # $blk_dev.
-    grub-install --boot-directory="$demo_mnt" --recheck "$blk_dev" || {
+    grub-install --boot-directory="$onie_initrd_tmp/$demo_mnt" --recheck "$blk_dev" || {
         echo "ERROR: grub-install failed on: $blk_dev"
         exit 1
     }
@@ -197,7 +283,7 @@ demo_install_grub()
         [ -f "$core_img" ] && chattr -i $core_img
 
         grub_install_log=$(mktemp)
-        grub-install --force --boot-directory="$demo_mnt" \
+        grub-install --force --boot-directory="$onie_initrd_tmp/$demo_mnt" \
             --recheck "$demo_dev" > /$grub_install_log 2>&1 || {
             echo "ERROR: grub-install failed on: $demo_dev"
             cat $grub_install_log && rm -f $grub_install_log
@@ -242,7 +328,7 @@ demo_install_uefi_grub()
     grub_install_log=$(mktemp)
     grub-install \
         --no-nvram \
-        --bootloader-id="$demo_volume_label" \
+        --bootloader-id="$onie_initrd_tmp/$demo_volume_label" \
         --efi-directory="/boot/efi" \
         --boot-directory="$demo_mnt" \
         --recheck \
@@ -272,30 +358,27 @@ partprobe
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
 
-demo_part_uuid="$(blkid | awk -F: "{if (\$1==\"$demo_dev\") print $2}" | sed -n 's/.*UUID=\"\([0-9a-f\-]*\)\".*/\1/p')"
-if [ "$(line_count $demo_part_uuid)" = 1 ]; then echo "Error: blkid output not expected" ; exit 1; fi
-
 # Mount demo filesystem
-demo_mnt=$(mktemp -d) || {
+demo_mnt=$(${onie_bin} mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
-mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
+trap_push "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true" EXIT INT TERM HUP
+${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
 }
 
 # store installation log in demo file system
-onie-support $demo_mnt
+rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
+${onie_bin} onie-support /tmp
+mv $onie_initrd_tmp/tmp/onie-support.tar.bz2 $demo_mnt
 
 if [ "$firmware" = "uefi" ] ; then
     demo_install_uefi_grub "$demo_mnt" "$blk_dev"
 else
     demo_install_grub "$demo_mnt" "$blk_dev"
 fi
-
-# The persistent ONIE directory location
-onie_root_dir=/mnt/onie-boot/onie
 
 # Create a minimal grub.cfg that allows for:
 #   - configure the serial console
@@ -304,6 +387,7 @@ onie_root_dir=/mnt/onie-boot/onie
 #   - menu entries for ONIE
 
 grub_cfg=$(mktemp)
+trap_push "rm $grub_cfg || true" EXIT INT TERM HUP
 
 # Set a few GRUB_xxx environment variables that will be picked up and
 # used by the 50_onie_grub script.  This is similiar to what an OS
@@ -354,7 +438,7 @@ EOF
 fi
 
 # Add a menu entry for the DEMO OS
-demo_grub_entry="$demo_volume_label"
+demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
         search --no-floppy --label --set=root $demo_volume_label
@@ -363,7 +447,7 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.7-ckt11+ root=UUID=$demo_part_uuid ro $GRUB_CMDLINE_LINUX
+        linux   /boot/vmlinuz-3.16.7-ckt11+ root=$demo_dev ro $GRUB_CMDLINE_LINUX
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.7-ckt11+
 }
@@ -373,17 +457,13 @@ EOF
 # ONIE distribution.
 $onie_root_dir/grub.d/50_onie_grub >> $grub_cfg
 
-cp $grub_cfg $demo_mnt/grub/grub.cfg
+mkdir -p $onie_initrd_tmp/$demo_mnt/grub
+cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
 
 # Add entry to /etc/fstab
-mkdir -p $demo_mnt/etc
-cat <<EOF >> $demo_mnt/etc/fstab
-UUID=$demo_part_uuid /               ext4    errors=remount-ro 0       1
+mkdir -p $onie_initrd_tmp/$demo_mnt/etc
+cat <<EOF >> $onie_initrd_tmp/$demo_mnt/etc/fstab
+$demo_dev /               ext4    errors=remount-ro 0       1
 EOF
-
-# clean up
-umount $demo_mnt || {
-    echo "Error: Problems umounting $demo_mnt"
-}
 
 cd /

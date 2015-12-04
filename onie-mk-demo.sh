@@ -12,8 +12,9 @@ installer_dir=$4
 platform_conf=$5
 output_file=$6
 demo_type=$7
+git_revision=$8
 
-shift 7
+shift 8
 
 if  [ ! -d $installer_dir ] || \
     [ ! -r $installer_dir/sharch_body.sh ] ; then
@@ -26,6 +27,11 @@ if  [ ! -d $installer_dir/$arch ] || \
     echo "Error: Invalid arch installer directory: $installer_dir/$arch"
     exit 1
 fi
+
+[ -n "$git_revision" ] || {
+    echo "Error: Invalid git revisions"
+    exit 1
+}
 
 [ -r "$platform_conf" ] || {
     echo "Error: Unable to read installer platform configuration file: $platform_conf"
@@ -73,6 +79,7 @@ EXTRA_CMDLINE_LINUX=`echo $EXTRA_CMDLINE_LINUX | sed -e 's/[\/&]/\\\&/g'`
 
 # Tailor the demo installer for OS mode or DIAG mode
 sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
+       -e "s/%%GIT_REVISION%%/$git_revision/g" \
        -e "s/%%CONSOLE_SPEED%%/$CONSOLE_SPEED/g" \
        -e "s/%%CONSOLE_DEV%%/$CONSOLE_DEV/g" \
        -e "s/%%CONSOLE_FLAG%%/$CONSOLE_FLAG/g" \
