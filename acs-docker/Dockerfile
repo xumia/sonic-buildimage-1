@@ -29,3 +29,8 @@ RUN dpkg -i /deps/libsswsdk_*.deb
 RUN dpkg -i /deps/python-tabulate_*.deb
 RUN dpkg -i /deps/acs-utilities_*.deb
 RUN dpkg -i /deps/sswsyncd_*.deb
+
+ENTRYPOINT service rsyslog start    \
+    && service redis-server start   \
+    && service sswsyncd start       \
+    && /bin/bash

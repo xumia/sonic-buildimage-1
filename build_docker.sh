@@ -30,11 +30,12 @@ cp deps/*.deb acs-docker/deps
 sudo docker build -t $DOCKER_IMAGE_TAG acs-docker
 sudo docker save $DOCKER_IMAGE_TAG | gzip -c > $docker_image_gz
 
-## Delete all docker images
-#sudo docker rmi `sudo docker images -aq`
 ## Delete all exited docker containers
 #sudo docker rm `sudo docker ps -a | grep Exited | awk '{print $1 }'`
+## Delete all docker images
+#sudo docker rmi `sudo docker images -aq`
 ## Load docker iamge from file
 #gunzip -c $docker_image_gz | sudo docker load
 ## Run the docker image in a container
-#sudo docker run --privileged --net=host -it --name $DOCKER_IMAGE_TAG -v /home:/home $DOCKER_IMAGE_TAG /bin/bash
+#sudo docker run --privileged --net=host -it --name $DOCKER_IMAGE_TAG -v /etc/ssw/minigraph.xml:/etc/ssw/minigraph.xml:ro $DOCKER_IMAGE_TAG
+#sudo docker exec -it $DOCKER_IMAGE_TAG /bin/bash
