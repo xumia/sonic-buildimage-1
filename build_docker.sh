@@ -30,5 +30,5 @@ cp deps/*.deb acs-docker/deps
 sudo docker build -t $DOCKER_IMAGE_TAG acs-docker
 sudo docker save $DOCKER_IMAGE_TAG | gzip -c > $docker_image_gz
 
-#gunzip -c $docker_image_gz | sudo docker load
+#sudo docker stop $DOCKER_IMAGE_TAG && sudo docker rm $DOCKER_IMAGE_TAG && sudo docker rmi -f $DOCKER_IMAGE_TAG && gunzip -c $docker_image_gz | sudo docker load
 #sudo docker run -it --name $DOCKER_IMAGE_TAG -v /home:/home $DOCKER_IMAGE_TAG /bin/bash
