@@ -51,10 +51,6 @@ sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
-## Note: set lang to prevent locale warnings in your chroot
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
-echo '[INFO] Install packages for building image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
 ## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -65,8 +61,14 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
 ## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT mount none /proc -t proc
+sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
+
+## Note: set lang to prevent locale warnings in your chroot
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+echo '[INFO] Install packages for building image'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
+
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
@@ -75,7 +77,8 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.7-ckt11+_3.16.
 
 ## Umount all
 echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT umount /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
