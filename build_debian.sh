@@ -110,7 +110,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 wget http://tux-devrepo.corp.microsoft.com/repos/tux-dev/pool/main/a/apt-transport-sftp/apt-transport-sftp_0.2.2.deb
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i apt-transport-sftp_0.2.2.deb
 
-## Pre-install all the Azure Cloud Switch packages into the host file system
+## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb
 
 ## Config DHCP for eth0
