@@ -10,7 +10,6 @@ RUN apt-get clean && apt-get update
 RUN apt-get -y install  \
     libhiredis0.10      \
     libtinyxml2-2       \
-    redis-server        \
     socat               \
     libnl-3-200         \
     libnl-route-3-200   \
