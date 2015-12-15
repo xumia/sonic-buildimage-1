@@ -70,8 +70,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.7-ckt11+_3.16.7-ckt11+-*_amd64.deb
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb
 
 ## Umount all
 echo '[INFO] Umount all'
