@@ -26,9 +26,9 @@ DEMO_PART_SIZE=2048
 device_file=$(mktemp)
 
 function cleanup {
-    sudo fuser -km /dev/loop0
-    sudo umount -d /dev/loop0 2> /dev/null
-    sudo losetup -d /dev/loop0 2> /dev/null
+    sudo fuser -km /dev/loop0 || true
+    sudo umount -d /dev/loop0 2> /dev/null || true
+    sudo losetup -d /dev/loop0 2> /dev/null || true
     sudo rm $device_file
 }
 trap cleanup exit
@@ -36,8 +36,8 @@ trap cleanup exit
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
-sudo fuser -km /dev/loop0
-sudo umount -d /dev/loop0 > /dev/null 2>&1
+sudo fuser -km /dev/loop0 || true
+sudo umount -d /dev/loop0 > /dev/null 2>&1 || true
 sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
 yes | sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
@@ -51,10 +51,6 @@ sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
-## Note: set lang to prevent locale warnings in your chroot
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
-echo '[INFO] Install packages for building image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
 ## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -65,18 +61,31 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
 ## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT mount none /proc -t proc
+sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
+
+## Note: set lang to prevent locale warnings in your chroot
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+echo '[INFO] Install packages for building image'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
+
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb
 
+## Install docker
+echo '[INFO] Install dcoker'
+curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
+sudo chroot fsroot service docker stop
+sudo chroot fsroot service dbus stop
+
 ## Umount all
 echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT umount /sys
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
@@ -101,7 +110,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 wget http://tux-devrepo.corp.microsoft.com/repos/tux-dev/pool/main/a/apt-transport-sftp/apt-transport-sftp_0.2.2.deb
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i apt-transport-sftp_0.2.2.deb
 
-## TODO: pre-install all the Azure Cloud Switch packages into the file system
+## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb
 
 ## Config DHCP for eth0
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces

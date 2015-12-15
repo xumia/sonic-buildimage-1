@@ -185,7 +185,11 @@ create_demo_gpt_partition()
         echo "Error: Unable to create partition $demo_part on $blk_dev"
         exit 1
     }
-    partprobe
+    ## If running in normal Linux, partprobe will complain as below and return non-zero
+    ##   Error: Partition(s) 4 on /dev/sda have been written, but we have been unable to inform the kernel of the change,
+    ##   probably because it/they are in use.  As a result, the old partition(s) will remain in use.  You should reboot now
+    ##   before making further changes.
+    partprobe || true
 }
 
 create_demo_msdos_partition()
@@ -353,7 +357,6 @@ demo_install_uefi_grub()
 
 eval $create_demo_partition $blk_dev
 demo_dev=$(echo $blk_dev | sed -e 's/\(mmcblk[0-9]\)/\1p/')$demo_part
-partprobe
 
 # Decompress the file for the file system directly to the partition
 gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
