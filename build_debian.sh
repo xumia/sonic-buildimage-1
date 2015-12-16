@@ -25,10 +25,13 @@ DEMO_PART_SIZE=2048
 ## Prepare a virtual block device
 device_file=$(mktemp)
 
+## Find first unused loop device
+loop_device=$(sudo losetup -f)
+
 function cleanup {
-    sudo fuser -km /dev/loop0 || true
-    sudo umount -d /dev/loop0 2> /dev/null || true
-    sudo losetup -d /dev/loop0 2> /dev/null || true
+    sudo fuser -km $loop_device || true
+    sudo umount -d $loop_device || true
+    sudo losetup -d $loop_device || true
     sudo rm $device_file
 }
 trap cleanup exit
@@ -36,18 +39,18 @@ trap cleanup exit
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
 ## Connect 0 loopback device to the file
-sudo fuser -km /dev/loop0 || true
-sudo umount -d /dev/loop0 > /dev/null 2>&1 || true
-sudo losetup /dev/loop0 $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
+sudo fuser -km $loop_device || true
+sudo umount -d $loop_device || true
+sudo losetup $loop_device $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
-yes | sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL /dev/loop0 || {
+sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL $loop_device || {
     echo "Error: Unable to create file system on $demo_dev"
     exit 1
 }
 
 [ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
-sudo mount -t ext4 /dev/loop0 $FILESYSTEM_ROOT
+sudo mount -t ext4 $loop_device $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
@@ -127,6 +130,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 
 ## Dump the device to image
-sudo fuser -km /dev/loop0
-sudo umount -d /dev/loop0 || (echo "Failed to umount or detach loopback device 0 before gzip" >&2; exit 1)
+sudo fuser -km $loop_device
+sudo umount -d $loop_device || (echo "Failed to umount or detach loopback device 0 before gzip" >&2; exit 1)
 gzip -c < $device_file > $OUTPUT_FILE
