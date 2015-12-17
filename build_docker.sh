@@ -1,12 +1,18 @@
 #!/bin/bash
 ## This script is to automate the preparation for a docker image
 ## Usage:
-##   sudo ./build_docker.sh DOCKER_IMAGE_GZ
+##   sudo ./build_docker.sh DOCKER_BUILD_DIR
 
 
 set -x -e
 
-DOCKER_BUILD_DIR=docker-sswsyncd
+## Dockerfile directory
+DOCKER_BUILD_DIR=$1
+
+[ -d "$DOCKER_BUILD_DIR" ] || {
+    echo "Invalid DOCKER_BUILD_DIR directory" >&2
+    exit 1
+}
 
 ## Docker image tag
 docker_image_tag=$DOCKER_BUILD_DIR
