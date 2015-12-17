@@ -99,8 +99,8 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_am
 ## Install docker
 echo '[INFO] Install dcoker'
 curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
-sudo chroot fsroot service docker stop
-sudo chroot fsroot service dbus stop
+sudo chroot $FILESYSTEM_ROOT service docker stop
+sudo chroot $FILESYSTEM_ROOT service dbus stop
 
 ## Umount all
 echo '[INFO] Umount all'
