@@ -2,6 +2,23 @@
 ## This script is to automate the preparation for a debian file system, which will be used for
 ## a ONIE installation image.
 
+## Function Definitions
+##
+## Appends a command to a trap, which is needed because default trap behavior is to replace
+## previous trap for the same signal
+## - 1st arg:  code to add
+## - ref: http://stackoverflow.com/questions/3338030/multiple-bash-traps-for-the-same-signal
+_trap_push() {
+    local next="$1"
+    eval "trap_push() {
+        local oldcmd='$(echo "$next" | sed -e s/\'/\'\\\\\'\'/g)'
+        local newcmd=\"\$1; \$oldcmd\"
+        trap -- \"\$newcmd\" EXIT INT TERM HUP
+        _trap_push \"\$newcmd\"
+    }"
+}
+_trap_push true
+
 ## Enable debug output for script
 set -x
 
@@ -24,32 +41,23 @@ DEMO_PART_SIZE=2048
 
 ## Prepare a virtual block device
 device_file=$(mktemp)
+trap_push 'sudo rm $device_file'
 
 ## Find first unused loop device
 loop_device=$(sudo losetup -f)
 
-function cleanup {
-    sudo fuser -km $loop_device || true
-    sudo umount -d $loop_device || true
-    sudo losetup -d $loop_device || true
-    sudo rm $device_file
-}
-trap cleanup exit
-
 ## Create a file with all zero content. It will hold all the content of the file system
 dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
-## Connect 0 loopback device to the file
-sudo fuser -km $loop_device || true
-sudo umount -d $loop_device || true
-sudo losetup $loop_device $device_file || (echo "Failed to connect loopback device 0" >&2; exit 1)
+## Connect loop device to the file
+trap_push 'sudo losetup -d $loop_device || true'
+sudo losetup $loop_device $device_file || (echo "Failed to connect loop device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
-sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL $loop_device || {
-    echo "Error: Unable to create file system on $demo_dev"
-    exit 1
-}
-
-[ -d $FILESYSTEM_ROOT ] && sudo rm -r $FILESYSTEM_ROOT
+sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL $loop_device || (echo "Error: Unable to create file system on $demo_dev" >&2; exit 1)
+## Mount the loop device
+[ -d $FILESYSTEM_ROOT ] && sudo rmdir $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
+## Note: NO fuser here, otherwise it kills the script itself
+trap_push 'sudo umount -d $loop_device || true'
 sudo mount -t ext4 $loop_device $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
@@ -62,9 +70,19 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAM
 ## Create device files
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
+
 ## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
+## Output all the mounted device for troubleshooting
+mount
+trap_push 'sudo umount $FILESYSTEM_ROOT/proc || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
+clean_sys() {
+    sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
+                $FILESYSTEM_ROOT/sys/fs/cgroup              \
+                $FILESYSTEM_ROOT/sys || true
+}
+trap_push 'sudo umount $FILESYSTEM_ROOT/sys || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Note: set lang to prevent locale warnings in your chroot
@@ -131,5 +149,5 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 
 ## Dump the device to image
 sudo fuser -km $loop_device
-sudo umount -d $loop_device || (echo "Failed to umount or detach loopback device 0 before gzip" >&2; exit 1)
+sudo umount -d $loop_device || (echo "Failed to umount or detach loop device 0 before gzip" >&2; exit 1)
 gzip -c < $device_file > $OUTPUT_FILE
