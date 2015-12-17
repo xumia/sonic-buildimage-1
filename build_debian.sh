@@ -22,7 +22,7 @@ _trap_push true
 ## Enable debug output for script
 set -x
 
-## Workding directory to prepare the file system
+## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
 ## Output file name for compressed file system
 OUTPUT_FILE=fs.img.gz
