@@ -35,9 +35,9 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
 ## Partition lable
-DEMO_VOLUME_LABEL="ACS-OS"
+ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
 ## Partition size in MB
-DEMO_PART_SIZE=2048
+ONIE_IMAGE_PART_SIZE=2048
 
 ## Prepare a virtual block device
 device_file=$(mktemp)
@@ -47,12 +47,12 @@ trap_push 'sudo rm $device_file'
 loop_device=$(sudo losetup -f)
 
 ## Create a file with all zero content. It will hold all the content of the file system
-dd if=/dev/zero of=$device_file bs=512 count=$((2 * $DEMO_PART_SIZE))k
+dd if=/dev/zero of=$device_file bs=512 count=$((2 * $ONIE_IMAGE_PART_SIZE))k
 ## Connect loop device to the file
 trap_push 'sudo losetup -d $loop_device || true'
 sudo losetup $loop_device $device_file || (echo "Failed to connect loop device 0" >&2; exit 1)
 ## Create filesystem on the device with a label
-sudo mkfs.ext4 -L $DEMO_VOLUME_LABEL $loop_device || (echo "Error: Unable to create file system on $demo_dev" >&2; exit 1)
+sudo mkfs.ext4 -L $ONIE_IMAGE_VOLUME_LABEL $loop_device || (echo "Error: Unable to create file system on $loop_device" >&2; exit 1)
 ## Mount the loop device
 [ -d $FILESYSTEM_ROOT ] && sudo rmdir $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT
