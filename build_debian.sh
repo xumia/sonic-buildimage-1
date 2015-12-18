@@ -126,10 +126,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump n
 ## Note: grub2 is needed for grub-install in install.sh
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install grub-pc grub2
 
-echo '[INFO] install apt-transport-sftp package for azure repository'
+echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
-wget http://tux-devrepo.corp.microsoft.com/repos/tux-dev/pool/main/a/apt-transport-sftp/apt-transport-sftp_0.2.2.deb
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i apt-transport-sftp_0.2.2.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
 ## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb
