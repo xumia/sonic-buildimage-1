@@ -8,19 +8,15 @@ RUN apt-get clean && apt-get update
 ## TODO: sswsyncd depends on ifupdown
 ## TODO: sswsyncd depends on rsyslog
 RUN apt-get -y install  \
-    libhiredis0.10      \
-    libtinyxml2-2       \
-    socat               \
-    libnl-3-200         \
-    libnl-route-3-200   \
     ifupdown            \
     rsyslog
 
 COPY deps /deps
-RUN dpkg -i /deps/libopennsl_*.deb
-RUN dpkg -i /deps/libsaibcm_*.deb
-RUN dpkg -i /deps/libsswsdk_*.deb
-RUN dpkg -i /deps/sswsyncd_*.deb
+RUN dpkg -i /deps/libopennsl_*.deb;         \
+    dpkg -i /deps/libsaibcm_*.deb;          \
+    dpkg -i /deps/libsswsdk_*.deb;          \
+    dpkg -i /deps/sswsyncd_*.deb;           \
+    apt-get -y install -f
 
 ENTRYPOINT service rsyslog start    \
     && service sswsyncd start       \
