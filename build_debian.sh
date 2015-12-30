@@ -99,6 +99,8 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_am
 ## Install docker
 echo '[INFO] Install dcoker'
 curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
+## Remove garbage left by docker installation script
+sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
 sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo chroot $FILESYSTEM_ROOT service dbus stop
 
