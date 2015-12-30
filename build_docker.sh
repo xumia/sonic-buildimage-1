@@ -1,7 +1,8 @@
 #!/bin/bash
-## This script is to automate the preparation for a docker image
+## This script is to automate the preparation for docker images for ACS.
+## If registry server and port provided, the images will be pushed there.
 ## Usage:
-##   sudo ./build_docker.sh DOCKER_BUILD_DIR REGISTRY_SERVER REGISTRY_PORT
+##   sudo ./build_docker.sh DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT]
 
 set -x -e
 
