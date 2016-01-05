@@ -97,7 +97,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-bas
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || (echo "Failed to install linux-image"; exit 1)
 
 ## Install docker
-echo '[INFO] Install dcoker'
+echo '[INFO] Install docker'
 curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
 ## Remove garbage left by docker installation script
 sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
@@ -123,17 +123,17 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAUL
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     sudo                    \
     vim                     \
-    screen                  \
     tcpdump                 \
     ntp                     \
     openssh-server          \
     python                  \
+    python-setuptools       \
     python-apt              \
-    python-pip              \
     gdisk                   \
     parted
 
 ## docker-py is needed by Ansible docker module
+sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install docker-py
     
 ## Pre-install grub for image OS future partition manipulation
