@@ -112,8 +112,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
-## Note: user should be in the group with the same name, and also in sudo group
-sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
+## Note: user should be in the group with the same name, and also in sudo/docker group
+sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
 
