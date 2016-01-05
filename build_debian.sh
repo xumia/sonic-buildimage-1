@@ -94,7 +94,7 @@ echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || (echo "Failed to install linux-image"; exit 1)
 
 ## Install docker
 echo '[INFO] Install dcoker'
@@ -146,7 +146,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
 ## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || (echo "Failed to install opennsl-modules"; exit 1)
 
 ## Config DHCP for eth0
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces
