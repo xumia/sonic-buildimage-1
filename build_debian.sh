@@ -94,11 +94,13 @@ echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || (echo "Failed to install linux-image"; exit 1)
 
 ## Install docker
-echo '[INFO] Install dcoker'
+echo '[INFO] Install docker'
 curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
+## Remove garbage left by docker installation script
+sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
 sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo chroot $FILESYSTEM_ROOT service dbus stop
 
@@ -110,17 +112,32 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Create user for the default user
-## Note: user should be in the group with the same name, and also in sudo group
-sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
+## Note: user should be in the group with the same name, and also in sudo/docker group
+sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
 
 ## Pre-install the fundamental packages
 ## Note: gdisk is needed for sgdisk in install.sh
 ## Note: parted is needed for partprobe in install.sh
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install sudo vim screen tcpdump ntp openssh-server python python-apt \
-        gdisk parted
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
+    sudo                    \
+    vim                     \
+    tcpdump                 \
+    ntp                     \
+    openssh-server          \
+    python                  \
+    python-setuptools       \
+    python-apt              \
+    gdisk                   \
+    parted
 
+## docker-py is needed by Ansible docker module
+sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
+sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
+## Remove pip which is unnecessary in the base image
+sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
+    
 ## Pre-install grub for image OS future partition manipulation
 ## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
 ## Note: grub2 is needed for grub-install in install.sh
@@ -131,7 +148,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
 ## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || (echo "Failed to install opennsl-modules"; exit 1)
 
 ## Config DHCP for eth0
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces
