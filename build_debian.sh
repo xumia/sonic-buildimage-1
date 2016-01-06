@@ -135,6 +135,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
+## Remove pip which is unnecessary in the base image
+sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall pip
     
 ## Pre-install grub for image OS future partition manipulation
 ## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
