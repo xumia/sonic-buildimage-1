@@ -13,8 +13,9 @@ platform_conf=$5
 output_file=$6
 demo_type=$7
 git_revision=$8
+onie_image_part_size=$9
 
-shift 8
+shift 9
 
 if  [ ! -d $installer_dir ] || \
     [ ! -r $installer_dir/sharch_body.sh ] ; then
@@ -30,6 +31,11 @@ fi
 
 [ -n "$git_revision" ] || {
     echo "Error: Invalid git revisions"
+    exit 1
+}
+
+[ -n "$onie_image_part_size" ] || {
+    echo "Error: Invalid onie_image_part_size"
     exit 1
 }
 
