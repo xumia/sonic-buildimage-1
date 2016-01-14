@@ -78,6 +78,7 @@ mkdir $tmp_installdir || clean_up 1
 
 cp $installer_dir/$arch/install.sh $tmp_installdir || clean_up 1
 cp $installer_dir/$arch/functions.installer $tmp_installdir || clean_up 1
+cp onie-image.conf $tmp_installdir
 
 # Escape special chars in the user provide kernel cmdline string for use in
 # sed. Special chars are: \ / &
@@ -94,7 +95,7 @@ sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
        -e "s/%%EXTRA_CMDLINE_LINUX%%/$EXTRA_CMDLINE_LINUX/" \
     $tmp_installdir/install.sh || clean_up 1
 echo -n "."
-cp $* $tmp_installdir || clean_up 1
+cp -r $* $tmp_installdir || clean_up 1
 echo -n "."
 cp $platform_conf $tmp_installdir || clean_up 1
 echo "machine=$machine" > $tmp_installdir/machine.conf

@@ -5,7 +5,7 @@
 . functions.sh
 
 ## Enable debug output for script
-set -x
+set -x -e
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -17,8 +17,6 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 ## Default password for the default user
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
-## Partition lable
-ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
 
 ## Read ONIE image related config file
 . ./onie-image.conf
@@ -26,33 +24,20 @@ ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
     echo "Error: Invalid ONIE_IMAGE_PART_SIZE in onie image config file"
     exit 1
 }
-[ -n "$DEMO_SYSROOT_IMAGE_GZ" ] || {
-    echo "Error: Invalid DEMO_SYSROOT_IMAGE_GZ in onie image config file"
+[ -n "$ONIE_INSTALLER_PAYLOAD" ] || {
+    echo "Error: Invalid ONIE_INSTALLER_PAYLOAD in onie image config file"
+    exit 1
+}
+[ -n "$FILESYSTEM_SQUASHFS" ] || {
+    echo "Error: Invalid FILESYSTEM_SQUASHFS in onie image config file"
     exit 1
 }
 
-## Prepare a virtual block device
-device_file=$(mktemp)
-trap_push 'sudo rm $device_file'
-
-## Find first unused loop device
-loop_device=$(sudo losetup -f)
-
-## Create a file with all zero content. It will hold all the content of the file system
-dd if=/dev/zero of=$device_file bs=512 count=$((2 * $ONIE_IMAGE_PART_SIZE))k
-## Connect loop device to the file
-trap_push 'sudo losetup -d $loop_device || true'
-sudo losetup $loop_device $device_file || die "Failed to connect loop device 0"
-## Create filesystem on the device with a label
-sudo mkfs.ext4 -L $ONIE_IMAGE_VOLUME_LABEL $loop_device || die "Error: Unable to create file system on $loop_device"
-## Mount the loop device
+## Prepare the chroot directory
 if [[ -d $FILESYSTEM_ROOT ]]; then
-    sudo rmdir $FILESYSTEM_ROOT || die "Error: Failled to remove previous filesystem directory"
+    sudo rm -r $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
 mkdir -p $FILESYSTEM_ROOT
-## Note: NO fuser here, otherwise it kills the script itself
-trap_push 'sudo umount -d $loop_device || true'
-sudo mount -t ext4 $loop_device $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
@@ -132,7 +117,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Remove pip which is unnecessary in the base image
 sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
-    
+
 ## Pre-install grub for image OS future partition manipulation
 ## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
 ## Note: grub2 is needed for grub-install in install.sh
@@ -157,8 +142,10 @@ EOF"
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
+sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
-## Dump the device to image
-sudo fuser -km $loop_device
-sudo umount -d $loop_device || die "Failed to umount or detach loop device 0 before gzip"
-gzip -c < $device_file > $DEMO_SYSROOT_IMAGE_GZ
+## Dump chroot directory to image
+rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot
+pushd $FILESYSTEM_ROOT/boot && zip -r $OLDPWD/$ONIE_INSTALLER_PAYLOAD . ; popd
+zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
