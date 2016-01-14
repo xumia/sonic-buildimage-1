@@ -14,5 +14,5 @@ CONSOLE_SPEED=9600 \
 CONSOLE_DEV=0 \
 CONSOLE_FLAG=0 \
 CONSOLE_PORT=0x3f8 \
-./onie-mk-demo.sh x86_64 dell_s6000_s1220 x86_64-dell_s6000_s1220-r0 \
-      installer s6000/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $DEMO_SYSROOT_IMAGE_GZ
+./onie-mk-demo.sh x86_64 generic x86_64-generic-r0 \
+      installer generic/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $DEMO_SYSROOT_IMAGE_GZ
