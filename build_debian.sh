@@ -48,7 +48,7 @@ trap_push 'sudo umount -d $loop_device || true'
 sudo mount -t ext4 $loop_device $FILESYSTEM_ROOT
 
 echo '[INFO] Debootstrap...'
-sudo debootstrap --arch amd64 --variant=minbase jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
+sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
 ## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
