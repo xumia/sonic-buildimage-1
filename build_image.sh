@@ -4,7 +4,7 @@ TARGET_PLATFORM=x86_64
 TARGET_MACHINE=generic
 ONIEIMAGE_VERSION=r0
 DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
-OUTPUT_ONIE_IMAGE=acs-$TARGET_PLATFORM.bin
+OUTPUT_ONIE_IMAGE=acs-$TARGET_MACHINE.bin
 
 # Retrieval short version of git revision hash for partition metadata
 [[ -z $(git status --untracked-files=no -s) ]] || {
