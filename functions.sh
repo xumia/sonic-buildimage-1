@@ -1,7 +1,7 @@
 #!/bin/bash
 ## Function Definitions
 
-## Function trap_push
+## Function: trap_push 'COMMAND_STRING'
 ## Appends a command to a trap, which is needed because default trap behavior is to replace
 ## previous trap for the same signal
 ## - 1st arg:  code to add
@@ -17,14 +17,14 @@ _trap_push() {
 }
 _trap_push true
 
-## Function die
+## Function: warn MESSAGE
 ## Print message to stderr
 warn() {
     local message="$1"
     echo "$message" >&2
 }
 
-## Function die
+## Function: die MESSAGE
 ## Print message to stderr and exit the whole process
 ## Note:
 ##   Using () makes the command inside them run in a sub-shell and calling a exit from there
