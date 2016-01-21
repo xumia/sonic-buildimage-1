@@ -11,9 +11,6 @@
     exit 1
 }
 
-## Output ONIE installer image file name
-OUTPUT_ONIE_IMAGE=acs.bin
-
 # Retrieval short version of git revision hash for partition metadata
 [[ -z $(git status --untracked-files=no -s) ]] || {
     echo "Error: There is local changes not committed to git repo. Cannot get a revision hash for partition metadata."
