@@ -159,10 +159,5 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 
 ## Dump the device to image
 sudo fuser -km $loop_device
-<<<<<<< HEAD
 sudo umount -d $loop_device || die "Failed to umount or detach loop device 0 before gzip"
-gzip -c < $device_file > $OUTPUT_FILE
-=======
-sudo umount -d $loop_device || (echo "Failed to umount or detach loop device 0 before gzip" >&2; exit 1)
 gzip -c < $device_file > $DEMO_SYSROOT_IMAGE_GZ
->>>>>>> 882997d... Extract parameter into config file
