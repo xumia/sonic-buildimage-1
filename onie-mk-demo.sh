@@ -86,6 +86,7 @@ EXTRA_CMDLINE_LINUX=`echo $EXTRA_CMDLINE_LINUX | sed -e 's/[\/&]/\\\&/g'`
 # Tailor the demo installer for OS mode or DIAG mode
 sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
        -e "s/%%GIT_REVISION%%/$git_revision/g" \
+       -e "s/%%ONIE_IMAGE_PART_SIZE%%/$onie_image_part_size/" \
        -e "s/%%CONSOLE_SPEED%%/$CONSOLE_SPEED/g" \
        -e "s/%%CONSOLE_DEV%%/$CONSOLE_DEV/g" \
        -e "s/%%CONSOLE_FLAG%%/$CONSOLE_FLAG/g" \

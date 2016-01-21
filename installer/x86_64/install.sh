@@ -106,7 +106,7 @@ fi
 # determine ONIE partition type
 onie_partition_type=$(${onie_bin} onie-sysinfo -t)
 # demo partition size in MB
-demo_part_size=1500
+demo_part_size="%%ONIE_IMAGE_PART_SIZE%%"
 if [ "$firmware" = "uefi" ] ; then
     create_demo_partition="create_demo_uefi_partition"
 elif [ "$onie_partition_type" = "gpt" ] ; then
