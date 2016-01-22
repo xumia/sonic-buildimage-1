@@ -75,6 +75,13 @@ echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || die "Failed to install linux-image"
 
+## Update initramfs for booting with squashfs+aufs
+cat >> $FILESYSTEM_ROOT/etc/initramfs-tools/modules <<EOF
+squashfs
+aufs
+EOF
+chroot $FILESYSTEM_ROOT update-initramfs -u
+
 ## Install docker
 echo '[INFO] Install docker'
 curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
