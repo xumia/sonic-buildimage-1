@@ -124,7 +124,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     python-setuptools       \
     python-apt              \
     gdisk                   \
-    parted
+    parted                  \
+    efibootmgr
 
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
