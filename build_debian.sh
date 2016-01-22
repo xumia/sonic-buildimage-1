@@ -9,8 +9,6 @@ set -x
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
-## Output file name for compressed file system
-OUTPUT_FILE=fs.img.gz
 ## Hostname for the linux image
 HOSTNAME=acs
 ## Default user
@@ -21,8 +19,17 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
 ## Partition lable
 ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
-## Partition size in MB
-ONIE_IMAGE_PART_SIZE=2048
+
+## Read ONIE image related config file
+. ./onie-image.conf
+[ -n "$ONIE_IMAGE_PART_SIZE" ] || {
+    echo "Error: Invalid ONIE_IMAGE_PART_SIZE in onie image config file"
+    exit 1
+}
+[ -n "$DEMO_SYSROOT_IMAGE_GZ" ] || {
+    echo "Error: Invalid DEMO_SYSROOT_IMAGE_GZ in onie image config file"
+    exit 1
+}
 
 ## Prepare a virtual block device
 device_file=$(mktemp)
@@ -153,4 +160,4 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 ## Dump the device to image
 sudo fuser -km $loop_device
 sudo umount -d $loop_device || die "Failed to umount or detach loop device 0 before gzip"
-gzip -c < $device_file > $OUTPUT_FILE
+gzip -c < $device_file > $DEMO_SYSROOT_IMAGE_GZ
