@@ -72,8 +72,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || die "Failed to install linux-image"
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT --force-all -i deps/{initramfs-tools_,linux-image-3.16.0-4-amd64_}*.deb
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 ## Update initramfs for booting with squashfs+aufs
 cat >> $FILESYSTEM_ROOT/etc/initramfs-tools/modules <<EOF
