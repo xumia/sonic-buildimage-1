@@ -39,6 +39,11 @@ fi
     exit 1
 }
 
+[ -n "$CONSOLE_SPEED" ] || {
+    echo "Error: Invalid CONSOLE_SPEED"
+    exit 1
+}
+
 [ -r "$platform_conf" ] || {
     echo "Error: Unable to read installer platform configuration file: $platform_conf"
     exit 1
