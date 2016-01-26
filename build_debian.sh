@@ -72,8 +72,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT --force-all -i deps/{initramfs-tools_,linux-image-3.16.0-4-amd64_}*.deb
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+## Note: initramfs-tools recommended depends on busybox, and we really want it for commands such as touch
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
+sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/{initramfs-tools_,linux-image-3.16.0-4-amd64_}*.deb;   \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 ## Update initramfs for booting with squashfs+aufs
 cat >> $FILESYSTEM_ROOT/etc/initramfs-tools/modules <<EOF
