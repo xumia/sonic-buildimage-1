@@ -152,6 +152,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
+## Prepare empty directory to trigger mount move in initramfs-tools/modulesmount_loop_root, implemented by patching
+sudo mkdir $FILESYSTEM_ROOT/host
+
 ## Dump chroot tree excluding /boot to squashfs file, and compress it together with /boot as a installer payload zip file
 rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot
