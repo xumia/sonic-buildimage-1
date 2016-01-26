@@ -448,14 +448,14 @@ fi
 demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
-        search --no-floppy --label --set=root $demo_volume_label
-        echo    'Loading $demo_volume_label $demo_type kernel ...'
+        search --no-floppy --label --set=root $demo_volume_revision_label
+        echo    'Loading $demo_volume_revision_label $demo_type kernel ...'
         insmod gzio
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
         linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX loop=/boot/$FILESYSTEM_SQUASHFS loopfstype=squashfs
-        echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
+        echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
 EOF
