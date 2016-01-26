@@ -153,7 +153,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
-## Dump chroot directory to image
+## Dump chroot tree excluding /boot to squashfs file, and compress it together with /boot as a installer payload zip file
 rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot
 pushd $FILESYSTEM_ROOT/boot && zip -r $OLDPWD/$ONIE_INSTALLER_PAYLOAD . ; popd

@@ -454,7 +454,7 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev ro $GRUB_CMDLINE_LINUX
+        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev ro $GRUB_CMDLINE_LINUX loop=/boot/$FILESYSTEM_SQUASHFS loopfstype=squashfs
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
