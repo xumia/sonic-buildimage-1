@@ -78,7 +78,7 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/{initramfs-tools_,linux-image-3
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 ## Update initramfs for booting with squashfs+aufs
-cat >> $FILESYSTEM_ROOT/etc/initramfs-tools/modules <<EOF
+sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null <<EOF
 squashfs
 aufs
 EOF
@@ -140,13 +140,12 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || die "Failed to install opennsl-modules"
 
 ## Config DHCP for eth0
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces
+sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
 
 auto eth0
 allow-hotplug eth0
 iface eth0 inet dhcp
-
-EOF"
+EOF
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
