@@ -467,10 +467,4 @@ $onie_root_dir/grub.d/50_onie_grub >> $grub_cfg
 mkdir -p $onie_initrd_tmp/$demo_mnt/grub
 cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
 
-# Add entry to /etc/fstab
-mkdir -p $onie_initrd_tmp/$demo_mnt/etc
-cat <<EOF >> $onie_initrd_tmp/$demo_mnt/etc/fstab
-$demo_dev /               ext4    errors=remount-ro 0       1
-EOF
-
 cd /

@@ -137,11 +137,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Remove pip which is unnecessary in the base image
 sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
 
-## Pre-install grub for image OS future partition manipulation
-## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
-## Note: grub2 is needed for grub-install in install.sh
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install grub-pc grub2
-
 echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
