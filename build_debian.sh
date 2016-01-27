@@ -82,6 +82,16 @@ sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null <<EOF
 squashfs
 aufs
 EOF
+sudo tee $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount <<'EOF'
+#!/bin/sh -e
+case $1 in
+  prereqs)
+    exit 0
+    ;;
+esac
+mount -n -o dirs=${rootmnt}/host:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+EOF
+chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chroot $FILESYSTEM_ROOT update-initramfs -u
 
 ## Install docker
