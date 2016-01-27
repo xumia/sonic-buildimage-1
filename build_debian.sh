@@ -82,6 +82,9 @@ sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null <<EOF
 squashfs
 aufs
 EOF
+## Hook into initramfs: after partition mount and loop file mount
+## 1. Prepare layered file system
+## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
 sudo tee $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount <<'EOF'
 #!/bin/sh -e
 case $1 in
@@ -92,6 +95,8 @@ esac
 mkdir -p ${rootmnt}/host/rw
 mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
 mount ${ROOT} ${rootmnt}/host
+mkdir -p /root/var/lib/docker
+mount --bind /root/host/boot/docker /root/var/lib/docker
 EOF
 chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chroot $FILESYSTEM_ROOT update-initramfs -u
@@ -163,7 +168,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 sudo mkdir $FILESYSTEM_ROOT/host
 
 ## Dump chroot tree excluding /boot to squashfs file, and compress it together with /boot as a installer payload zip file
-rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
-sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot
-pushd $FILESYSTEM_ROOT/boot && zip -r $OLDPWD/$ONIE_INSTALLER_PAYLOAD . ; popd
-zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
+pushd $FILESYSTEM_ROOT/boot && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r . ; popd
+pushd $FILESYSTEM_ROOT/var/lib && sudo zip -g $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r docker ; popd
+sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
