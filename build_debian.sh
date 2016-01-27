@@ -89,7 +89,9 @@ case $1 in
     exit 0
     ;;
 esac
-mount -n -o dirs=${rootmnt}/host:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+mkdir -p ${rootmnt}/host/rw
+mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+mount ${ROOT} ${rootmnt}/host
 EOF
 chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chroot $FILESYSTEM_ROOT update-initramfs -u
