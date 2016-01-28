@@ -373,8 +373,7 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 }
 
 # Decompress the file for the file system directly to the partition
-mkdir -p $demo_mnt/boot
-unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt/boot
+unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
 # store installation log in demo file system
 rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
@@ -454,7 +453,7 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX loop=/boot/$FILESYSTEM_SQUASHFS loopfstype=squashfs
+        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs
         echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
