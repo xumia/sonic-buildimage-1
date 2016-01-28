@@ -6,6 +6,10 @@
     echo "Error: Invalid ONIE_IMAGE_PART_SIZE in onie image config file"
     exit 1
 }
+[ -n "$ONIE_INSTALLER_PAYLOAD" ] || {
+    echo "Error: Invalid ONIE_INSTALLER_PAYLOAD in onie image config file"
+    exit 1
+}
 
 # Retrieval short version of git revision hash for partition metadata
 [[ -z $(git status --untracked-files=no -s) ]] || {

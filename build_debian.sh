@@ -72,7 +72,11 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 echo '[INFO] Install ACS linux kernel image'
-## Note: initramfs-tools recommended depends on busybox, and we really want it for commands such as touch
+## Note: initramfs-tools recommends depending on busybox, and we really want busybox for
+## 1. commands such as touch
+## 2. mount supports squashfs
+## However, 'dpkg -i' plus 'apt-get install -f' will ignore the recommended dependency. So
+## we install busybox explicitly
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/{initramfs-tools_,linux-image-3.16.0-4-amd64_}*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
@@ -164,7 +168,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
-## Prepare empty directory to trigger mount move in initramfs-tools/modulesmount_loop_root, implemented by patching
+## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
 sudo mkdir $FILESYSTEM_ROOT/host
 
 ## Dump chroot tree excluding /boot and /var/lib/docker to squashfs file, and compress it together
