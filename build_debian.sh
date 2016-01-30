@@ -1,6 +1,6 @@
 #!/bin/bash
 ## This script is to automate the preparation for a debian file system, which will be used for
-## a ONIE installation image.
+## an ONIE installer image.
 
 . functions.sh
 
@@ -33,7 +33,7 @@ DEFAULT_PASSWORD="sahL5d5V.UWtI"
     exit 1
 }
 
-## Prepare the chroot directory
+## Prepare the file system directory
 if [[ -d $FILESYSTEM_ROOT ]]; then
     sudo rm -r $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
@@ -42,11 +42,11 @@ mkdir -p $FILESYSTEM_ROOT
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
-## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
+## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAME' >> /etc/hosts"
 
-## Create device files
+## Config basic fstab
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
 
@@ -69,15 +69,17 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 echo '[INFO] Install packages for building image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
+## Create device files
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
-echo '[INFO] Install ACS linux kernel image'
+## Install initramfs-tools and linux kernel
 ## Note: initramfs-tools recommends depending on busybox, and we really want busybox for
 ## 1. commands such as touch
 ## 2. mount supports squashfs
 ## However, 'dpkg -i' plus 'apt-get install -f' will ignore the recommended dependency. So
 ## we install busybox explicitly
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
+echo '[INFO] Install ACS linux kernel image'
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/{initramfs-tools_,linux-image-3.16.0-4-amd64_}*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
@@ -120,7 +122,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
-## Create user for the default user
+## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker group
 sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
@@ -152,7 +154,7 @@ echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
-## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
+## Pre-install kernel related packages of the Azure Cloud Switch
 sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || die "Failed to install opennsl-modules"
 
 ## Config DHCP for eth0
@@ -171,9 +173,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 ## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
 sudo mkdir $FILESYSTEM_ROOT/host
 
-## Dump chroot tree excluding /boot and /var/lib/docker to squashfs file, and compress it together
-## with /boot and /var/lib/docker as a installer payload zip file
+## Compress most file system into squashfs file
 sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
+
+## Compress together with /boot and /var/lib/docker as an installer payload zip file
 pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ -r var/lib/docker ; popd
 sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
