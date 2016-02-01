@@ -39,6 +39,7 @@ if [[ -d $FILESYSTEM_ROOT ]]; then
 fi
 mkdir -p $FILESYSTEM_ROOT
 
+## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
