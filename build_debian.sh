@@ -85,26 +85,12 @@ sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/{initramfs-tools_,linux-image-3
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 ## Update initramfs for booting with squashfs+aufs
-sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null <<EOF
-squashfs
-aufs
-EOF
+cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
+
 ## Hook into initramfs: after partition mount and loop file mount
 ## 1. Prepare layered file system
 ## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
-sudo tee $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount <<'EOF'
-#!/bin/sh -e
-case $1 in
-  prereqs)
-    exit 0
-    ;;
-esac
-mkdir -p ${rootmnt}/host/rw
-mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
-mount ${ROOT} ${rootmnt}/host
-mkdir -p /root/var/lib/docker
-mount --bind /root/host/var/lib/docker /root/var/lib/docker
-EOF
+cp files/initramfs-tools/union-mount $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chroot $FILESYSTEM_ROOT update-initramfs -u
 
