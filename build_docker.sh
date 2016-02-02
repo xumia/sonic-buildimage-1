@@ -10,6 +10,7 @@ set -x -e
 DOCKER_BUILD_DIR=$1
 REGISTRY_SERVER=$2
 REGISTRY_PORT=$3
+REGISTRY_PASSWD=$4
 
 [ -d "$DOCKER_BUILD_DIR" ] || {
     echo "Invalid DOCKER_BUILD_DIR directory" >&2
@@ -40,6 +41,8 @@ docker build -t $docker_image_tag $DOCKER_BUILD_DIR
 
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     docker tag -f $docker_image_tag $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_tag
+    ## Note: user name and password are passed from command line, use fake email address to bypass login check
+    docker login -u acsadmin -p "$REGISTRY_PASSWD" -e "@" $REGISTRY_SERVER:$REGISTRY_PORT
     docker push $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_tag
 fi
 
