@@ -144,9 +144,6 @@ echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 sudo dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
-## Pre-install kernel related packages of the Azure Cloud Switch
-sudo dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || die "Failed to install opennsl-modules"
-
 ## Config DHCP for eth0
 sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
 
