@@ -28,9 +28,9 @@ _trap_push true
 set -e
 cd $(dirname $0)
 
-DEMO_SYSROOT_IMAGE_GZ=fs.img.gz
 . ./machine.conf
 . ./functions.installer
+. ./onie-image.conf
 
 echo "ONIE Installer: platform: $platform"
 
@@ -66,7 +66,7 @@ else
         echo "Error: Unable to create file system mount point"
         exit 1
     }
-    trap_push "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true" EXIT INT TERM HUP
+    trap_push "fuser -km $onie_mnt || umount $onie_mnt || rmdir $onie_mnt || true"
     mount $onie_dev $onie_mnt
     onie_root_dir=$onie_mnt/onie
     
@@ -75,7 +75,7 @@ else
         echo "Error: Unable to create file system mount point"
         exit 1
     }
-    trap_push "rm -rf $onie_initrd_tmp || true" EXIT INT TERM HUP
+    trap_push "rm -rf $onie_initrd_tmp || true"
     cd $onie_initrd_tmp
     # Note: use wildcard in filename below to prevent hard-code version
     cat $onie_mnt/onie/initrd.img-*-onie | unxz | cpio -id
@@ -130,7 +130,7 @@ create_demo_gpt_partition()
 
     # Create a temp fifo and store string in variable
     tmpfifo=$(mktemp -u)
-    trap_push "rm $tmpfifo || true" EXIT INT TERM HUP
+    trap_push "rm $tmpfifo || true"
     mkfifo -m 600 "$tmpfifo"
     
     # See if demo partition already exists
@@ -181,7 +181,14 @@ create_demo_gpt_partition()
     fi
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
-        --change-name=${demo_part}:$demo_volume_revision_label $blk_dev || {
+        --change-name=${demo_part}:$demo_volume_revision_label $blk_dev \
+    || {
+        begin=$(sgdisk -F $blk_dev)
+        end=$(sgdisk -E $blk_dev)
+        sgdisk --new=${demo_part}:$begin:$end \
+            --attributes=${demo_part}:=:$attr_bitmask \
+            --change-name=${demo_part}:$demo_volume_revision_label $blk_dev
+    } || {
         echo "Error: Unable to create partition $demo_part on $blk_dev"
         exit 1
     }
@@ -358,19 +365,22 @@ demo_install_uefi_grub()
 eval $create_demo_partition $blk_dev
 demo_dev=$(echo $blk_dev | sed -e 's/\(mmcblk[0-9]\)/\1p/')$demo_part
 
-# Decompress the file for the file system directly to the partition
-gunzip -c ./$DEMO_SYSROOT_IMAGE_GZ | dd of=$demo_dev
+# Make filesystem
+mkfs.ext4 -L $demo_volume_revision_label $demo_dev
 
 # Mount demo filesystem
 demo_mnt=$(${onie_bin} mktemp -d) || {
     echo "Error: Unable to create file system mount point"
     exit 1
 }
-trap_push "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true" EXIT INT TERM HUP
+trap_push "${onie_bin} fuser -km $demo_mnt || ${onie_bin} umount $demo_mnt || ${onie_bin} rmdir $demo_mnt || true"
 ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
     echo "Error: Unable to mount $demo_dev on $demo_mnt"
     exit 1
 }
+
+# Decompress the file for the file system directly to the partition
+unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
 # store installation log in demo file system
 rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
@@ -390,7 +400,7 @@ fi
 #   - menu entries for ONIE
 
 grub_cfg=$(mktemp)
-trap_push "rm $grub_cfg || true" EXIT INT TERM HUP
+trap_push "rm $grub_cfg || true"
 
 # Set a few GRUB_xxx environment variables that will be picked up and
 # used by the 50_onie_grub script.  This is similiar to what an OS
@@ -444,14 +454,14 @@ fi
 demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
-        search --no-floppy --label --set=root $demo_volume_label
-        echo    'Loading $demo_volume_label $demo_type kernel ...'
+        search --no-floppy --label --set=root $demo_volume_revision_label
+        echo    'Loading $demo_volume_revision_label $demo_type kernel ...'
         insmod gzio
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev ro $GRUB_CMDLINE_LINUX
-        echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
+        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs
+        echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
 EOF
@@ -462,11 +472,5 @@ $onie_root_dir/grub.d/50_onie_grub >> $grub_cfg
 
 mkdir -p $onie_initrd_tmp/$demo_mnt/grub
 cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
-
-# Add entry to /etc/fstab
-mkdir -p $onie_initrd_tmp/$demo_mnt/etc
-cat <<EOF >> $onie_initrd_tmp/$demo_mnt/etc/fstab
-$demo_dev /               ext4    errors=remount-ro 0       1
-EOF
 
 cd /
