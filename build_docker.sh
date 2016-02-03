@@ -30,14 +30,21 @@ docker_image_gz=$docker_image_tag.gz
 }
 
 function cleanup {
+    rm -rf $DOCKER_BUILD_DIR/files
     rm -rf $DOCKER_BUILD_DIR/deps
     docker rmi -f $docker_image_tag || true
 }
 trap cleanup exit
 
-## Note Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
+## Copy dependencies
+## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
 mkdir -p $DOCKER_BUILD_DIR/deps
 cp deps/*.deb $DOCKER_BUILD_DIR/deps
+
+## Copy the suggested Debian sources
+## ref: https://wiki.debian.org/SourcesList
+mkdir -p $DOCKER_BUILD_DIR/files
+cp files/sources.list $DOCKER_BUILD_DIR/files
 docker build -t $docker_image_tag $DOCKER_BUILD_DIR
 
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
