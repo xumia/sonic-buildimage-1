@@ -451,6 +451,7 @@ EOF
 fi
 
 # Add a menu entry for the DEMO OS
+# Note: assume that apparmor is supported in the kernel
 demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
@@ -460,7 +461,9 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs
+        linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX  \
+                loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
+                apparmor=1 security=apparmor
         echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
