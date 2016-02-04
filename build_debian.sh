@@ -1,11 +1,11 @@
 #!/bin/bash
 ## This script is to automate the preparation for a debian file system, which will be used for
-## a ONIE installation image.
+## an ONIE installer image.
 
 . functions.sh
 
 ## Enable debug output for script
-set -x
+set -x -e
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -17,8 +17,6 @@ DEFAULT_USERINFO="ACS Admin User,,,"
 ## Default password for the default user
 ## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
 DEFAULT_PASSWORD="sahL5d5V.UWtI"
-## Partition lable
-ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
 
 ## Read ONIE image related config file
 . ./onie-image.conf
@@ -26,42 +24,30 @@ ONIE_IMAGE_VOLUME_LABEL="ACS-OS"
     echo "Error: Invalid ONIE_IMAGE_PART_SIZE in onie image config file"
     exit 1
 }
-[ -n "$DEMO_SYSROOT_IMAGE_GZ" ] || {
-    echo "Error: Invalid DEMO_SYSROOT_IMAGE_GZ in onie image config file"
+[ -n "$ONIE_INSTALLER_PAYLOAD" ] || {
+    echo "Error: Invalid ONIE_INSTALLER_PAYLOAD in onie image config file"
+    exit 1
+}
+[ -n "$FILESYSTEM_SQUASHFS" ] || {
+    echo "Error: Invalid FILESYSTEM_SQUASHFS in onie image config file"
     exit 1
 }
 
-## Prepare a virtual block device
-device_file=$(mktemp)
-trap_push 'sudo rm $device_file'
-
-## Find first unused loop device
-loop_device=$(sudo losetup -f)
-
-## Create a file with all zero content. It will hold all the content of the file system
-dd if=/dev/zero of=$device_file bs=512 count=$((2 * $ONIE_IMAGE_PART_SIZE))k
-## Connect loop device to the file
-trap_push 'sudo losetup -d $loop_device || true'
-sudo losetup $loop_device $device_file || die "Failed to connect loop device 0"
-## Create filesystem on the device with a label
-sudo mkfs.ext4 -L $ONIE_IMAGE_VOLUME_LABEL $loop_device || die "Error: Unable to create file system on $loop_device"
-## Mount the loop device
+## Prepare the file system directory
 if [[ -d $FILESYSTEM_ROOT ]]; then
-    sudo rmdir $FILESYSTEM_ROOT || die "Error: Failled to remove previous filesystem directory"
+    sudo rm -r $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
 mkdir -p $FILESYSTEM_ROOT
-## Note: NO fuser here, otherwise it kills the script itself
-trap_push 'sudo umount -d $loop_device || true'
-sudo mount -t ext4 $loop_device $FILESYSTEM_ROOT
 
+## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
 sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
-## Prepare the hostname and hosts config, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
+## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '127.0.0.1       $HOSTNAME' >> /etc/hosts"
 
-## Create device files
+## Config basic fstab
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "proc /proc proc defaults 0 0" >> /etc/fstab'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs defaults 0 0" >> /etc/fstab'
 
@@ -84,11 +70,32 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 echo '[INFO] Install packages for building image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
+## Create device files
 echo '[INFO] MAKEDEV'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
+## Install initramfs-tools and linux kernel
+## Note: initramfs-tools recommends depending on busybox, and we really want busybox for
+## 1. commands such as touch
+## 2. mount supports squashfs
+## However, 'dpkg -i' plus 'apt-get install -f' will ignore the recommended dependency. So
+## we install busybox explicitly
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
 echo '[INFO] Install ACS linux kernel image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install initramfs-tools linux-base
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*_amd64.deb || die "Failed to install linux-image"
+## Note: duplicate apt-get command to ensure every line return zero
+sudo dpkg --root=$FILESYSTEM_ROOT -i deps/initramfs-tools_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+sudo dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+    
+## Update initramfs for booting with squashfs+aufs
+cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
+
+## Hook into initramfs: after partition mount and loop file mount
+## 1. Prepare layered file system
+## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
+cp files/initramfs-tools/union-mount $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
+chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
+chroot $FILESYSTEM_ROOT update-initramfs -u
 
 ## Install docker
 echo '[INFO] Install docker'
@@ -105,7 +112,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
-## Create user for the default user
+## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker group
 sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
@@ -132,33 +139,31 @@ sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Remove pip which is unnecessary in the base image
 sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
-    
-## Pre-install grub for image OS future partition manipulation
-## Note: DEBIAN_FRONTEND is needed to prvent interactive configuration for grub-pc
-## Note: grub2 is needed for grub-install in install.sh
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install grub-pc grub2
 
 echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
-
-## Pre-install kernel related packages of the Azure Cloud Switch into the host file system
-sudo LANG=C dpkg --root=$FILESYSTEM_ROOT -i deps/opennsl-modules-*.deb || die "Failed to install opennsl-modules"
+sudo dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
 ## Config DHCP for eth0
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "cat <<EOF >> /etc/network/interfaces
+sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
 
 auto eth0
 allow-hotplug eth0
 iface eth0 inet dhcp
-
-EOF"
+EOF
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
+sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
-## Dump the device to image
-sudo fuser -km $loop_device
-sudo umount -d $loop_device || die "Failed to umount or detach loop device 0 before gzip"
-gzip -c < $device_file > $DEMO_SYSROOT_IMAGE_GZ
+## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
+sudo mkdir $FILESYSTEM_ROOT/host
+
+## Compress most file system into squashfs file
+sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
+
+## Compress together with /boot and /var/lib/docker as an installer payload zip file
+pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ -r var/lib/docker ; popd
+sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
