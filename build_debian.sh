@@ -105,13 +105,6 @@ sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
 sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo chroot $FILESYSTEM_ROOT service dbus stop
 
-## Umount all
-echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
-sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
-sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
-
 ## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker group
 sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
@@ -156,6 +149,13 @@ EOF
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
+
+## Umount all
+echo '[INFO] Umount all'
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
 ## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
 sudo mkdir $FILESYSTEM_ROOT/host
