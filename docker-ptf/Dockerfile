@@ -24,7 +24,10 @@ RUN echo "deb http://ftp.us.debian.org/debian/ jessie main contrib non-free" > /
         traceroute \
         lsof \
         tcpdump \
-    && dpkg -i /root/deps/python-ptf*.deb \
+    && dpkg -i /root/deps/python-ptf_*.deb \
+    && dpkg -i --force-depends /root/deps/libthrift-0.9.2_*.deb \
+    && dpkg -i --force-depends /root/deps/python-thrift_*.deb \
+    && apt-get -y install -f \
     && rm -rf /root/deps \
     && apt-get -y autoclean \
     && apt-get -y autoremove \
