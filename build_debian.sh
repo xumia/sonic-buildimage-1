@@ -93,7 +93,7 @@ cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-t
 ## Hook into initramfs: after partition mount and loop file mount
 ## 1. Prepare layered file system
 ## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
-cp files/initramfs-tools/union-mount $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
+sudo cp files/initramfs-tools/union-mount $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
 chroot $FILESYSTEM_ROOT update-initramfs -u
 
@@ -104,13 +104,10 @@ curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
 sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
 sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo chroot $FILESYSTEM_ROOT service dbus stop
-
-## Umount all
-echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
-sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
-sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
+## Add docker config drop-in to select aufs, otherwise it may other storage driver
+## Note: $_ means last argument of last command
+sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
+sudo cp files/docker/docker.service.conf $_
 
 ## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker group
@@ -157,6 +154,13 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
 sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
 
+## Umount all
+echo '[INFO] Umount all'
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
+
 ## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
 sudo mkdir $FILESYSTEM_ROOT/host
 
@@ -165,5 +169,5 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
 
 ## Compress together with /boot and /var/lib/docker as an installer payload zip file
-pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ -r var/lib/docker ; popd
+pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ -r var/lib/docker; popd
 sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
