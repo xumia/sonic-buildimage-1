@@ -94,8 +94,8 @@ cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-t
 ## 1. Prepare layered file system
 ## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
 sudo cp files/initramfs-tools/union-mount $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
-chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
-chroot $FILESYSTEM_ROOT update-initramfs -u
+sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/union-mount
+sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 
 ## Install docker
 echo '[INFO] Install docker'

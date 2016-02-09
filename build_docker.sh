@@ -18,11 +18,11 @@ REGISTRY_PASSWD=$5
     exit 1
 }
 
-## Docker image tag
-docker_image_tag=$DOCKER_BUILD_DIR
+## Docker image label, so no need to remember its hash
+docker_image_label=$DOCKER_BUILD_DIR
 
 ## File name for docker image
-docker_image_gz=$docker_image_tag.gz
+docker_image_gz=$docker_image_label.gz
 
 [ -n "$docker_image_gz" ] || {
     echo "Error: Output docker image filename is empty"
@@ -32,7 +32,7 @@ docker_image_gz=$docker_image_tag.gz
 function cleanup {
     rm -rf $DOCKER_BUILD_DIR/files
     rm -rf $DOCKER_BUILD_DIR/deps
-    docker rmi -f $docker_image_tag || true
+    docker rmi -f $docker_image_label || true
 }
 trap cleanup exit
 
@@ -45,13 +45,16 @@ cp deps/*.deb $DOCKER_BUILD_DIR/deps
 ## ref: https://wiki.debian.org/SourcesList
 mkdir -p $DOCKER_BUILD_DIR/files
 cp files/sources.list $DOCKER_BUILD_DIR/files
-docker build -t $docker_image_tag $DOCKER_BUILD_DIR
+docker build -t $docker_image_label $DOCKER_BUILD_DIR
 
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
-    docker tag -f $docker_image_tag $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_tag
+    ## Add registry information as tag, so will push as latest
+    docker tag $docker_image_label $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_label
+    
+    ## Login the docker image registry server
     ## Note: user name and password are passed from command line, use fake email address to bypass login check
     docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" -e "@" $REGISTRY_SERVER:$REGISTRY_PORT
-    docker push $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_tag
+    docker push $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_label
 fi
 
-docker save $docker_image_tag | gzip -c > $docker_image_gz
+docker save $docker_image_label | gzip -c > $docker_image_gz
