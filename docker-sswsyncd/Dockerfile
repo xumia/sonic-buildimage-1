@@ -12,11 +12,10 @@ RUN apt-get -y install  \
     rsyslog
 
 COPY deps /deps
-RUN dpkg -i /deps/libopennsl_*.deb;         \
-    dpkg -i /deps/libsaibcm_*.deb;          \
-    dpkg -i /deps/libsswsdk_*.deb;          \
-    dpkg -i /deps/sswsyncd_*.deb;           \
-    apt-get -y install -f
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libopennsl_*.deb
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsaibcm_*.deb
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsswsdk_*.deb
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/sswsyncd_*.deb
 
 ENTRYPOINT service rsyslog start    \
     && service sswsyncd start       \
