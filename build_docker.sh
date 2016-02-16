@@ -49,7 +49,8 @@ docker build -t $docker_image_name $DOCKER_BUILD_DIR
 
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
-    docker tag $docker_image_name $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name
+    ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
+    docker tag -f $docker_image_name $REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name
     
     ## Login the docker image registry server
     ## Note: user name and password are passed from command line, use fake email address to bypass login check
