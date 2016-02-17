@@ -6,7 +6,6 @@ RUN apt-get clean && apt-get update
 
 ## Pre-install the fundamental packages
 ## TODO: sswsyncd depends on ifupdown
-## TODO: sswsyncd depends on rsyslog
 RUN apt-get -y install  \
     ifupdown            \
     rsyslog
