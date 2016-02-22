@@ -6,7 +6,9 @@ RUN apt-get clean && apt-get update
 
 ## Pre-install the fundamental packages
 RUN apt-get -y install                  \
+    rsyslog                             \
     redis-server
 
-ENTRYPOINT service redis-server start   \
+ENTRYPOINT service rsyslog start    \
+    && service redis-server start   \
     && /bin/bash
