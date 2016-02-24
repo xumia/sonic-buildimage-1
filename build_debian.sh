@@ -66,7 +66,9 @@ trap_push 'sudo umount $FILESYSTEM_ROOT/sys || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Note: set lang to prevent locale warnings in your chroot
+sudo cp files/sources.list $FILESYSTEM_ROOT/etc/apt/
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y upgrade
 echo '[INFO] Install packages for building image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
