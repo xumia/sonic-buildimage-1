@@ -1,4 +1,5 @@
 nls_cp437
+nls_utf8
 ehci-hcd
 vfat
 squashfs
