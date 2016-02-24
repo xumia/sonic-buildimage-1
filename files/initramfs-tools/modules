@@ -1,2 +1,4 @@
+ehci-hcd
+vfat
 squashfs
 aufs
