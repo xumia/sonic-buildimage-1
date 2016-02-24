@@ -1,0 +1,182 @@
+# Aboot stage 0 boot
+#
+# Copies kernel from swi and kexecs it
+
+set -x
+
+USER_KERNEL_PARAMS="kernel-params"
+ABOOT_KERNEL_PARAMS="/tmp/append"
+TEMP_FILE="/tmp/.kparam-temp"
+
+set_kernel_params() {
+   DONE=false
+   until $DONE; do
+      read || DONE=true
+      l=$REPLY
+      if [ "${l}" == "" -o "${l:0:1}" == "#" ]; then
+         continue
+      fi
+
+      delete=0
+      params=$l
+      cmd=$(echo $l | cut -f 1 -d " ")
+      if [ "${cmd}" == "-" -o "${cmd:0:1}" == "-" ]; then
+         delete=1
+	 params=${l#*-}
+      fi
+      for arg in ${params}
+      do
+         if [ ${delete} -eq 1 ]; then
+	    grep -v "$arg=\|$arg$" "${ABOOT_KERNEL_PARAMS}"  > "${TEMP_FILE}"
+	    mv "${TEMP_FILE}" "${ABOOT_KERNEL_PARAMS}"
+         else
+            echo ${arg} >> "${ABOOT_KERNEL_PARAMS}"
+         fi
+      done
+   done
+}
+
+# pci_config_match - function to match pci config offset value
+#    input: dev (bus/dev/function, 00:01.0)
+#           off (offset within config space)
+#           pattern (pattern to match in output of config_match)
+#    output : returns 0 on success (pattern match)
+#             returns 1 on failure (no match)
+pci_config_match() {
+   dev=$1
+   off=$2
+   pattern=$3
+   pci_devs="/sys/bus/pci/devices"
+   out=config_match
+   dd if=$pci_devs/0000:$dev/config of=$out bs=1 count=4 skip=$off >& /dev/null || return 1
+   hexdump $out | grep "$pattern" >& /dev/null && return 0
+   return 1
+}
+
+parseconfig POST_LEVEL PASSWORD </etc/boot-config
+CONSOLESPEED=$(stty speed)
+ifget
+
+kernel=boot/vmlinuz-3.16.0-4-amd64
+initrd=boot/initrd.img-3.16.0-4-amd64
+
+TARGET_PATH=/mnt/flash
+if [ -d "${swipath}" ]; then
+    # Not expect a directory name for swipath
+    exit 1
+else
+    unzip -oq ${swipath} -x boot0 -d ${TARGET_PATH}
+fi
+
+echo "${append}" >/tmp/append
+writebootconfig >>/tmp/append
+
+# Fix blockdev regex for internal and front panel USB ports on raven boards
+if grep -q 'platform=raven' /etc/cmdline; then
+   # On systems with no internal flash, we mount external USB on /mnt/flash.
+   # In above case, /etc/cmdline will NOT have regex for usb1. see sysinit
+   if grep -q 'block_usb1' /etc/cmdline; then # Have internal flash and USB
+      sed -i -e '/block_[flash|usb1]/d' /etc/cmdline
+      echo 'block_flash=pci0000:00/0000:00:12.[02]/usb.*$' >>/etc/cmdline
+      echo 'block_usb1=pci0000:00/0000:00:13.[02]/usb.*$' >>/etc/cmdline
+   else # Mount external USB on flash
+      sed -i -e '/block_flash/d' /etc/cmdline
+      echo 'block_flash=pci0000:00/0000:00:13.[02]/usb.*$' >>/etc/cmdline
+   fi
+fi
+
+cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >>/tmp/append
+
+# Calculate dmamem kernel parameter
+DMAMEM=128M
+pci_config_match "00:01.0" 0 "10de 0364" && DMAMEM=34M # Napa
+pci_config_match "00:01.0" 152 "4721 8695" && { # Ahwahnee
+   DMAMEM=460M
+   echo "platform=ahwahnee" >> /tmp/append
+   # Picasso-Ahwahnee: kernel pci quirk needs to know if it is ahwahnee supe
+   echo "picasso_ahwahnee_fix" >> /tmp/append
+}
+pci_config_match "00:00.0" 0 "1022 9601" && DMAMEM=48M # Raven
+grep -q 'platform=blackbird' /etc/cmdline && DMAMEM=128M # PtReyes
+grep -q 'platform=eaglepeak' /etc/cmdline && DMAMEM=600M # 7500 modular
+grep -q 'platform=oak' /etc/cmdline && DMAMEM=450M # Sequoia
+grep -q 'platform=crow' /etc/cmdline && DMAMEM=95M # Crow
+grep -q 'platform=magpie' /etc/cmdline && DMAMEM=130M # Magpie
+grep -q 'platform=mendocino' /etc/cmdline && DMAMEM=34M # Mendocino
+grep -q 'platform=endor' /etc/cmdline && DMAMEM=210M # Endor
+
+# BUG80839: set dmesg buf size based on RAM in switch
+# This is how we set dmesg buffer size by RAM:
+#   RAM    dmesg buffer size
+#   -----  ------------------
+#   2GB    1MB
+#   4GB    2MB
+#   8GB    4MB
+#  >8GB    8MB
+dmesg_buf_size() {
+    # /proc/meminfo lists total memory in kB
+    tot_mem=`head /proc/meminfo | grep MemTot | tr ' ' '\n' | grep '^[1-9]'`
+    tot_mem=$((tot_mem/1024))
+    if [ ${tot_mem} -gt 8192 ]; then
+       dmesg_len="8M"
+    elif [ ${tot_mem} -gt 4096 ]; then
+       dmesg_len="4M"
+    elif [ ${tot_mem} -gt 2048 ]; then
+       dmesg_len="2M"
+    else
+       dmesg_len="1M"
+    fi
+    echo $dmesg_len
+}
+
+dmesg_buf=$(dmesg_buf_size)
+#
+# Append log_buf_len *before* we read kernel-params. User may wish to 
+# specifiy larger log_buf_len or even remove log_buf_len argument (by
+# specifying "-log_buf_len" in kernel-params)
+#
+echo "log_buf_len=${dmesg_buf}" >> /tmp/append
+
+if [ -f "/mnt/flash/${USER_KERNEL_PARAMS}" ]; then
+   set_kernel_params <"/mnt/flash/${USER_KERNEL_PARAMS}"
+elif [ -f "/tmp/${USER_KERNEL_PARAMS}" ]; then
+   set_kernel_params <"/tmp/${USER_KERNEL_PARAMS}"
+fi
+
+# override dmamem parameter from USER_KERNEL_PARAMS (if any)
+echo "dmamem=$DMAMEM" >> /tmp/append
+
+# Fixup block_drive regex to support Linux 3.x, which adds /ataX/ before hostX
+sed -i 's#block_drive=pci0000:00/0000:00:11\.0/host\./target\.:0:0/\.\*\$#block_drive=pci0000:00/0000:00:11.0/.*host./target.:0:0/.*$#' /tmp/append
+
+# reassign pci pref mem
+grep -q -e 'platform=eaglepeak' -e 'platform=oak' /etc/cmdline && echo "reassign_prefmem" >> /tmp/append
+if [ -f /tmp/kernel ]; then
+   mv /tmp/kernel ${TARGET_PATH}/${kernel}
+fi
+
+if [ -f /tmp/bootconf ]; then
+   . /tmp/bootconf
+fi
+
+# BUG69923: On Crow and Raven ma1 loses its MAC mailbox after kexec from EOS.
+# We update MAC reg to hold a copy of MAC mailbox, by bringing up ma1 to indirectly call __tg3_set_mac_addr().
+[ "${NETDEV}" ] || NETDEV=ma1
+ip link set ${NETDEV} up 2> /dev/null || true
+
+# When we have ipv6 activity, it appears that a driver is
+# (potentially network driver) doing dma into memory even before memory is
+# initialized in EosKernel. This leads to unexpected "corruption" or 
+# "Bad page state" warnings in EosKernel. So lets bring down the 
+# interface before going into EosKernel
+if [ "${NETDEV}" ]; then
+   ip link set ${NETDEV} down 2> /dev/null || true
+fi
+
+echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor" >>/tmp/append
+# DEBUG CODE !!!
+cat /tmp/append
+
+kexec --load --initrd=${TARGET_PATH}/${initrd} --append="$(tr '\n' ' ' </tmp/append)" ${TARGET_PATH}/${kernel}
+[ -z "${testonly}" ] || exit 0
+kexec --exec

@@ -19,7 +19,7 @@
 }
 GIT_REVISION=$(git rev-parse --short HEAD)
 
-
+sudo rm -f $OUTPUT_ONIE_IMAGE
 if [ "$TARGET_MACHINE" = "generic" ]; then
     ## Generate an ONIE installer image
     ## Note: Don't leave blank between lines. It is single line command.
