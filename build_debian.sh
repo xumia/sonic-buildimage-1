@@ -65,8 +65,12 @@ clean_sys() {
 trap_push 'sudo umount $FILESYSTEM_ROOT/sys || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
+## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
+sudo cp files/sources.list $FILESYSTEM_ROOT/etc/apt/
+
 ## Note: set lang to prevent locale warnings in your chroot
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y upgrade
 echo '[INFO] Install packages for building image'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
 
