@@ -10,6 +10,11 @@ Build an [Open Network Install Environment (ONIE)](https://github.com/opencomput
 
     ./build_debian.sh && ./build_image.sh
 
+### To customize password
+
+    PASSWORD_ENCRYPTED="$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')"      \
+        ./build_debian.sh && ./build_image.sh
+
 ## Build docker images
 
     ./build_docker.sh docker-sswsyncd

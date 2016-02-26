@@ -14,9 +14,11 @@ HOSTNAME=acs
 ## Default user
 DEFAULT_USERNAME=acsadmin
 DEFAULT_USERINFO="ACS Admin User,,,"
-## Default password for the default user
-## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
-DEFAULT_PASSWORD="sahL5d5V.UWtI"
+## Password for the default user, customizable by environment variable
+## By default it is an empty password
+## You may get a crypted password by: perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"'
+DEFAULT_PASSWORD_ENCRYPTED="saFLGt/QKS6yw"
+: ${PASSWORD_ENCRYPTED:="$DEFAULT_PASSWORD_ENCRYPTED"}
 
 ## Read ONIE image related config file
 . ./onie-image.conf
@@ -117,7 +119,7 @@ sudo cp files/docker/docker.service.conf $_
 ## Note: user should be in the group with the same name, and also in sudo/docker group
 sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$PASSWORD_ENCRYPTED | chpasswd -e"
 
 ## Pre-install the fundamental packages
 ## Note: gdisk is needed for sgdisk in install.sh
