@@ -119,6 +119,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c 
 ## Create password for the default user
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
 
+## Pre-install hardware drivers
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
+    firmware-linux-nonfree
+
 ## Pre-install the fundamental packages
 ## Note: gdisk is needed for sgdisk in install.sh
 ## Note: parted is needed for partprobe in install.sh
