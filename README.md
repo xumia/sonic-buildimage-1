@@ -3,12 +3,19 @@
 ### This software repository must be treated as private and is only shared under NDA terms with Microsoft until publicly released.
 
 # Description
-Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable NOS installer image for Azure Cloud Switch, and also build docker images running inside the NOS.
+Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Usage
-## Build NOS installer image for Azure Cloud Switch
+## Build NOS installer image
 
-    ./build_debian.sh && ./build_image.sh
+    ./build_debian USERNAME PASSWORD_ENCRYPTED && ./build_image.sh
+    
+For example, the user name is 'acsadmin' and the password is 'YourPaSsWoRd'.
+
+    ./build_debian.sh "acsadmin" "$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')" && ./build_image.sh
+
+The root is disabled, but the created user could sudo.
+
 
 ## Build docker images
 
