@@ -13,7 +13,7 @@
 }
 
 ## Retrieval short version of Git revision hash for partition metadata
-[[ -z $(git status --untracked-files=no -s) ]] || {
+[ -z $(git status --untracked-files=no -s) ] || {
     echo "Error: There is local changes not committed to git repo. Cannot get a revision hash for partition metadata."
     exit 1
 }
@@ -35,6 +35,9 @@ elif [ "$TARGET_MACHINE" = "aboot" ]; then
     ## Add Aboot boot0 file into the image
     cp $ONIE_INSTALLER_PAYLOAD $OUTPUT_ONIE_IMAGE
     pushd files/Aboot && sudo zip -g $OLDPWD/$OUTPUT_ONIE_IMAGE boot0; popd
+    echo "$GIT_REVISION" >> .imagehash
+    zip -g $OUTPUT_ONIE_IMAGE .imagehash
+    rm .imagehash
 else
     echo "Error: Non supported target platform: $TARGET_PLATFORM"
     exit 1

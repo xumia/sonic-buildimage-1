@@ -28,7 +28,12 @@ TARGET_PATH=/mnt/flash
 if [ -d "${swipath}" ]; then
     # Not expect a directory name for swipath
     exit 1
-else
+fi
+
+## Determine whether installing by hash file in the image
+GIT_REVISION=$(unzip -p ${swipath} .imagehash)
+LOCAL_IMAGEHASH=$(cat $TARGET_PATH/.imagehash 2>/dev/null || true)
+if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
     unzip -oq ${swipath} -x boot0 -d ${TARGET_PATH}
 fi
 
