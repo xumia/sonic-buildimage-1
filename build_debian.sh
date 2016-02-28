@@ -113,8 +113,6 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*.deb || \
     
 ## Update initramfs for booting with squashfs+aufs
 cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
-sudo mkdir -p $FILESYSTEM_ROOT/etc/initramfs-tools/modules.d/
-sudo cp files/initramfs-tools/modules.d/* $FILESYSTEM_ROOT/etc/initramfs-tools/modules.d/
 
 ## Hook into initramfs: after partition mount and loop file mount
 ## 1. Prepare layered file system
