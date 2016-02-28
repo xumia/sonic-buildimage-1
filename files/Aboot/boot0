@@ -4,38 +4,6 @@
 
 set -x
 
-USER_KERNEL_PARAMS="kernel-params"
-ABOOT_KERNEL_PARAMS="/tmp/append"
-TEMP_FILE="/tmp/.kparam-temp"
-
-set_kernel_params() {
-   DONE=false
-   until $DONE; do
-      read || DONE=true
-      l=$REPLY
-      if [ "${l}" == "" -o "${l:0:1}" == "#" ]; then
-         continue
-      fi
-
-      delete=0
-      params=$l
-      cmd=$(echo $l | cut -f 1 -d " ")
-      if [ "${cmd}" == "-" -o "${cmd:0:1}" == "-" ]; then
-         delete=1
-	 params=${l#*-}
-      fi
-      for arg in ${params}
-      do
-         if [ ${delete} -eq 1 ]; then
-	    grep -v "$arg=\|$arg$" "${ABOOT_KERNEL_PARAMS}"  > "${TEMP_FILE}"
-	    mv "${TEMP_FILE}" "${ABOOT_KERNEL_PARAMS}"
-         else
-            echo ${arg} >> "${ABOOT_KERNEL_PARAMS}"
-         fi
-      done
-   done
-}
-
 # pci_config_match - function to match pci config offset value
 #    input: dev (bus/dev/function, 00:01.0)
 #           off (offset within config space)
@@ -52,10 +20,6 @@ pci_config_match() {
    hexdump $out | grep "$pattern" >& /dev/null && return 0
    return 1
 }
-
-parseconfig POST_LEVEL PASSWORD </etc/boot-config
-CONSOLESPEED=$(stty speed)
-ifget
 
 kernel=boot/vmlinuz-3.16.0-4-amd64
 initrd=boot/initrd.img-3.16.0-4-amd64
@@ -137,13 +101,7 @@ dmesg_buf=$(dmesg_buf_size)
 #
 echo "log_buf_len=${dmesg_buf}" >> /tmp/append
 
-if [ -f "/mnt/flash/${USER_KERNEL_PARAMS}" ]; then
-   set_kernel_params <"/mnt/flash/${USER_KERNEL_PARAMS}"
-elif [ -f "/tmp/${USER_KERNEL_PARAMS}" ]; then
-   set_kernel_params <"/tmp/${USER_KERNEL_PARAMS}"
-fi
-
-# override dmamem parameter from USER_KERNEL_PARAMS (if any)
+# Append dmamem parameter
 echo "dmamem=$DMAMEM" >> /tmp/append
 
 # Fixup block_drive regex to support Linux 3.x, which adds /ataX/ before hostX
@@ -151,31 +109,8 @@ sed -i 's#block_drive=pci0000:00/0000:00:11\.0/host\./target\.:0:0/\.\*\$#block_
 
 # reassign pci pref mem
 grep -q -e 'platform=eaglepeak' -e 'platform=oak' /etc/cmdline && echo "reassign_prefmem" >> /tmp/append
-if [ -f /tmp/kernel ]; then
-   mv /tmp/kernel ${TARGET_PATH}/${kernel}
-fi
-
-if [ -f /tmp/bootconf ]; then
-   . /tmp/bootconf
-fi
-
-# BUG69923: On Crow and Raven ma1 loses its MAC mailbox after kexec from EOS.
-# We update MAC reg to hold a copy of MAC mailbox, by bringing up ma1 to indirectly call __tg3_set_mac_addr().
-[ "${NETDEV}" ] || NETDEV=ma1
-ip link set ${NETDEV} up 2> /dev/null || true
-
-# When we have ipv6 activity, it appears that a driver is
-# (potentially network driver) doing dma into memory even before memory is
-# initialized in EosKernel. This leads to unexpected "corruption" or 
-# "Bad page state" warnings in EosKernel. So lets bring down the 
-# interface before going into EosKernel
-if [ "${NETDEV}" ]; then
-   ip link set ${NETDEV} down 2> /dev/null || true
-fi
 
 echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor" >>/tmp/append
-# DEBUG CODE !!!
-cat /tmp/append
 
 kexec --load --initrd=${TARGET_PATH}/${initrd} --append="$(tr '\n' ' ' </tmp/append)" ${TARGET_PATH}/${kernel}
 [ -z "${testonly}" ] || exit 0
