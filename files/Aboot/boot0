@@ -110,7 +110,7 @@ sed -i 's#block_drive=pci0000:00/0000:00:11\.0/host\./target\.:0:0/\.\*\$#block_
 # reassign pci pref mem
 grep -q -e 'platform=eaglepeak' -e 'platform=oak' /etc/cmdline && echo "reassign_prefmem" >> /tmp/append
 
-echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor" >>/tmp/append
+echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >>/tmp/append
 
 kexec --load --initrd=${TARGET_PATH}/${initrd} --append="$(tr '\n' ' ' </tmp/append)" ${TARGET_PATH}/${kernel}
 [ -z "${testonly}" ] || exit 0
