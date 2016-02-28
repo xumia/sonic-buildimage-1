@@ -29,7 +29,6 @@ set -e
 cd $(dirname $0)
 
 . ./machine.conf
-. ./functions.installer
 . ./onie-image.conf
 
 echo "ONIE Installer: platform: $platform"
@@ -97,8 +96,6 @@ demo_volume_revision_label="ACS-${demo_type}-${git_revision}"
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
     firmware="uefi"
-    # check if EFI variables can be created or not
-    efi_dummy_var_check
 else
     firmware="bios"
 fi

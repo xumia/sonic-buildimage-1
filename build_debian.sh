@@ -1,7 +1,32 @@
 #!/bin/bash
 ## This script is to automate the preparation for a debian file system, which will be used for
 ## an ONIE installer image.
+##
+## USAGE:
+##   ./build_debian USERNAME PASSWORD_ENCRYPTED
+## PARAMETERS:
+##   USERNAME
+##          The name of the default admin user
+##   PASSWORD_ENCRYPTED
+##          The encrypted password, expected by chpasswd command
 
+## Default user
+USERNAME=$1
+[ -n "$USERNAME" ] || {
+    echo "Error: no or empty USERNAME argument"
+    exit 1
+}
+
+## Password for the default user, customizable by environment variable
+## By default it is an empty password
+## You may get a crypted password by: perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"'
+PASSWORD_ENCRYPTED=$2
+[ -n "$PASSWORD_ENCRYPTED" ] || {
+    echo "Error: no or empty PASSWORD_ENCRYPTED argument"
+    exit 1
+}
+
+## Include common functions
 . functions.sh
 
 ## Enable debug output for script
@@ -11,12 +36,7 @@ set -x -e
 FILESYSTEM_ROOT=./fsroot
 ## Hostname for the linux image
 HOSTNAME=acs
-## Default user
-DEFAULT_USERNAME=acsadmin
-DEFAULT_USERINFO="ACS Admin User,,,"
-## Default password for the default user
-## You may get a crypted password by: perl -e 'print crypt("<PaSsWoRd>", "salt"),"\n"'
-DEFAULT_PASSWORD="sahL5d5V.UWtI"
+DEFAULT_USERINFO="Default admin user,,,"
 
 ## Read ONIE image related config file
 . ./onie-image.conf
@@ -65,8 +85,10 @@ clean_sys() {
 trap_push 'sudo umount $FILESYSTEM_ROOT/sys || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
-## Note: set lang to prevent locale warnings in your chroot
+## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/sources.list $FILESYSTEM_ROOT/etc/apt/
+
+## Note: set lang to prevent locale warnings in your chroot
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y upgrade
 echo '[INFO] Install packages for building image'
@@ -115,9 +137,9 @@ sudo cp files/docker/docker.service.conf $_
 
 ## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker group
-sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $DEFAULT_USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
+sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo $DEFAULT_USERNAME:$DEFAULT_PASSWORD | chpasswd -e"
+echo $USERNAME:$PASSWORD_ENCRYPTED | sudo LANG=C chroot $FILESYSTEM_ROOT chpasswd -e
 
 ## Pre-install hardware drivers
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
