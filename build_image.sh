@@ -30,7 +30,8 @@ if [ "$TARGET_MACHINE" = "generic" ]; then
     ./onie-mk-demo.sh $TARGET_PLATFORM $TARGET_MACHINE $TARGET_PLATFORM-$TARGET_MACHINE-$ONIEIMAGE_VERSION \
           installer $TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $ONIE_IMAGE_PART_SIZE \
           $ONIE_INSTALLER_PAYLOAD
-elif [ "$TARGET_MACHINE" = "arista" ]; then
+## Use 'aboot' as target machine category which includes Aboot as bootloader
+elif [ "$TARGET_MACHINE" = "aboot" ]; then
     ## Add Aboot boot0 file into the image
     cp $ONIE_INSTALLER_PAYLOAD $OUTPUT_ONIE_IMAGE
     pushd files/Aboot && sudo zip -g $OLDPWD/$OUTPUT_ONIE_IMAGE boot0; popd
