@@ -1,0 +1,3 @@
+[submodule "installer/Arista"]
+	path = installer/Arista
+	url = git@github.com:Azure/Networking-arista-platform-7050.git
