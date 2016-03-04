@@ -34,7 +34,7 @@ if [ "$TARGET_MACHINE" = "generic" ]; then
 elif [ "$TARGET_MACHINE" = "aboot" ]; then
     ## Add Aboot boot0 file into the image
     cp $ONIE_INSTALLER_PAYLOAD $OUTPUT_ONIE_IMAGE
-    pushd installer/Arista && sudo zip -g $OLDPWD/$OUTPUT_ONIE_IMAGE boot0; popd
+    pushd files/Aboot && sudo zip -g $OLDPWD/$OUTPUT_ONIE_IMAGE boot0; popd
     echo "$GIT_REVISION" >> .imagehash
     zip -g $OUTPUT_ONIE_IMAGE .imagehash
     rm .imagehash
