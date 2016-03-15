@@ -297,9 +297,9 @@ Microsoft is offering you a license to use the following components, to the exte
  * 		     END OF TERMS AND CONDITIONS
  */
 
-2. union-fsck imported and modified from initramfs-tools version 0.91e using GPL v2 or any later version
+2. union-fsck imported and modified from initramfs-tools version 0.91e (http://anonscm.debian.org/cgit/kernel/initramfs-tools.git/tag/?h=0.91e) using GPL v2 or any later version
 
-3. boot0 imported from Networking-arista-platform-7050 using GNU GENERAL PUBLIC LICENSE Version 3
+3. boot0 imported from https://github.com/aristanetworks/sonic using GNU GENERAL PUBLIC LICENSE Version 3
 
 /*                     GNU GENERAL PUBLIC LICENSE
  *                        Version 3, 29 June 2007
