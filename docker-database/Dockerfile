@@ -5,7 +5,7 @@ COPY files/sources.list /etc/sources.list
 RUN apt-get clean && apt-get update
 
 ## Pre-install the fundamental packages
-RUN apt-get -y install                  \
+RUN apt-get update && apt-get -y install                  \
     rsyslog                             \
     redis-server
 
