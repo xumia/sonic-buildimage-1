@@ -10,6 +10,7 @@ RUN apt-get update \
  && apt-get -y install  \
     python              \
     ifupdown            \
+    net-tools           \
     rsyslog
 
 COPY deps /deps
