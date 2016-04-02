@@ -30,5 +30,6 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/sswsyncd_*.deb
 
 ENTRYPOINT service rsyslog start    \
-    && service sswsyncd start       \
+    && mkdir -p /dev/sxdevs && ( [ -e /dev/sxdevs/sxcdev ] || mknod /dev/sxdevs/sxcdev c 231 193 ) \
+    && sleep 5 && service sswsyncd start       \
     && /bin/bash
