@@ -34,7 +34,6 @@ function cleanup {
     rm -rf $DOCKER_BUILD_DIR/files
     rm -rf $DOCKER_BUILD_DIR/deps
     docker rmi $remote_image_name || true
-    docker rmi $docker_image_name || true
 }
 trap cleanup exit
 
