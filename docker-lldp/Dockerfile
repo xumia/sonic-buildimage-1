@@ -1,12 +1,7 @@
-FROM debian:jessie
-
-## Set the apt source
-COPY files/sources.list /etc/sources.list
-RUN apt-get clean && apt-get update
+FROM docker-base
 
 ## Pre-install the fundamental packages
-RUN apt-get update && apt-get -y install                  \
-    rsyslog                             \
+RUN apt-get update && apt-get -y install    \
     lldpd
 
 COPY deps /deps
@@ -17,6 +12,10 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 ## Install LLDP Sync Daemon
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/lldpsyncd_*.deb
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
 
 ## There is a known bug: agetty processes at 100% cpu
 ## When:
