@@ -47,7 +47,7 @@ cp deps/*.deb $DOCKER_BUILD_DIR/deps
 ## ref: https://wiki.debian.org/SourcesList
 mkdir -p $DOCKER_BUILD_DIR/files
 cp files/sources.list $DOCKER_BUILD_DIR/files
-docker build -t $docker_image_name $DOCKER_BUILD_DIR
+docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
 
 ## Flatten the image by importing an exported container on this image
 ## Note: it will squash the image with only one layer and lost all metadata such as ENTRYPOINT,
