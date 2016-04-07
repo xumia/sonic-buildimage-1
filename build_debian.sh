@@ -156,6 +156,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     openssh-server          \
     python                  \
     python-setuptools       \
+    rsyslog                 \
     python-apt
 
 ## docker-py is needed by Ansible docker module
