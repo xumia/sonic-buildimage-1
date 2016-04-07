@@ -7,6 +7,7 @@ RUN apt-get clean && apt-get update
 ## Pre-install the fundamental packages
 RUN apt-get -y install                  \
     rsyslog                             \
+    net-tools                           \
     python
 
 ## Clean up
