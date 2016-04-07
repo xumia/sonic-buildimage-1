@@ -156,10 +156,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     openssh-server          \
     python                  \
     python-setuptools       \
-    python-apt              \
-    gdisk                   \
-    parted                  \
-    efibootmgr
+    python-apt
 
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
