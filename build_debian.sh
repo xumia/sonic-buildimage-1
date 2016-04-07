@@ -157,7 +157,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     python                  \
     python-setuptools       \
     rsyslog                 \
-    python-apt
+    python-apt              \
+    efibootmgr
 
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
