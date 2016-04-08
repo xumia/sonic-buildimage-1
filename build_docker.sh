@@ -39,8 +39,10 @@ trap cleanup exit
 
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
-mkdir -p $DOCKER_BUILD_DIR/deps
-cp deps/*.deb $DOCKER_BUILD_DIR/deps
+if ls deps/*.deb 1>/dev/null 2>&1; then
+    mkdir -p $DOCKER_BUILD_DIR/deps
+    cp deps/*.deb $DOCKER_BUILD_DIR/deps
+fi
 
 ## Copy the suggested Debian sources
 ## ref: https://wiki.debian.org/SourcesList
