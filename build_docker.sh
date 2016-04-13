@@ -33,14 +33,16 @@ docker_image_gz=$docker_image_name.gz
 function cleanup {
     rm -rf $DOCKER_BUILD_DIR/files
     rm -rf $DOCKER_BUILD_DIR/deps
-    docker rmi $remote_image_name || true
+    docker rmi $docker_image_name || true
 }
 trap cleanup exit
 
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
-mkdir -p $DOCKER_BUILD_DIR/deps
-cp deps/* $DOCKER_BUILD_DIR/deps
+if ls deps/* 1>/dev/null 2>&1; then
+    mkdir -p $DOCKER_BUILD_DIR/deps
+    cp deps/* $DOCKER_BUILD_DIR/deps
+fi
 
 ## Copy the suggested Debian sources
 ## ref: https://wiki.debian.org/SourcesList
@@ -52,7 +54,7 @@ if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
     ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
     docker tag -f $docker_image_name $remote_image_name
-    
+
     ## Login the docker image registry server
     ## Note: user name and password are passed from command line, use fake email address to bypass login check
     docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" -e "@" $REGISTRY_SERVER:$REGISTRY_PORT

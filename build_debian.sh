@@ -61,7 +61,7 @@ mkdir -p $FILESYSTEM_ROOT
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
-sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
+sudo debootstrap --variant=minbase --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -156,9 +156,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     openssh-server          \
     python                  \
     python-setuptools       \
+    rsyslog                 \
     python-apt              \
-    gdisk                   \
-    parted                  \
     efibootmgr
 
 ## docker-py is needed by Ansible docker module
@@ -181,8 +180,9 @@ EOF
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoclean
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
-sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
+sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /usr/share/doc/* /usr/share/locale/* /var/lib/apt/lists/* /tmp/*
 
 ## Umount all
 echo '[INFO] Umount all'
