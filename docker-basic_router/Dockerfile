@@ -12,6 +12,7 @@ RUN apt-get update && apt-get -y install  \
     rsyslog
 
 COPY deps /deps
+
 RUN dpkg -i /deps/libopennsl_*.deb;         \
     dpkg -i /deps/libsaibcm_*.deb;          \
     apt-get -y install -f
