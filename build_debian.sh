@@ -178,6 +178,8 @@ allow-hotplug eth0
 iface eth0 inet dhcp
 EOF
 
+sudo cp files/dhcp/rfc3442-classless-routes $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d
+
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoclean
