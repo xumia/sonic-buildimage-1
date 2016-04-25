@@ -7,8 +7,7 @@ COPY files/sources.list /etc/sources.list
 RUN apt-get clean && apt-get update
 
 RUN apt-get update && apt-get -y install  \
-    python              \
-    ifupdown            \
+    python \
     rsyslog
 
 COPY deps /deps
@@ -20,4 +19,4 @@ RUN dpkg -i /deps/libopennsl_*.deb;         \
 RUN mv /deps/basic_router /usr/sbin/basic_router
 
 ENTRYPOINT service rsyslog start    \
-    && /usr/sbin/basic_router
+    && /bin/bash
