@@ -1,14 +1,10 @@
-FROM debian:jessie
+FROM docker-base
 
 MAINTAINER Xudong Wu
 
 ## Set the apt source
 COPY files/sources.list /etc/sources.list
 RUN apt-get clean && apt-get update
-
-RUN apt-get update && apt-get -y install  \
-    python \
-    rsyslog
 
 COPY deps /deps
 
