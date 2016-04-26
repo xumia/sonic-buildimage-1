@@ -7,7 +7,6 @@ COPY files/sources.list /etc/sources.list
 RUN apt-get clean && apt-get update
 
 COPY deps /deps
-
 RUN dpkg -i /deps/libopennsl_*.deb;         \
     dpkg -i /deps/libsaibcm_*.deb;          \
     apt-get -y install -f
