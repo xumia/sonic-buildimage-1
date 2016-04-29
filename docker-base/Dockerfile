@@ -10,6 +10,8 @@ RUN apt-get -y install                  \
     vim-tiny                            \
     python
 
+COPY files/rsyslog.conf /etc/rsyslog.conf
+
 RUN apt-get -y purge                    \
     exim4                               \
     exim4-base                          \

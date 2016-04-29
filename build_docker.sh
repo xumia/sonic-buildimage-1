@@ -48,6 +48,7 @@ fi
 ## ref: https://wiki.debian.org/SourcesList
 mkdir -p $DOCKER_BUILD_DIR/files
 cp files/sources.list $DOCKER_BUILD_DIR/files
+cp files/rsyslog.conf $DOCKER_BUILD_DIR/files
 docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
 
 ## Flatten the image by importing an exported container on this image
