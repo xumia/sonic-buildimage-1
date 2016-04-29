@@ -158,6 +158,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     python-setuptools       \
     rsyslog                 \
     python-apt              \
+    traceroute              \
+    iputils-ping            \
+    net-tools               \
     efibootmgr
 
 ## docker-py is needed by Ansible docker module
