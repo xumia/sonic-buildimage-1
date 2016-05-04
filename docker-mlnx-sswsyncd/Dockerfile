@@ -1,17 +1,11 @@
-FROM debian:jessie
+FROM docker-base
 
-## Set the apt source
-COPY files/sources.list /etc/sources.list
-RUN apt-get clean && apt-get update
+RUN apt-get update
 
 ## Pre-install the fundamental packages
-## TODO: sswsyncd depends on ifupdown
 RUN apt-get update \
  && apt-get -y install  \
-    python              \
-    ifupdown            \
-    net-tools           \
-    rsyslog
+    net-tools
 
 COPY deps /deps
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/applibs_*.deb

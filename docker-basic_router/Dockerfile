@@ -3,7 +3,6 @@ FROM docker-base
 MAINTAINER Xudong Wu
 
 ## Set the apt source
-COPY files/sources.list /etc/sources.list
 RUN apt-get clean && apt-get update
 
 COPY deps /deps

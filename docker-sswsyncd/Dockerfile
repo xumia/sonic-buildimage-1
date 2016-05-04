@@ -1,9 +1,6 @@
 FROM docker-base
 
-## Pre-install the fundamental packages
-## TODO: sswsyncd depends on ifupdown
-RUN apt-get update && apt-get -y install    \
-    ifupdown            
+RUN apt-get update
 
 COPY deps /deps
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/python-tabulate_*.deb

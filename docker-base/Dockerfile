@@ -1,7 +1,7 @@
 FROM debian:jessie
 
 ## Set the apt source
-COPY files/sources.list /etc/sources.list
+COPY files/apt/sources.list /etc/apt/sources.list
 RUN apt-get clean && apt-get update
 
 ## Pre-install the fundamental packages
