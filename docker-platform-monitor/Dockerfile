@@ -10,6 +10,7 @@ RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
 ENTRYPOINT service rsyslog start    \
+    && service lm-sensors start     \
     && service smartmontools start  \
     && service sensord start        \
     && /bin/bash
