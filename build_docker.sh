@@ -41,7 +41,7 @@ trap cleanup exit
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
 if ls deps/* 1>/dev/null 2>&1; then
     mkdir -p $DOCKER_BUILD_DIR/deps
-    cp deps/* $DOCKER_BUILD_DIR/deps
+    cp -r deps/* $DOCKER_BUILD_DIR/deps
 fi
 
 ## Copy the suggested Debian sources
