@@ -1,0 +1,3 @@
+[submodule "docker-base"]
+	path = docker-base
+	url = http://vstfrd.corp.microsoft.com:8080/Azure/One/_git/Networking-acs-docker-base
