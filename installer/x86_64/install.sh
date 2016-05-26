@@ -39,6 +39,16 @@ if [ $(id -u) -ne 0 ]
     exit 1
 fi
 
+# get running machine from conf file
+[ -r /etc/machine.conf ] && . /etc/machine.conf
+
+echo "onie_platform: $onie_platform"
+
+# Dell S6000 reset specific commands
+if [ "$onie_platform" = "x86_64-dell_s6000_s1220-r0" ]; then
+    `pwd`/dell-s6000-replace-reboot.sh
+fi
+
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
 blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
