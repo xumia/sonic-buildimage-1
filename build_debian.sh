@@ -169,6 +169,13 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     net-tools               \
     efibootmgr
 
+## Remove sshd host keys, and will regenerate on first sshd start
+sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
+sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
+sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.service
+## Config sshd
+sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
+
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
