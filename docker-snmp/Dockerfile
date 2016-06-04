@@ -1,21 +1,21 @@
 FROM docker-base
 
+COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb /deps/
+
 ## Pre-install the fundamental packages
-RUN apt-get update && apt-get -y install    \
-    snmp                                    \
-    snmpd
-
-COPY deps /deps
-
 ## Install Python SSWSDK (SNMP subagent dependancy)
-## Note: dpkg_apt function has the benefit to detect missing .deb file
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/python-sswsdk_*.deb
 ## Install SNMP subagent
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/acs-snmp-subagent_*.deb
-
+## Note: dpkg_apt function has the benefit to detect missing .deb file
 ## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
+    apt-get -y install                                                                          \
+        snmp                                                                                    \
+        snmpd                                                                                   \
+        &&                                                                                      \
+    dpkg_apt /deps/python-sswsdk_*.deb &&                                                       \
+    dpkg_apt /deps/acs-snmp-subagent_*.deb &&                                                   \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
+    rm -rf /deps
 
 ## There is a known bug: agetty processes at 100% cpu
 ## When:
@@ -29,8 +29,7 @@ RUN systemctl --no-pager list-unit-files --type=service | grep getty | awk '{pri
 RUN systemctl mask getty@tty1.service
 
 ## Although exposing ports is not need for host net mode, keep it for possible bridge mode
-EXPOSE 161/udp
-EXPOSE 162/udp
+EXPOSE 161/udp 162/udp
 
 ## Specify init as CMD to enable systemd
 ## Note: don't provide ENTRYPOINT at the same time

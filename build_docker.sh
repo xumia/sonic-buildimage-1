@@ -47,6 +47,7 @@ fi
 ## Copy the suggested Debian sources
 ## ref: https://wiki.debian.org/SourcesList
 cp -r files $DOCKER_BUILD_DIR/files
+docker rmi $docker_image_name || true
 docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
 
 ## Flatten the image by importing an exported container on this image
@@ -63,11 +64,11 @@ fi
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
     ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
-    docker tag -f $docker_image_name $remote_image_name
+    docker tag $docker_image_name $remote_image_name
 
     ## Login the docker image registry server
     ## Note: user name and password are passed from command line, use fake email address to bypass login check
-    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" -e "@" $REGISTRY_SERVER:$REGISTRY_PORT
+    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
     docker push $remote_image_name
 fi
 
