@@ -87,7 +87,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp docker-base/sources.list $FILESYSTEM_ROOT/etc/apt/
-sudo cp files/apt/apt.conf.d/81norecommends $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
+sudo cp files/apt/apt.conf.d/{81norecommends,docker-{clean,gzip-indexes,no-languages}} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
 ## Note: set lang to prevent locale warnings in your chroot
