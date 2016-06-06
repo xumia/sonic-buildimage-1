@@ -977,7 +977,7 @@ Microsoft is offering you a license to use the following components, to the exte
  * <http://www.gnu.org/philosophy/why-not-lgpl.html>.
  */
 
-4. docker-clean, docker-gzip-indexes, docker-no-languages imported from docker v1.11.1
+4. apt-clean, apt-gzip-indexes, apt-no-languages imported from docker v1.11.1
 /*
  *                                 Apache License
  *                           Version 2.0, January 2004
