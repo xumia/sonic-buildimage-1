@@ -167,6 +167,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     traceroute              \
     iputils-ping            \
     net-tools               \
+    bsdmainutils            \
     efibootmgr
 
 ## Remove sshd host keys, and will regenerate on first sshd start
