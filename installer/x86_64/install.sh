@@ -49,6 +49,12 @@ if [ "$onie_platform" = "x86_64-dell_s6000_s1220-r0" ]; then
     `pwd`/dell-s6000-replace-reboot.sh
 fi
 
+# Get platform specific linux kernel command line arguments
+ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
+if [ "$onie_platform" = "x86_64-n3000-r0" ]; then
+    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax efi_no_storage_paranoia"
+fi
+
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
 blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
@@ -470,7 +476,7 @@ menuentry '$demo_grub_entry' {
         insmod ext2
         linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX  \
                 loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
-                apparmor=1 security=apparmor
+                apparmor=1 security=apparmor $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
         echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
