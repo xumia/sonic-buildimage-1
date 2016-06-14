@@ -196,6 +196,7 @@ create_demo_gpt_partition()
         --attributes=${demo_part}:=:$attr_bitmask \
         --change-name=${demo_part}:$demo_volume_revision_label $blk_dev \
     || {
+        echo "Warning: The first trial of creating partition failed, trying the largest aligned available block of sectors on the disk"
         begin=$(sgdisk -F $blk_dev)
         end=$(sgdisk -E $blk_dev)
         sgdisk --new=${demo_part}:$begin:$end \
