@@ -1,6 +1,6 @@
 FROM docker-base
 
-COPY deps/python-sswsdk_*.deb deps/lldpsyncd_*.deb /deps/
+COPY deps/python-sswsdk_*.deb deps/lldpsyncd_*.deb deps/lldpd_*.deb /deps/
 
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK (lldpsyncd dependancy)
@@ -8,9 +8,7 @@ COPY deps/python-sswsdk_*.deb deps/lldpsyncd_*.deb /deps/
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
 ## Clean up
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
-    apt-get -y install                                                                          \
-        lldpd                                                                                   \
-        &&                                                                                      \
+    dpkg_apt /deps/lldpd_*.deb &&                                                       \
     dpkg_apt /deps/python-sswsdk_*.deb &&                                                       \
     dpkg_apt /deps/lldpsyncd_*.deb &&                                                           \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
