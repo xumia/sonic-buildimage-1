@@ -8,8 +8,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libswsscommon_*.deb
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsairedis_*.deb
 
-## TODO: add ifupdown into Depends
-RUN apt-get install -f -y ifupdown
+RUN apt-get install -f -y ifupdown bridge-utils
 
 ## Copy executable binaries
 COPY ["/deps/orchagent","/deps/swssconfig","/deps/portsyncd","/deps/intfsyncd","/deps/neighsyncd","/usr/local/bin/"]
