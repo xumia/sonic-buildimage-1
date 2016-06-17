@@ -44,15 +44,16 @@ fi
 
 echo "onie_platform: $onie_platform"
 
-# Dell S6000 reset specific commands
-if [ "$onie_platform" = "x86_64-dell_s6000_s1220-r0" ]; then
-    `pwd`/dell-s6000-replace-reboot.sh
-fi
-
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
-if [ "$onie_platform" = "x86_64-n3000-r0" ]; then
+
+# platform specific configurations
+if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
+    `pwd`/dell-s6000-replace-reboot.sh
+elif [ "$onie_platform" == "x86_64-n3000-r0" ]; then
     ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax efi_no_storage_paranoia"
+elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
+    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax acpi=noirq"
 fi
 
 # Install demo on same block device as ONIE
