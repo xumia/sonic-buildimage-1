@@ -1,6 +1,6 @@
 FROM docker-base
 
-COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb deps/snmp_*.deb deps/snmpd_*.deb /deps/
+COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb deps/snmp_*.deb deps/snmpd_*.deb deps/libsnmp-base_* debs/libsnmp30_* /deps/
 
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK (SNMP subagent dependancy)
@@ -8,8 +8,8 @@ COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb deps/snmp_*.deb deps/
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
 ## Clean up
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
-    dpkg_apt /deps/libsnmp-base_*.deb &&                                                                \
-    dpkg_apt /deps/libsnmp30_*.deb &&                                                                \
+    dpkg_apt /deps/libsnmp-base_*.deb &&                                                        \
+    dpkg_apt /deps/libsnmp30_*.deb &&                                                           \
     dpkg_apt /deps/snmp_*.deb &&                                                                \
 	dpkg_apt /deps/snmpd_*.deb &&                                                               \
     dpkg_apt /deps/python-sswsdk_*.deb &&                                                       \
