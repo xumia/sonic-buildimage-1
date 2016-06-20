@@ -44,9 +44,13 @@ fi
 
 echo "onie_platform: $onie_platform"
 
+# default console settings
+CONSOLE_PORT=0x3f8
+CONSOLE_DEV=0
+CONSOLE_SPEED=9600
+
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
-
 # platform specific configurations
 if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
     `pwd`/dell-s6000-replace-reboot.sh
@@ -54,6 +58,9 @@ elif [ "$onie_platform" == "x86_64-n3000-r0" ]; then
     ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax efi_no_storage_paranoia"
 elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
     ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax acpi=noirq"
+elif [ "$onie_platform" == "x86_64-dell_s6100_c2538-r0" ]; then
+    CONSOLE_PORT=0x2f8
+    CONSOLE_DEV=1
 fi
 
 # Install demo on same block device as ONIE
@@ -426,8 +433,8 @@ trap_push "rm $grub_cfg || true"
 
 [ -r ./platform.conf ] && . ./platform.conf
 
-DEFAULT_GRUB_SERIAL_COMMAND="serial --port=%%CONSOLE_PORT%% --speed=%%CONSOLE_SPEED%% --word=8 --parity=no --stop=1"
-DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS%%CONSOLE_DEV%%,%%CONSOLE_SPEED%%n8 quiet"
+DEFAULT_GRUB_SERIAL_COMMAND="serial --port=${CONSOLE_PORT} --speed=${CONSOLE_SPEED} --word=8 --parity=no --stop=1"
+DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS${CONSOLE_DEV},${CONSOLE_SPEED}n8 quiet"
 GRUB_SERIAL_COMMAND=${GRUB_SERIAL_COMMAND:-"$DEFAULT_GRUB_SERIAL_COMMAND"}
 GRUB_CMDLINE_LINUX=${GRUB_CMDLINE_LINUX:-"$DEFAULT_GRUB_CMDLINE_LINUX"}
 export GRUB_SERIAL_COMMAND
