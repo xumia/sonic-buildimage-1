@@ -1,6 +1,6 @@
 FROM docker-base
 
-COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb deps/snmp_*.deb deps/snmpd_*.deb deps/libsnmp-base_* debs/libsnmp30_* /deps/
+COPY deps/python-sswsdk_*.deb deps/acs-snmp-subagent_*.deb deps/snmp_*.deb deps/snmpd_*.deb deps/libsnmp-base_*.deb deps/libsnmp30_*.deb /deps/
 
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK (SNMP subagent dependancy)
