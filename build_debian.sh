@@ -190,6 +190,21 @@ sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.servi
 ## Config sshd
 sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
 
+## Config sysctl
+sudo augtool --autosave "
+set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %p'
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_accept 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_announce 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_filter 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_notify 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_ignore 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_accept 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_announce 1
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_filter 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_notify 1
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_ignore 2
+" -r $FILESYSTEM_ROOT
+
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
