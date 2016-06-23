@@ -191,6 +191,7 @@ sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.servi
 sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
 
 ## Config sysctl
+sudo mkdir -p $FILESYSTEM_ROOT/var/core
 sudo augtool --autosave "
 set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %p'
 set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_accept 0
