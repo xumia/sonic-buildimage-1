@@ -6,6 +6,8 @@
 
 set -x -e
 
+. ./functions.sh
+
 ## Dockerfile directory
 DOCKER_BUILD_DIR=$1
 REGISTRY_SERVER=$2
@@ -22,33 +24,25 @@ REGISTRY_PASSWD=$5
 docker_image_name=$DOCKER_BUILD_DIR
 remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name
 
-## File name for docker image
-docker_image_gz=$docker_image_name.gz
-
-[ -n "$docker_image_gz" ] || {
-    echo "Error: Output docker image filename is empty"
-    exit 1
-}
-
-function cleanup {
-    rm -rf $DOCKER_BUILD_DIR/files
-    rm -rf $DOCKER_BUILD_DIR/deps
-    docker rmi $remote_image_name || true
-}
-trap cleanup exit
-
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
 if ls deps/* 1>/dev/null 2>&1; then
+    trap_push "rm -rf $DOCKER_BUILD_DIR/deps"
     mkdir -p $DOCKER_BUILD_DIR/deps
     cp -r deps/* $DOCKER_BUILD_DIR/deps
 fi
 
 ## Copy the suggested Debian sources
 ## ref: https://wiki.debian.org/SourcesList
+trap_push "rm -rf $DOCKER_BUILD_DIR/deps"
 cp -r files $DOCKER_BUILD_DIR/files
-docker rmi $docker_image_name || true
+docker_try_rmi $docker_image_name
+
+## Build the docker image
 docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
+## Get the ID of the built image
+## Note: inspect output has quotation characters, so sed to remove it as an argument
+image_id=$(docker inspect --format="{{json .Id}}" $docker_image_name | sed -e 's/^"//' -e 's/"$//')
 
 ## Flatten the image by importing an exported container on this image
 ## Note: it will squash the image with only one layer and lost all metadata such as ENTRYPOINT,
@@ -58,18 +52,26 @@ docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
 if [ "$docker_image_name" = "docker-base" ]; then
     tmp_container=$(docker run -d ${docker_image_name} /bin/bash)
     docker export $tmp_container | docker import - ${docker_image_name}
-    docker rm -f $tmp_container || true
+    trap_push "docker rmi $image_id"
+    trap_push "docker rm -f $tmp_container || true"
 fi
 
+image_sha=''
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
     ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
     docker tag $docker_image_name $remote_image_name
 
     ## Login the docker image registry server
-    ## Note: user name and password are passed from command line, use fake email address to bypass login check
+    ## Note: user name and password are passed from command line
     docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
-    docker push $remote_image_name
+    
+    ## Push image to registry server
+    ## And get the image digest SHA256
+    trap_push "docker rmi $remote_image_name"
+    image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
 fi
 
-docker save $docker_image_name | gzip -c > $docker_image_gz
+mkdir -p target
+rm -f target/$docker_image_name.*.gz
+docker save $docker_image_name | gzip -c > target/$docker_image_name.$image_sha.gz
