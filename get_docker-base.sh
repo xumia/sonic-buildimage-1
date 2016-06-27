@@ -3,7 +3,7 @@
 ## local folder where the image is built on the local machine
 ##
 ## USAGE:
-##   ./get_deps.sh
+##   ./get_docker-base.sh
 
 set -x -e
 
