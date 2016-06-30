@@ -1,6 +1,7 @@
 FROM docker-base
 
 COPY deps/vasclnt_*.deb deps/vasgp_*.deb /deps/
+COPY user-override /etc/opt/quest/vas/user-override
 
 ## Pre-install the fundamental packages
 ## Clean up
