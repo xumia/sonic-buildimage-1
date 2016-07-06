@@ -181,6 +181,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     net-tools               \
     bsdmainutils            \
     ca-certificates         \
+    i2c-tools               \
     efibootmgr
 
 ## Remove sshd host keys, and will regenerate on first sshd start
