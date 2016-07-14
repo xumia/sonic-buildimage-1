@@ -404,7 +404,10 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 # Decompress the file for the file system directly to the partition
 unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
-# store installation log in demo file system
+# Store machine description in target file system
+cp /etc/machine.conf $demo_mnt
+
+# Store installation log in target file system
 rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
 ${onie_bin} onie-support /tmp
 mv $onie_initrd_tmp/tmp/onie-support.tar.bz2 $demo_mnt
