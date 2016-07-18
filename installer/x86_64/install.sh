@@ -502,3 +502,5 @@ mkdir -p $onie_initrd_tmp/$demo_mnt/grub
 cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
 
 cd /
+
+echo "Installed SONiC base image $demo_volume_revision_label successfully"
