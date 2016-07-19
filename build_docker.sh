@@ -20,9 +20,17 @@ REGISTRY_PASSWD=$5
     exit 1
 }
 
+[ -d "$BUILD_NUMBER" ] || {
+    echo "No BUILD_NUMBER found, setting to 0."
+    BUILD_NUMBER="0"
+}
+
 ## Docker image label, so no need to remember its hash
 docker_image_name=$DOCKER_BUILD_DIR
-remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name
+remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:latest
+timestamp="$(date -u +%Y%m%d)"
+build_version="${timestamp}.${BUILD_NUMBER}"
+build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$build_version
 
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
@@ -59,8 +67,10 @@ fi
 image_sha=''
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
+    ## Add additional tag with build information
     ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
     docker tag $docker_image_name $remote_image_name
+    docker tag $docker_image_name $build_remote_image_name
 
     ## Login the docker image registry server
     ## Note: user name and password are passed from command line
@@ -69,7 +79,9 @@ if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Push image to registry server
     ## And get the image digest SHA256
     trap_push "docker rmi $remote_image_name"
+    trap_push "docker rmi $build_remote_image_name"
     image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
+    docker push $build_remote_image_name
 fi
 
 mkdir -p target
