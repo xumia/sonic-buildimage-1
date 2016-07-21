@@ -20,7 +20,7 @@ REGISTRY_PASSWD=$5
     exit 1
 }
 
-[ -d "$BUILD_NUMBER" ] || {
+[ ${BUILD_NUMBER} ] || {
     echo "No BUILD_NUMBER found, setting to 0."
     BUILD_NUMBER="0"
 }
