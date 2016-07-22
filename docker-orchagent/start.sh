@@ -2,7 +2,7 @@
 
 . /host/machine.conf
 
-MAC_ADDRESS=`ifconfig eth0 | grep HWaddr | awk "{print $5}"`
+MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
 
 ORCHAGENT_ARGS=""
 
