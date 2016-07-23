@@ -1,12 +1,45 @@
 #!/bin/bash
 ## This script is to automate the preparation for docker images for ACS.
 ## If registry server and port provided, the images will be pushed there.
-## Usage:
-##   sudo ./build_docker.sh DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT]
 
-set -x -e
+set -e
 
 . ./functions.sh
+
+usage() {
+    cat >&2 <<EOF
+Usage:
+  sudo ./build_docker.sh -i=DOCKER_IMAGE_NAME DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT]
+  
+Description:
+  -i DOCKER_IMAGE_NAME
+       Specifi the docker images name, by default it is DOCKER_BUILD_DIR
+  DOCKER_BUILD_DIR
+       The directory containing Dockerfile
+  REGISTRY_SERVER
+       The server name of the docker registry
+  REGISTRY_PORT
+       The port of the docker registry
+       
+Example:
+  ./build_docker.sh -i docker-orchagent-mlnx docker-orchagent
+EOF
+}
+
+docker_image_name=''
+while getopts ":i:" opt; do
+  case $opt in
+    i)
+      docker_image_name=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+shift "$((OPTIND - 1))"
 
 ## Dockerfile directory
 DOCKER_BUILD_DIR=$1
@@ -20,13 +53,15 @@ REGISTRY_PASSWD=$5
     exit 1
 }
 
+[ -n "$docker_image_name" ] || {
+    docker_image_name=$DOCKER_BUILD_DIR
+}
+
 [ ${BUILD_NUMBER} ] || {
     echo "No BUILD_NUMBER found, setting to 0."
     BUILD_NUMBER="0"
 }
 
-## Docker image label, so no need to remember its hash
-docker_image_name=$DOCKER_BUILD_DIR
 remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:latest
 timestamp="$(date -u +%Y%m%d)"
 build_version="${timestamp}.${BUILD_NUMBER}"
