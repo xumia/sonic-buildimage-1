@@ -95,8 +95,8 @@ image_id=$(docker inspect --format="{{json .Id}}" $docker_image_name | sed -e 's
 if [ "$docker_image_name" = "docker-base" ]; then
     tmp_container=$(docker run -d ${docker_image_name} /bin/bash)
     docker export $tmp_container | docker import - ${docker_image_name}
-    trap_push "docker rmi $image_id"
     trap_push "docker rm -f $tmp_container || true"
+    trap_push "docker rmi $image_id || true"
 fi
 
 image_sha=''
@@ -113,8 +113,8 @@ if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     
     ## Push image to registry server
     ## And get the image digest SHA256
-    trap_push "docker rmi $remote_image_name"
-    trap_push "docker rmi $build_remote_image_name"
+    trap_push "docker rmi $remote_image_name || true"
+    trap_push "docker rmi $build_remote_image_name || true"
     image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
     docker push $build_remote_image_name
 fi
