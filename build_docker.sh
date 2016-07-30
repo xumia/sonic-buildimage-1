@@ -42,13 +42,13 @@ done
 shift "$((OPTIND - 1))"
 
 ## Dockerfile directory
-DOCKER_BUILD_DIR=$1
+DOCKER_BUILD_DIR=dockers/$1
 REGISTRY_SERVER=$2
 REGISTRY_PORT=$3
 REGISTRY_USERNAME=$4
 REGISTRY_PASSWD=$5
 
-[ -d "$DOCKER_BUILD_DIR" ] || {
+[ -f "$DOCKER_BUILD_DIR"/Dockerfile ] || {
     echo "Invalid DOCKER_BUILD_DIR directory" >&2
     exit 1
 }

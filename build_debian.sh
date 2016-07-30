@@ -142,7 +142,7 @@ wget $docker_deb_url -qO $docker_deb_temp && {                                  
 }
 sudo chroot $FILESYSTEM_ROOT docker version
 sudo chroot $FILESYSTEM_ROOT service docker stop
-## Add docker config drop-in to select aufs, otherwise it may other storage driver
+## Add docker config drop-in to select aufs, otherwise it may select other storage driver
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
 ## Note: $_ means last argument of last command
 sudo cp files/docker/docker.service.conf $_
