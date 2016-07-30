@@ -10,7 +10,7 @@ define build_project
 	rm -f $(1)/debian/*.debhelper.log
 	pushd $(1)
 	[ ! -f ./autogen.sh ] || ./autogen.sh
-	fakeroot debian/rules binary
+	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd
 endef
 
@@ -32,7 +32,7 @@ libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_3.
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss-common)
 
-brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb: libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb brcm-sdk/libopennsl_*_amd64.deb brcm-sdk/libopennsl-dev_*_amd64.deb brcm-sdk/libsaibcm_1.0.2*_amd64.deb brcm-sdk/libsaibcm-dev_1.0.2*_amd64.deb
+brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb: libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb brcm-sdk/libopennsl_*_amd64.deb brcm-sdk/libsaibcm_1.0.2*_amd64.deb brcm-sdk/libsaibcm-dev_1.0.2*_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-sairedis)
 	mkdir -p brcm
