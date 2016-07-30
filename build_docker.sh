@@ -54,7 +54,7 @@ REGISTRY_PASSWD=$5
 }
 
 [ -n "$docker_image_name" ] || {
-    docker_image_name=$DOCKER_BUILD_DIR
+    docker_image_name=$(basename $DOCKER_BUILD_DIR)
 }
 
 [ ${BUILD_NUMBER} ] || {
@@ -93,10 +93,14 @@ image_id=$(docker inspect --format="{{json .Id}}" $docker_image_name | sed -e 's
 ## TODO: wait docker-squash supporting Docker 1.10+
 ## ref: https://github.com/jwilder/docker-squash/issues/45
 if [ "$docker_image_name" = "docker-base" ]; then
+    ## Run old image in a container
     tmp_container=$(docker run -d ${docker_image_name} /bin/bash)
+    ## Export the container's filesystem, then import as a new image
     docker export $tmp_container | docker import - ${docker_image_name}
-    trap_push "docker rm -f $tmp_container || true"
-    trap_push "docker rmi $image_id || true"
+    ## Remove the container
+    docker rm -f $tmp_container || true
+    ## Remove the old image
+    docker rmi -f $image_id || true
 fi
 
 image_sha=''
