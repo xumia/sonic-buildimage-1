@@ -1,7 +1,13 @@
 ## TODO: if install dev package really happens, rebuild the depending project
 
+## Arguments from make command line
+USERNAME=
+PASSWORD_ENCRYPTED=
+
+## Select bash for commands
 SHELL := /bin/bash
 
+## Capture all the files in SDK directories
 MLNX-SDK-DEBS=$(notdir $(wildcard src/mlnx-sdk/*.deb))
 BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
 
@@ -60,6 +66,12 @@ dockers/docker-syncd-mlnx/deps/%.deb: src/%.deb
 	
 dockers/docker-syncd/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $@
+	
+deps/linux-image-3.16.0-4-amd64_%.deb: src/sonic-linux-kernel/linux-image-3.16.0-4-amd64_%.deb
+	mkdir -p `dirname $@` && cp $< $@
+
+deps/initramfs-tools_%.deb: src/initramfs-tools/initramfs-tools_%.deb
+	mkdir -p `dirname $@` && cp $< $@
 
 target/docker-base.gz:
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
@@ -86,8 +98,14 @@ target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-brcm-all: $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz)
+acs-generic.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
+	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=generic ./build_image.sh
+
+acs-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
+	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=aboot ./build_image.sh
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-mlnx-all: $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz)
+brcm-all: acs-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz)
+
+## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
+mlnx-all: acs-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz)

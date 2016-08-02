@@ -60,3 +60,8 @@ mlnx/swss_1.0.0_amd64.deb mlnx/intfsyncd mlnx/neighsyncd mlnx/orchagent mlnx/por
 	cp sonic-swss/debian/swss/usr/bin/* mlnx/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	
+$(addprefix sonic-linux-kernel/,linux-headers-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb linux-headers-3.16.0-4-common_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64-dbg_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb xen-linux-system-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb):
+	pushd sonic-linux-kernel; sudo ./build.sh; popd
+
+initramfs-tools/initramfs-tools_0.120_all.deb:
+	pushd initramfs-tools; ./build.sh; popd
