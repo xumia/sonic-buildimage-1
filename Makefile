@@ -98,14 +98,14 @@ target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-acs-generic.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
+target/acs-generic.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
 	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=generic ./build_image.sh
 
-acs-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
+target/acs-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
 	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=aboot ./build_image.sh
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-brcm-all: acs-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz)
+brcm-all: target/acs-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz)
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-mlnx-all: acs-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz)
+mlnx-all: target/acs-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz)
