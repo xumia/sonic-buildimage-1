@@ -9,11 +9,10 @@ COPY deps /root/deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Set the apt source, update package cache and install necessary packages
-RUN echo "deb http://ftp.us.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list \
-    && apt-get update           \
-    && apt-get upgrade -y       \
+RUN apt-get update          \
+    && apt-get upgrade -y   \
     && apt-get dist-upgrade -y  \
-    && apt-get install -y --no-install-recommends \
+    && apt-get install -y   \
         openssh-server      \
         vim                 \
         python              \
@@ -69,7 +68,10 @@ RUN mkdir /var/run/sshd \
  && mkdir /root/deps
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY sshd.conf /etc/supervisor/conf.d/sshd.conf
+COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
 EXPOSE 22
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT while [ "x$( ifconfig eth3 | grep RUNNING )" = 'x' ] ; do sleep 1 ; done \
+           && /usr/bin/supervisord

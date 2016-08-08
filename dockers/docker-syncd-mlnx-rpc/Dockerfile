@@ -23,6 +23,7 @@ RUN apt-get update \
  && ldconfig            \
  && cd ..               \
  && rm -fr nanomsg-1.0.0 \
+ && rm -f 1.0.0.tar.gz  \
  && pip install cffi    \
  && pip install --upgrade cffi \
  && pip install nnpy    \
@@ -41,6 +42,10 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
+
 ENTRYPOINT service rsyslog start \
     && service syncd start       \
-    && /bin/bash
+    && while [ "x$( ifconfig Ethernet12 | grep RUNNING )" = 'x' ] ; do sleep 1 ; done \
+    && /usr/bin/supervisord
