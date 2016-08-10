@@ -15,6 +15,8 @@ elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/ACS-MSN2700/port_config.ini"
 fi
 
+[ -a /var/run/rsyslog.d ] && rm /var/run/rsyslog.d
+
 service rsyslog start
 orchagent $ORCHAGENT_ARGS &
 sleep 5
