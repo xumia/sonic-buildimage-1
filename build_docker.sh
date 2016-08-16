@@ -125,4 +125,5 @@ fi
 
 mkdir -p target
 rm -f target/$docker_image_name.*.gz
-docker save $docker_image_name | gzip -c > target/$docker_image_name.$image_sha.gz
+docker save $docker_image_name | gzip -c > target/$docker_image_name.$build_version.gz
+echo "Image sha256: $image_sha"
