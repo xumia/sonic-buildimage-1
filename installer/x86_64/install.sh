@@ -53,6 +53,7 @@ CONSOLE_SPEED=9600
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
 # platform specific configurations
 if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
+    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="processor.max_cstate=1 intel_idle.max_cstate=0"
     `pwd`/dell-s6000-replace-reboot.sh
 elif [ "$onie_platform" == "x86_64-n3000-r0" ]; then
     ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax efi_no_storage_paranoia"
