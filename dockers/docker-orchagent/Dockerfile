@@ -2,13 +2,17 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY ["deps/libhiredis0.13*.deb", "deps/libswsscommon_*.deb", "deps/libsairedis_*.deb", "/deps/"]
+COPY ["deps/libhiredis0.13*.deb", "deps/libnl-3-200_*.deb", "deps/libnl-genl-3-200_*.deb", "deps/libnl-route-3-200_*.deb", "deps/libswsscommon_*.deb", "deps/libsairedis_*.deb", "/deps/"]
 
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libhiredis0.13*.deb
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libswsscommon_*.deb
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsairedis_*.deb
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; \
+    dpkg_apt /deps/libhiredis0.13*.deb          \
+    && dpkg_apt /deps/libnl-3-200_*.deb         \
+    && dpkg_apt /deps/libnl-genl-3-200_*.deb    \
+    && dpkg_apt /deps/libnl-route-3-200_*.deb   \
+    && dpkg_apt /deps/libswsscommon_*.deb       \
+    && dpkg_apt /deps/libsairedis_*.deb
 
-RUN apt-get install -f -y ifupdown bridge-utils
+RUN apt-get install -f -y ifupdown bridge-utils redis-tools
 
 ## Copy executable binaries
 COPY ["deps/orchagent","deps/swssconfig","deps/portsyncd","deps/intfsyncd","deps/neighsyncd","/usr/bin/"]
