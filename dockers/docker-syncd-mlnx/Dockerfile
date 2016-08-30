@@ -18,6 +18,9 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     && dpkg_apt /deps/mft*.deb             \
 
     && dpkg_apt /deps/libhiredis0.13*.deb  \
+    && dpkg_apt /deps/libnl-3-200_*.deb  \
+    && dpkg_apt /deps/libnl-genl-3-200_*.deb  \
+    && dpkg_apt /deps/libnl-route-3-200_*.deb  \
     && dpkg_apt /deps/libswsscommon_*.deb  \
     && dpkg_apt /deps/mlnx-sai_*.deb       \
     && dpkg_apt /deps/libsairedis_*.deb
