@@ -368,7 +368,7 @@ demo_install_uefi_grub()
     grub_install_log=$(mktemp)
     grub-install \
         --no-nvram \
-        --bootloader-id="$onie_initrd_tmp/$demo_volume_label" \
+        --bootloader-id="$demo_volume_label" \
         --efi-directory="/boot/efi" \
         --boot-directory="$demo_mnt" \
         --recheck \
