@@ -9,7 +9,8 @@ COPY deps /root/deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Set the apt source, update package cache and install necessary packages
-RUN apt-get update          \
+RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /etc/apt/sources.list \
+    && apt-get update          \
     && apt-get upgrade -y   \
     && apt-get dist-upgrade -y  \
     && apt-get install -y   \
@@ -46,14 +47,15 @@ RUN apt-get update          \
     && tar xvfz 1.0.0.tar.gz \
     && cd nanomsg-1.0.0    \
     && mkdir -p build      \
-    && cmake .             \
+    && cd build            \
+    && cmake ..            \
     && make install        \
     && ldconfig            \
-    && cd ..               \
+    && cd ../..            \
     && rm -fr nanomsg-1.0.0 \
     && rm -f 1.0.0.tar.gz  \
-    && pip install cffi    \
-    && pip install --upgrade cffi \
+    && pip install cffi==1.7.0    \
+    && pip install --upgrade cffi==1.7.0 \
     && pip install nnpy    \
     && mkdir -p /opt       \
     && cd /opt             \
