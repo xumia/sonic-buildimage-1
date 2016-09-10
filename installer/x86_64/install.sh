@@ -51,24 +51,7 @@ CONSOLE_SPEED=9600
 
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
-# platform specific configurations
-if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
-    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="processor.max_cstate=1 intel_idle.max_cstate=0"
-    `pwd`/dell-s6000-replace-reboot.sh
-elif [ "$onie_platform" == "x86_64-m3000-r0" ]; then
-    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax efi_no_storage_paranoia"
-    # Call script to set mac address for eth0 on m3000 platform
-    ./macset.sh
-    if [ "$?" != "0" ]; then
-        echo "./macset.sh exited with error, could not set mac-address correctly" >&2
-        exit 1
-    fi
-elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
-    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax acpi=noirq"
-elif [ "$onie_platform" == "x86_64-dell_s6100_c2538-r0" ]; then
-    CONSOLE_PORT=0x2f8
-    CONSOLE_DEV=1
-fi
+source platforms/$onie_platform
 
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
