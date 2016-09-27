@@ -22,10 +22,10 @@ define build_docker
 	docker save $(1) | gzip -c > $(2)
 endef
 	
-## Rules: fake target
+## Rules: phony targets
 .phony : brcm-all mlnx-all cavm-all
 
-## Rules: fake target
+## Rules: redirect to sub directory
 src/%:
 	$(MAKE) -C src $(subst src/,,$@)
 	
