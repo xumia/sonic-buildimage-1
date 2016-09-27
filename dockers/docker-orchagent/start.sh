@@ -5,7 +5,6 @@ function start_app {
     portsyncd $PORTSYNCD_ARGS &
     intfsyncd &
     neighsyncd &
-    swssconfig &
 }
 
 function clean_up {
