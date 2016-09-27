@@ -12,6 +12,8 @@ MLNX-SDK-DEBS=$(notdir $(wildcard src/mlnx-sdk/*.deb))
 BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
 CAVM-SDK-DEBS=$(notdir $(wildcard src/cavm-sdk/*.deb))
 
+LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb
+
 ## Function: build_docker, image_name save_file
 ## build a docker image and save to a file
 define build_docker
@@ -27,81 +29,83 @@ src/%:
 	$(MAKE) -C src $(subst src/,,$@)
 	
 dockers/docker-fpm/deps/fpmsyncd: src/fpmsyncd
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-fpm/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-orchagent-mlnx/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-orchagent-mlnx/deps/%: src/mlnx/%
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-orchagent/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-orchagent/deps/%: src/brcm/%
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 dockers/docker-orchagent-cavm/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 dockers/docker-orchagent-cavm/deps/%: src/cavm/%
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
-dockers/docker-%-mlnx/deps/syncd_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
+dockers/docker-syncd-mlnx/deps/syncd_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
-dockers/docker-%/deps/syncd_1.0.0_amd64.deb: src/brcm/syncd_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
+dockers/docker-syncd/deps/syncd_1.0.0_amd64.deb: src/brcm/syncd_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
-dockers/docker-%-cavm/deps/syncd_1.0.0_amd64.deb: src/cavm/syncd_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
-	
-dockers/docker-%-mlnx/deps/libsairedis_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
-	
-dockers/docker-%/deps/libsairedis_1.0.0_amd64.deb: src/brcm/syncd_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
+dockers/docker-syncd-cavm/deps/syncd_1.0.0_amd64.deb: src/cavm/syncd_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
+## BRCM rule (docker-%) must appears at last in the libsairedis group, to correctly fallback
+##   wildcard matching
+## TODO: rename folder to make it consitent
+dockers/docker-%-mlnx/deps/libsairedis_1.0.0_amd64.deb: src/mlnx/libsairedis_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-%-cavm/deps/libsairedis_1.0.0_amd64.deb: src/cavm/libsairedis_1.0.0_amd64.deb
-	mkdir -p `dirname $@` && cp $< $@
-	
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-%/deps/libsairedis_1.0.0_amd64.deb: src/brcm/libsairedis_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+##
+
 $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS)) : dockers/docker-syncd-mlnx/deps/%.deb : src/mlnx-sdk/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS)) : dockers/docker-syncd/deps/%.deb : src/brcm-sdk/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 $(addprefix dockers/docker-syncd-cavm/deps/,$(CAVM-SDK-DEBS)) : dockers/docker-syncd-cavm/deps/%.deb : src/cavm-sdk/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-syncd-mlnx/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 dockers/docker-syncd/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 dockers/docker-syncd-cavm/deps/%.deb: src/%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 deps/linux-image-3.16.0-4-amd64_%.deb: src/sonic-linux-kernel/linux-image-3.16.0-4-amd64_%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 deps/initramfs-tools_%.deb: src/initramfs-tools/initramfs-tools_%.deb
-	mkdir -p `dirname $@` && cp $< $@
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 target/docker-base.gz:
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS) libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb syncd_1.0.0_amd64.deb)
+target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS) libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb syncd_1.0.0_amd64.deb $(LIBNL-DEBS))
 	## TODO: remove placeholders for the dependencies
 	touch dockers/docker-syncd/deps/{dsserve,bcmcmd}
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb)
+target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb $(LIBNL-DEBS))
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
@@ -109,11 +113,11 @@ target/docker-syncd-cavm.gz: target/docker-base.gz $(addprefix dockers/docker-sy
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-orchagent.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
+target/docker-orchagent.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb $(LIBNL-DEBS))
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-mlnx/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
+target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-mlnx/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb $(LIBNL-DEBS))
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
