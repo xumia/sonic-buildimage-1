@@ -9,7 +9,8 @@ set -x -e
 
 . ./functions.sh
 
-BASE_URL="https://acsbe.blob.core.windows.net/vmimages/docker-base.ea507753d98b0769e2a15be13003331f8ad38d1c15b40a683e05fc53b1463b10.gz?sv=2014-02-14&sr=c&sig=5LDHYs3TU4%2FiHcM7RzqQiksyy7Jv7zQu440RtNOTU80%3D&se=2116-02-06T22%3A19%3A22Z&sp=rwdl"
+## [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Read-only link of Azure Blob storage with shared access signature (SAS)")]
+BASE_URL="https://acsbe.blob.core.windows.net/vmimages/docker-base.ea507753d98b0769e2a15be13003331f8ad38d1c15b40a683e05fc53b1463b10.gz?sv=2015-04-05&sr=b&sig=HOFpkqgSy7DKljJzcCne5flKF4xauw8OTumydhoYTn4%3D&se=2026-09-29T01%3A03%3A08Z&sp=r"
 
 base_image_name=docker-base
 docker_try_rmi $base_image_name
