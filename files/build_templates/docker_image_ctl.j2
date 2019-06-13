@@ -169,14 +169,14 @@ function postStartAction()
         /usr/bin/config save -y
     fi
 {%- elif docker_container_name == "swss" %}
-    docker exec swss rm -f /ready   # remove cruft
+    docker exec swss$DEV rm -f /ready   # remove cruft
     if [[ "$BOOT_TYPE" == "fast" ]] && [[ -d /host/fast-reboot ]]; then
-        test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss:/
-        test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss:/
-        test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss:/
+        test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss$DEV:/
+        test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss$DEV:/
+        test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss$DEV:/
         rm -fr /host/fast-reboot
     fi
-    docker exec swss touch /ready   # signal swssconfig.sh to go
+    docker exec swss$DEV touch /ready # signal swssconfig.sh to go
 {%- elif docker_container_name == "pmon" %}
 
     DEVPATH="/usr/share/sonic/device"
@@ -212,18 +212,19 @@ start() {
         HOSTNAME=`hostname`
     fi
 
-    DOCKERCHECK=`docker inspect --type container {{docker_container_name}} 2>/dev/null`
-    if [ "$?" -eq "0" ]; then
-        {%- if docker_container_name == "database" %}
+	
+	DOCKERCHECK=`docker inspect --type container {{docker_container_name}}$DEV 2>/dev/null`
+	if [ "$?" -eq "0" ]; then
+		{%- if docker_container_name == "database" %}
         DOCKERMOUNT=""
-        {%- else %}
+		{%- else %}
         DOCKERMOUNT=`getMountPoint "$DOCKERCHECK"`
-        {%- endif %}
-        if [ x"$DOCKERMOUNT" == x"$HWSKU" ]; then
-            {%- if docker_container_name == "database" %}
-            echo "Starting existing {{docker_container_name}} container"
-            {%- else %}
-            echo "Starting existing {{docker_container_name}} container with HWSKU $HWSKU"
+		{%- endif %}
+		if [ x"$DOCKERMOUNT" == x"$HWSKU" ]; then
+			{%- if docker_container_name == "database" %}
+            echo "Starting existing {{docker_container_name}}$DEV container"
+			{%- else %}
+            echo "Starting existing {{docker_container_name}}$DEV container with HWSKU $HWSKU"
             {%- endif %}
             preStartAction
             docker start {{docker_container_name}}
@@ -298,8 +299,14 @@ wait() {
 }
 
 stop() {
-    docker stop {{docker_container_name}}
+    docker stop {{docker_container_name}}$DEV
+	{%- if docker_container_name == "namespace" %}
+    ip netns delete "{{docker_container_name}}$DEV"
+	{%- endif %}
 }
+
+OP=$1 # operation to perform (start/wait/stop)
+DEV=$2 # namespace/device number to operate on
 
 case "$1" in
     start|wait|stop|updateHostName)
