@@ -1,0 +1,14 @@
+[Unit]
+Description=Network Namespace Compatible Logging Service
+Requires=syslog.socket
+After=rsyslog-config@%i.service
+
+[Service]
+Type=notify
+User=root
+ExecStart=/bin/ip netns exec namespace%i /usr/sbin/rsyslogd -n -i /var/run/rsyslogd%i.pid -f /etc/rsyslog%i.conf
+StandardOutput=null
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
