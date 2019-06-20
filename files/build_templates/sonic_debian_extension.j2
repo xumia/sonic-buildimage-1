@@ -432,6 +432,14 @@ sudo rm -rf $FILESYSTEM_ROOT/$MLNX_PLATFORM_COMMON_PY2_WHEEL_NAME
 {% endif %}
 
 {%- if SONIC_ROUTING_STACK == "frr" %}
+        {% for i in range(6) %}
+sudo mkdir $FILESYSTEM_ROOT/etc/sonic/frr{{i}}
+sudo touch $FILESYSTEM_ROOT/etc/sonic/frr{{i}}/frr.conf
+sudo touch $FILESYSTEM_ROOT/etc/sonic/frr{{i}}/vtysh.conf
+sudo chown -R $FRR_USER_UID:$FRR_USER_GID $FILESYSTEM_ROOT/etc/sonic/frr{{i}}
+sudo chmod -R 640 $FILESYSTEM_ROOT/etc/sonic/frr{{i}}/
+sudo chmod 750 $FILESYSTEM_ROOT/etc/sonic/frr{{i}}
+        {%- endfor %}
 sudo mkdir $FILESYSTEM_ROOT/etc/sonic/frr
 sudo touch $FILESYSTEM_ROOT/etc/sonic/frr/frr.conf
 sudo touch $FILESYSTEM_ROOT/etc/sonic/frr/vtysh.conf
