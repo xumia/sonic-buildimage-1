@@ -1,0 +1,14 @@
+[Unit]
+Description=Update interfaces configuration
+Requires=database@%i.service
+After=database@%i.service
+#Requires=updategraph.service
+#After=updategraph.service
+PartOf=namespace@%i.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/interfaces-config.sh %i
+
+[Install]
+RequiredBy=namespace@%i.target

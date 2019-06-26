@@ -8,4 +8,4 @@ Type=oneshot
 ExecStart=/usr/bin/interfaces-config.sh
 
 [Install]
-WantedBy=multi-user.target
+RequiredBy=multi-user.target

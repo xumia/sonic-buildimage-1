@@ -9,7 +9,7 @@ Requires=nps-modules-4.9.0-9-2-amd64.service
 {% endif %}
 After=database@%i.service 
 #updategraph.service
-After=interfaces-config.service
+After=interfaces-config@%i.service
 Before=ntp-config.service
 PartOf=namespace@%i.target
 StartLimitIntervalSec=1200
