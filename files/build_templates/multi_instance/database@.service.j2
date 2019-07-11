@@ -1,0 +1,16 @@
+[Unit]
+Description=Database container
+Requires=docker.service namespace@%i.service
+After=docker.service namespace@%i.service
+PartOf=namespace@%i.target
+
+[Service]
+User=root
+ExecStartPre=/usr/bin/{{docker_container_name}}.sh start %i
+ExecStart=/usr/bin/{{docker_container_name}}.sh wait %i 
+ExecStop=/usr/bin/{{docker_container_name}}.sh stop %i
+Restart=on-failure
+TimeoutStartSec=120
+
+[Install]
+RequiredBy=namespace@%i.target
