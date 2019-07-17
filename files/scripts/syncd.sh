@@ -1,9 +1,5 @@
 #!/bin/bash
 
-SERVICE="syncd"
-PEER="swss"
-DEBUGLOG="/tmp/swss-syncd-debug.log"
-LOCKFILE="/tmp/swss-syncd-lock"
 
 function debug()
 {
@@ -30,8 +26,8 @@ function unlock_service_state_change()
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`/usr/bin/redis-cli $DEV -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`/usr/bin/redis-cli $DEV -n 6 hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -43,12 +39,12 @@ function check_warm_boot()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    until [[ $(/usr/bin/docker exec database redis-cli ping | grep -c PONG) -gt 0 ]];
+    until [[ $(/usr/bin/redis-cli $DEV ping | grep -c PONG) -gt 0 ]];
         do sleep 1;
     done
 
     # Wait for configDB initialization
-    until [[ $(/usr/bin/docker exec database redis-cli -n 4 GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(/usr/bin/redis-cli $DEV -n 4 GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -130,7 +126,7 @@ start() {
     fi
 
     # start service docker
-    /usr/bin/${SERVICE}.sh start
+    /usr/bin/${SERVICE}.sh start $DEV
     debug "Started ${SERVICE} service..."
 
     unlock_service_state_change
@@ -142,7 +138,7 @@ wait() {
         /bin/systemctl start pmon
         debug "Started pmon service"
     fi
-    /usr/bin/${SERVICE}.sh wait
+    /usr/bin/${SERVICE}.sh wait $DEV
 }
 
 stop() {
@@ -166,18 +162,18 @@ stop() {
 
     if [[ x$sonic_asic_platform != x"mellanox" ]] || [[ x$TYPE != x"cold" ]]; then
         debug "${TYPE} shutdown syncd process ..."
-        /usr/bin/docker exec -i syncd /usr/bin/syncd_request_shutdown --${TYPE}
+        /usr/bin/docker exec -i syncd$DEV /usr/bin/syncd_request_shutdown --${TYPE}
 
         # wait until syncd quits gracefully
-        while docker top syncd | grep -q /usr/bin/syncd; do
+        while docker top syncd$DEV | grep -q /usr/bin/syncd; do
             sleep 0.1
         done
 
-        /usr/bin/docker exec -i syncd /bin/sync
+        /usr/bin/docker exec -i syncd$DEV /bin/sync
         debug "Finished ${TYPE} shutdown syncd process ..."
     fi
 
-    /usr/bin/${SERVICE}.sh stop
+    /usr/bin/${SERVICE}.sh stop $DEV
     debug "Stopped ${SERVICE} service..."
 
     # platform specific tasks
@@ -194,6 +190,14 @@ stop() {
 
     unlock_service_state_change
 }
+
+OP=$1
+DEV=$2
+
+SERVICE="syncd"
+PEER="swss"
+DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
+LOCKFILE="/tmp/swss-syncd-lock$DEV"
 
 case "$1" in
     start|wait|stop)
