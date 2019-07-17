@@ -1,0 +1,9 @@
+[Unit]
+Description=Synchronization Target for Individual Namespace
+Wants=topology.service
+Requires=namespace@i.service
+After=topology.service namespace@i.service
+PartOf=namespace@%i.service
+
+[Install]
+WantedBy=multi-user.target
