@@ -5,7 +5,6 @@ Description=BGP container
 After=database@%i.service 
 Requires=database@%i.service
 Before=ntp-config.service
-PartOf=namespace@%i.target
 
 [Service]
 User=root
@@ -14,4 +13,4 @@ ExecStart=/usr/bin/{{docker_container_name}}.sh wait %i
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop %i
 
 [Install]
-RequiredBy=namespace@%i.target
+WantedBy=multi-user.target

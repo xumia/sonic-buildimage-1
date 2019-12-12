@@ -5,7 +5,6 @@ Requires=swss@%i.service
 #After=updategraph.service 
 After=swss@%i.service
 Before=ntp-config.service
-PartOf=namespace@%i.target
 
 [Service]
 User=root
@@ -15,4 +14,4 @@ ExecStop=/usr/bin/{{docker_container_name}}.sh stop %i
 
 [Install]
 WantedBy=swss@%i.service
-RequiredBy=namespace@%i.target
+RequiredBy=multi-user.target

@@ -2,7 +2,6 @@
 Description=Database container
 Requires=docker.service namespace@%i.service
 After=docker.service namespace@%i.service
-PartOf=namespace@%i.target
 
 [Service]
 User=root
@@ -13,4 +12,4 @@ Restart=on-failure
 TimeoutStartSec=120
 
 [Install]
-RequiredBy=namespace@%i.target
+WantedBy=multi-user.target

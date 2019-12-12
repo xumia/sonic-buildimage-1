@@ -396,10 +396,6 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
 # Copy network namespace wrapper script
 sudo LANG=C cp $SCRIPTS_DIR/namespace.sh $FILESYSTEM_ROOT/usr/local/bin/namespace
 
-# Copy namespace target
-sudo cp $IMAGE_CONFIGS/namespace/namespace@.target $FILESYSTEM_ROOT/etc/systemd/system/
-echo "namespace@.target" | sudo tee -a $GENERATED_SERVICE_FILE
-
 # Copy systemd timer configuration
 # It implements delayed start of services
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT/etc/systemd/system/

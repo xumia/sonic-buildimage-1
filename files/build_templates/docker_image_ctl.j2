@@ -303,7 +303,7 @@ wait() {
 
 stop() {
     docker stop {{docker_container_name}}$DEV
-	{%- if docker_container_name == "namespace" %}
+	{%- if docker_container_name == "database" %}
     ip netns delete "{{docker_container_name}}$DEV"
 	{%- endif %}
 }

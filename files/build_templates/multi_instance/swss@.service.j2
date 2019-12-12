@@ -11,7 +11,6 @@ After=database@%i.service
 #updategraph.service
 After=interfaces-config@%i.service
 Before=ntp-config.service
-PartOf=namespace@%i.target
 StartLimitIntervalSec=1200
 StartLimitBurst=3
 
@@ -25,4 +24,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-RequiredBy=namespace@%i.target
+WantedBy=multi-user.target
