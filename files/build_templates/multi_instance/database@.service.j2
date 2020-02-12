@@ -1,7 +1,7 @@
 [Unit]
 Description=Database container
-Requires=docker.service
-After=docker.service
+Requires=docker.service database.service
+After=docker.service database.service
 
 [Service]
 User=root

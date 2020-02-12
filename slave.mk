@@ -670,6 +670,11 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 
 		if [ -f files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 ]; then
 			j2 files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
+
+			# Set the flag GLOBAL for all the global system-wide dockers.
+			$(if $(shell ls files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 2>/dev/null),\
+				$(eval $(docker:-dbg.gz=.gz)_GLOBAL = yes)
+			)
 		fi
 
 		if [ -f files/build_templates/multi_instance/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)@.service.j2 ]; then
@@ -692,8 +697,12 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 
 	# Marks template services with an "@" according to systemd convention
 	# If the $($docker)_TEMPLATE) variable is set, the service will be treated as a template
+	# If the $($docker)_GLOBAL) and $($docker)_TEMPLATE) variables are set the service will be added both as a global and template service.
 	$(foreach docker, $($*_DOCKERS),\
 		$(if $($(docker:-dbg.gz=.gz)_TEMPLATE),\
+			$(if $($(docker:-dbg.gz=.gz)_GLOBAL),\
+			$(eval SERVICES += "$(addsuffix .service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")\
+			)\
 			$(eval SERVICES += "$(addsuffix @.service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))"),\
 			$(eval SERVICES += "$(addsuffix .service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")
 		)
