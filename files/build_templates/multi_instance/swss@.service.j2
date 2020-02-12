@@ -6,8 +6,13 @@ Requires=database@%i.service
 Requires=opennsl-modules.service
 {% elif sonic_asic_platform == 'nephos' %}
 Requires=nps-modules-4.9.0-9-2-amd64.service
+{% elif sonic_asic_platform == 'vs' %}
+Requires=topology.service
 {% endif %}
 After=database@%i.service 
+{% if sonic_asic_platform == 'vs' %}
+After=topology.service
+{% endif %}
 #updategraph.service
 After=interfaces-config@%i.service
 Before=ntp-config.service
