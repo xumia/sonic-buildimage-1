@@ -9,25 +9,25 @@ function debug()
 
 function lock_service_state_change()
 {
-    debug "Locking ${LOCKFILE} from ${SERVICE} service"
+    debug "Locking ${LOCKFILE} from ${SERVICE}$DEV service"
 
     exec {LOCKFD}>${LOCKFILE}
     /usr/bin/flock -x ${LOCKFD}
     trap "/usr/bin/flock -u ${LOCKFD}" 0 2 3 15
 
-    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
 }
 
 function unlock_service_state_change()
 {
-    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
     /usr/bin/flock -u ${LOCKFD}
 }
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`/usr/bin/redis-cli $DEV STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`/usr/bin/redis-cli $DEV STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -42,7 +42,7 @@ function wait_for_database_service()
     /usr/bin/docker exec database$DEV ping_pong_db_insts
 
     # Wait for configDB initialization
-    until [[ $(sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(/usr/bin/redis-cli $DEV CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -59,7 +59,7 @@ function getBootType()
         ;;
     *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
         # check that the key exists
-        if [[ $(sonic-db-cli STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
+        if [[ $(/usr/bin/redis-cli $DEV STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
             TYPE='fast'
         else
             TYPE='cold'
@@ -72,7 +72,7 @@ function getBootType()
 }
 
 start() {
-    debug "Starting ${SERVICE} service..."
+    debug "Starting ${SERVICE}$DEV service..."
 
     lock_service_state_change
 
@@ -81,7 +81,7 @@ start() {
     wait_for_database_service
     check_warm_boot
 
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
         # Leave a mark for syncd scripts running inside docker.
@@ -139,11 +139,11 @@ wait() {
 }
 
 stop() {
-    debug "Stopping ${SERVICE} service..."
+    debug "Stopping ${SERVICE}$DEV service..."
 
     lock_service_state_change
     check_warm_boot
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
         TYPE=warm
@@ -171,7 +171,7 @@ stop() {
     fi
 
     /usr/bin/${SERVICE}.sh stop $DEV
-    debug "Stopped ${SERVICE} service..."
+    debug "Stopped ${SERVICE}$DEV service..."
 
     # platform specific tasks
 
