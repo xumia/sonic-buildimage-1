@@ -107,7 +107,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list.$CONFIGURED_ARCH $FILESYSTEM_ROOT/etc/apt/sources.list
-sudo cp files/apt/apt.conf.d/{81norecommends,apt-{clean,gzip-indexes,no-languages}} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
+sudo cp files/apt/apt.conf.d/{81norecommends,apt-{clean,gzip-indexes,no-languages},no-check-valid-until} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
 ## Note: set lang to prevent locale warnings in your chroot
@@ -176,6 +176,11 @@ sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/varlog
 sudo cp files/initramfs-tools/union-fsck $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 pushd $FILESYSTEM_ROOT/usr/share/initramfs-tools/scripts/init-bottom && sudo patch -p1 < $OLDPWD/files/initramfs-tools/udev.patch; popd
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    sudo cp files/initramfs-tools/uboot-utils $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/uboot-utils
+    sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/uboot-utils
+    cat files/initramfs-tools/modules.arm | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
+fi
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
     ## Install latest intel ixgbe driver
@@ -240,7 +245,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     openssh-server          \
     python                  \
     python-setuptools       \
-    monit                   \
     python-apt              \
     traceroute              \
     iputils-ping            \
@@ -273,7 +277,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     cgroup-tools            \
     ipmitool                \
     ndisc6                  \
-    makedumpfile
+    makedumpfile            \
+    conntrack
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
@@ -348,10 +353,6 @@ EOF
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 
-## Config monit
-sudo cp files/image_config/monit/monitrc $FILESYSTEM_ROOT/etc/monit/
-sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/monitrc
-
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
 sudo augtool --autosave "
@@ -379,6 +380,12 @@ set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_ignore 2
 
 set /files/etc/sysctl.conf/net.ipv4.neigh.default.base_reachable_time_ms 1800000
 set /files/etc/sysctl.conf/net.ipv6.neigh.default.base_reachable_time_ms 1800000
+set /files/etc/sysctl.conf/net.ipv4.neigh.default.gc_thresh1 1024
+set /files/etc/sysctl.conf/net.ipv6.neigh.default.gc_thresh1 1024
+set /files/etc/sysctl.conf/net.ipv4.neigh.default.gc_thresh2 2048
+set /files/etc/sysctl.conf/net.ipv6.neigh.default.gc_thresh2 2048
+set /files/etc/sysctl.conf/net.ipv4.neigh.default.gc_thresh3 4096
+set /files/etc/sysctl.conf/net.ipv6.neigh.default.gc_thresh3 4096
 
 set /files/etc/sysctl.conf/net.ipv6.conf.default.forwarding 1
 set /files/etc/sysctl.conf/net.ipv6.conf.all.forwarding 1
@@ -397,6 +404,9 @@ set /files/etc/sysctl.conf/net.ipv4.udp_l3mdev_accept 1
 
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
+
+set /files/etc/sysctl.conf/net.core.somaxconn 512
+
 " -r $FILESYSTEM_ROOT
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
@@ -496,8 +506,25 @@ fi
 ## Remove gcc and python dev pkgs
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y remove gcc libpython2.7-dev
 
+## Add mtd and uboot firmware tools package
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils device-tree-compiler
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-mark manual u-boot-tools mtd-utils device-tree-compiler
+
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
+## Convert initrd image to u-boot format
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-${CONFIGURED_ARCH}
+    if [[ $CONFIGURED_ARCH == armhf ]]; then
+        INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-armmp
+        sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -A arm -O linux -T ramdisk -C gzip -d /boot/$INITRD_FILE /boot/u${INITRD_FILE}
+        ## Overwriting the initrd image with uInitrd
+        sudo LANG=C chroot $FILESYSTEM_ROOT mv /boot/u${INITRD_FILE} /boot/$INITRD_FILE
+    elif [[ $CONFIGURED_ARCH == arm64 ]]; then
+        sudo cp -v $PLATFORM_DIR/${sonic_asic_platform}-${CONFIGURED_ARCH}/sonic_fit.its $FILESYSTEM_ROOT/boot/
+        sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -f /boot/sonic_fit.its /boot/sonic_${CONFIGURED_ARCH}.fit
+    fi
+fi
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y autoremove

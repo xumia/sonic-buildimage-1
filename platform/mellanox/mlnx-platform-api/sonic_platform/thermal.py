@@ -56,7 +56,7 @@ thermal_api_handler_psu = {
     THERMAL_API_GET_HIGH_THRESHOLD:"psu{}_temp_max"
 }
 thermal_api_handler_gearbox = {
-    THERMAL_API_GET_TEMPERATURE:"temp_input_gearbox{}",
+    THERMAL_API_GET_TEMPERATURE:"gearbox{}_temp_input",
     THERMAL_API_GET_HIGH_THRESHOLD:None
 }
 thermal_ambient_apis = {
@@ -106,7 +106,7 @@ thermal_api_names = [
     THERMAL_API_GET_HIGH_THRESHOLD
 ]
 
-hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7}
+hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7}
 thermal_profile_list = [
     # 2700
     {
