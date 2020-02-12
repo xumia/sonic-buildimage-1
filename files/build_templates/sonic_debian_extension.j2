@@ -435,6 +435,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 # Copy swss and syncd service script
 sudo LANG=C cp $SCRIPTS_DIR/swss.sh $FILESYSTEM_ROOT/usr/local/bin/swss.sh
 sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
+sudo LANG=C cp $SCRIPTS_DIR/sonic-cfggen $FILESYSTEM_ROOT/usr/bin/sonic-cfggen
 
 # Copy systemd timer configuration
 # It implements delayed start of services
