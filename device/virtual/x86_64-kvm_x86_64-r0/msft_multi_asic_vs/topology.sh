@@ -16,7 +16,6 @@ start () {
         for NUM in `seq 1 16`; do
             ORIG="eth$((16 * $ASIC + $NUM - 1))"
             TEMP="ethTemp999"
-            #NEW="eth$(($NUM + 16))"
 	    NEW="eth$(($NUM))"
 	    echo "$ASIC : $NEW old $ORIG"
             ip link set dev $ORIG down
@@ -31,8 +30,6 @@ start () {
     for BACKEND in `seq $FIRST_BACKEND_ASIC $LAST_BACKEND_ASIC`; do
         for FRONTEND in `seq $FIRST_FRONTEND_ASIC $LAST_FRONTEND_ASIC`; do
             for LINK in `seq 1 8`; do
-                #BACK_NAME="eth$((8 * $FRONTEND + $LINK))"
-		#FRONT_NAME="eth$((8 * $(($LAST_BACKEND_ASIC - $BACKEND)) + $LINK))" 
 		FRONT_NAME="eth$((8 * $(($BACKEND - $FIRST_BACKEND_ASIC)) + $LINK + 16))"
 		BACK_NAME="eth$((8 * $FRONTEND + $LINK))"
 		echo "$FRONTEND:$FRONT_NAME - $BACKEND:$BACK_NAME"

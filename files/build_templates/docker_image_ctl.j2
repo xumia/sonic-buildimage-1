@@ -278,7 +278,9 @@ wait() {
 stop() {
     docker stop {{docker_container_name}}$DEV
 {%- if docker_container_name == "database" %}
-    ip netns delete "$NET_NS$DEV"
+    if [ "$DEV" ]; then 
+        ip netns delete "$NET_NS$DEV"
+    fi
 {%- endif %}
 }
 
