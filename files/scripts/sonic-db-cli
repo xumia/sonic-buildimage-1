@@ -1,0 +1,15 @@
+#!/bin/bash
+  ½
+NS="asic" #Network namespace
+[ "$1" -eq "$1" ] 2> /dev/null # check if the first argument is a number
+# if it's a number, set the database instance to 
+#operate on that instance
+if [ $? -eq 0 ]; then
+    DEV="$1"
+    shift
+fi
+if [ -z "$DEV" ]; then
+    /usr/local/bin/sonic-db-cli "$@"
+else
+    ip netns exec $NS$DEV /usr/local/bin/sonic-db-cli "$@"
+fi

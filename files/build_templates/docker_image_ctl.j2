@@ -89,7 +89,7 @@ function preStartAction()
         docker cp /tmp/dump.rdb database$DEV:/var/lib/redis/
     fi
 {%- elif docker_container_name == "snmp" %}
-    /usr/bin/redis-cli $DEV STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+    /usr/bin/sonic-db-cli $DEV STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
 {%- else %}
     : # nothing
 {%- endif %}
@@ -115,10 +115,10 @@ function postStartAction()
 
         if [[ "$BOOT_TYPE" == "fast" ]]; then
             # set the key to expire in 3 minutes
-            /usr/bin/redis-cli $DEV STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
+            /usr/bin/sonic-db-cli $DEV STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
         fi
 
-        /usr/bin/redis-cli $DEV CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
+        /usr/bin/sonic-db-cli $DEV CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     fi
 
     if [[ -x /usr/bin/db_migrator.py ]]; then

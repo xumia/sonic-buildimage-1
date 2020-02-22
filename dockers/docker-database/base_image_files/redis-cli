@@ -1,15 +1,10 @@
 #!/bin/bash
 
-NS="asic" #Network namespace
-[ "$1" -eq "$1" ] 2> /dev/null # check if the first argument is a number
-# if it's a number, set the database instance to 
-#operate on that instance
-if [ $? -eq 0 ]; then
-    DEV="$1"
-    shift
+DOCKER_EXEC_FLAGS="i"
+
+# Determine whether stdout is on a terminal
+if [ -t 1 ] ; then
+    DOCKER_EXEC_FLAGS+="t"
 fi
-if [ -z "$DEV" ]; then
-    sonic-db-cli "$@"
-else
-    ip netns exec $NS$DEV sonic-db-cli "$@"
-fi
+
+docker exec -$DOCKER_EXEC_FLAGS database redis-cli "$@"
