@@ -1,5 +1,4 @@
 #!/bin/bash
-  ½
 NS="asic" #Network namespace
 [ "$1" -eq "$1" ] 2> /dev/null # check if the first argument is a number
 # if it's a number, set the database instance to 

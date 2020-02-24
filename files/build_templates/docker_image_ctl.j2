@@ -223,7 +223,13 @@ start() {
         NET="container:database$DEV"
         {%- endif %}
     fi
-
+{%- if docker_container_name == "bgp" %}
+    if [ "$DEV" ]; then
+        if [ ! -d "/etc/sonic/frr$DEV" ]; then
+            cp -r /etc/sonic/frr /etc/sonic/frr$DEV
+        fi
+    fi
+{%- endif %}
 {%- if sonic_asic_platform == "mellanox" %}
     # TODO: Mellanox will remove the --tmpfs exception after SDK socket path changed in new SDK version
 {%- endif %}
