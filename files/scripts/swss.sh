@@ -28,8 +28,8 @@ function unlock_service_state_change()
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`/usr/bin/sonic-db-cli $DEV STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`/usr/bin/sonic-db-cli $DEV STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`sonic-netns-exec $DEV sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`sonic-netns-exec $DEV sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
     else
@@ -40,7 +40,7 @@ function check_warm_boot()
 function validate_restore_count()
 {
     if [[ x"$WARM_BOOT" == x"true" ]]; then
-        RESTORE_COUNT=`/usr/bin/sonic-db-cli $DEV STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
+        RESTORE_COUNT=`sonic-netns-exec $DEV sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
         # We have to make sure db data has not been flushed.
         if [[ -z "$RESTORE_COUNT" ]]; then
             WARM_BOOT="false"
@@ -54,7 +54,7 @@ function wait_for_database_service()
     /usr/bin/docker exec database$DEV ping_pong_db_insts
 
     # Wait for configDB initialization
-    until [[ $(/usr/bin/sonic-db-cli $DEV CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(sonic-netns-exec $DEV sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -64,7 +64,7 @@ function wait_for_database_service()
 # $2 the string of a list of table prefixes
 function clean_up_tables()
 {
-    /usr/bin/sonic-db-cli $DEV $1 EVAL "
+    sonic-netns-exec $DEV sonic-db-cli $1 EVAL "
     local tables = {$2}
     for i = 1, table.getn(tables) do
         local matches = redis.call('KEYS', tables[i])
@@ -132,10 +132,10 @@ start() {
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         debug "Flushing APP, ASIC, COUNTER, CONFIG, and partial STATE databases ..."
-        /usr/bin/sonic-db-cli $DEV APPL_DB FLUSHDB
-        /usr/bin/sonic-db-cli $DEV ASIC_DB FLUSHDB
-        /usr/bin/sonic-db-cli $DEV COUNTERS_DB FLUSHDB
-        /usr/bin/sonic-db-cli $DEV FLEX_COUNTER_DB FLUSHDB
+        sonic-netns-exec $DEV sonic-db-cli APPL_DB FLUSHDB
+        sonic-netns-exec $DEV sonic-db-cli ASIC_DB FLUSHDB
+        sonic-netns-exec $DEV sonic-db-cli COUNTERS_DB FLUSHDB
+        sonic-netns-exec $DEV sonic-db-cli FLEX_COUNTER_DB FLUSHDB
         clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*'"
     fi
 
