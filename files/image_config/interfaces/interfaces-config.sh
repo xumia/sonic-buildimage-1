@@ -40,11 +40,11 @@ if [ -z "$NS" ]; then
     # Clean-up created files
     rm -f /tmp/ztp_input.json /tmp/ztp_port_data.json
 else
-    INTF_LIST=`redis-cli $NS CONFIG_DB KEYS 'LOOPBACK_INTERFACE*'`
+    INTF_LIST=`sonic-netns-exec $NS sonic-db-cli CONFIG_DB KEYS 'LOOPBACK_INTERFACE*'`
     for ENTRY in $INTF_LIST; do
         IFS='|' read -ra ADDR_ARRAY <<< "$ENTRY"
         ADDR=${ADDR_ARRAY[2]}
                 ADDR=`echo $ADDR | tr -d \''[]'`
-        ip netns exec asic$NS ip addr add $ADDR dev lo
+        sonic-netns-exec $NS ip addr add $ADDR dev lo
     done
 fi

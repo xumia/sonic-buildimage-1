@@ -14,7 +14,7 @@ start () {
     # eth48 - eth63: asic5
     for ASIC in `seq $FIRST_FRONTEND_ASIC $LAST_FRONTEND_ASIC`; do
         for NUM in `seq 1 16`; do
-            ORIG="eth$((16 * $ASIC + $NUM - 1))"
+            ORIG="eth$((16 * $ASIC + $NUM))"
             TEMP="ethTemp999"
 	    NEW="eth$(($NUM))"
 	    echo "$ASIC : $NEW old $ORIG"
