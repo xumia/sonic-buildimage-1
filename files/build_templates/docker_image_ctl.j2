@@ -14,15 +14,15 @@ link_namespace() {
     mkdir -p /var/run/netns
     PID="$(docker inspect -f {{"'{{.State.Pid}}'"}} "{{docker_container_name}}$DEV")"
 
-    if `ip netns | grep --quiet -w "$NET_NS$DEV"`; then # namespace exists
-        if [ $(readlink -f /var/run/netns/$NET_NS$DEV) = $(readlink -f /proc/$PID/ns/net) ]; then # namespace is correctly linked
+    if `ip netns | grep --quiet -w "$NET_NS"`; then # namespace exists
+        if [ $(readlink -f /var/run/netns/$NET_NS) = $(readlink -f /proc/$PID/ns/net) ]; then # namespace is correctly linked
             return 0
         else # if it's incorrectly linked remove it
-            ip netns delete $NET_NS$DEV
+            ip netns delete $NET_NS
         fi
     fi
 
-    ln -s /proc/$PID/ns/net /var/run/netns/$NET_NS$DEV
+    ln -s /proc/$PID/ns/net /var/run/netns/$NET_NS
 }
 {%- endif %}
 
@@ -63,7 +63,7 @@ function preStartAction()
         docker cp /tmp/dump.rdb database$DEV:/var/lib/redis/
     fi
 {%- elif docker_container_name == "snmp" %}
-    sonic-netns-exec $DEV sonic-db-cli STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+    sonic-netns-exec $NET_NS sonic-db-cli STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
 {%- else %}
     : # nothing
 {%- endif %}
@@ -82,15 +82,15 @@ function postStartAction()
     else
         # If there is a config db dump file, load it
         if [ -r /etc/sonic/config_db$DEV.json ]; then
-            sonic-netns-exec $DEV sonic-cfggen -j /etc/sonic/config_db$DEV.json --write-to-db
+            sonic-netns-exec $NET_NS sonic-cfggen -j /etc/sonic/config_db$DEV.json --write-to-db
         fi
 
         if [[ "$BOOT_TYPE" == "fast" ]]; then
             # set the key to expire in 3 minutes
-            /usr/bin/sonic-netns-exec $DEV sonic-db-cli STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
+            /usr/bin/sonic-netns-exec $NET_NS sonic-db-cli STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
         fi
 
-        /usr/bin/sonic-netns-exec $DEV sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
+        /usr/bin/sonic-netns-exec $NET_NS sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     fi
 
     if [[ -x /usr/bin/db_migrator.py ]]; then
@@ -132,14 +132,14 @@ start() {
     BOOT_TYPE=`getBootType`
 
     # Obtain our platform as we will mount directories with these names in each docker
-    PLATFORM=`sonic-netns-exec $DEV sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
+    PLATFORM=`sonic-netns-exec $NET_NS sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
 
     {%- if docker_container_name == "database" %}
     # Don't mount HWSKU in {{docker_container_name}} container.
     HWSKU=""
     {%- else %}
     # Obtain our HWSKU as we will mount directories with these names in each docker
-    HWSKU=`sonic-netns-exec $DEV sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+    HWSKU=`sonic-netns-exec $NET_NS sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
     {%- endif %}
 
     DOCKERCHECK=`docker inspect --type container {{docker_container_name}}$DEV 2>/dev/null`
@@ -248,14 +248,18 @@ stop() {
     docker stop {{docker_container_name}}$DEV
 {%- if docker_container_name == "database" %}
     if [ "$DEV" ]; then 
-        ip netns delete "$NET_NS$DEV"
+        ip netns delete "$NET_NS"
     fi
 {%- endif %}
 }
 
 OP=$1
 DEV=$2 # namespace/device number to operate on
-NET_NS="asic" #name of the network namespace
+if [ "$DEV" ]; then
+    NET_NS="asic$DEV" #name of the network namespace
+else
+    NET_NS=""    
+fi
 
 case "$1" in
     start|wait|stop)

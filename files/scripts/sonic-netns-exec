@@ -2,18 +2,11 @@
 # Wrapper to execute any command in a specific
 # network namespace.
 # Usage:
-# sonic-netns-exec <namespace instance #> <command to be executed>
-
-NS="asic" #Network namespace
-[ "$1" -eq "$1" ] 2> /dev/null # check if the first argument is a number
-# if it's a number, set the database instance to 
-# operate on that instance
-if [ $? -eq 0 ]; then
-    DEV="$1"
-    shift
-fi
-if [ -z "$DEV" ]; then
-    "$@"
+# sonic-netns-exec <namespace name> <command to be executed>
+NS="$1"
+shift
+if [ "$NS" != "" ]; then
+        ip netns exec $NS "$@"
 else
-    ip netns exec $NS$DEV "$@"
+        "$@"
 fi
