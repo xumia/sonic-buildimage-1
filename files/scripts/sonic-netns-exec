@@ -6,7 +6,7 @@
 NS="$1"
 shift
 if [ "$NS" != "" ]; then
-        ip netns exec $NS "$@"
+    ip netns exec $NS $@
 else
-        "$@"
+    $@
 fi
