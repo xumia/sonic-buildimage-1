@@ -396,7 +396,7 @@ write_boot_configs() {
     fi
 
     # setting secure_boot_enable=true when secure boot enabled
-    [ -f /bin/securebootctl ] && securebootctl secureboot -display | grep -i "Secure Boot enable" -q && echo "secure_boot_enable=true" >> /tmp/append
+    [ -f /bin/securebootctl ] && securebootctl secureboot -display | grep -i "Secure Boot enable" -q && echo "secure_boot_enable=y" >> /tmp/append
 
     mkdir -p "$image_path"
     cat /tmp/append > $cmdline_image

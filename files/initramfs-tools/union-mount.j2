@@ -42,38 +42,27 @@ set_tmpfs_log_partition_size()
 whitelist_rw_folder()
 {
   image_dir=$1
-  whitelist_file=${rootmnt}/host/$image_dir/whitelist
- 
+  whitelist_file=${rootmnt}/host/$image_dir/whitelist_paths.conf
+  
   # Return if the whitelist file does not exist
   if ! test -f "${whitelist_file}"; then
     return
   fi
- 
+
   # Return if the secure_boot_enable option is not set
   if cat /proc/cmdline | grep -v -q "secure_boot_enable=true"; then
     return
   fi
- 
-  whitelist_log=${rootmnt}/host/$image_dir/whitelist.log
+
   rw_dir=${rootmnt}/host/$image_dir/rw
-  whitelist=$(cat ${rootmnt}/host/$image_dir/whitelist | grep -v "^\s*#" | awk '{$1=$1};1')
-  set -o noglob
-  find ${rw_dir} -type f |
-  while IFS= read -r file; do
-    found="false"
-    for line in $whitelist; do
-      pattern="^${rw_dir}/${line}\$"
-      if echo "$file" | grep -q "$pattern"; then
-        found="true"
-        break
-      fi
-    done
-    if [ $found = "false" ]; then
-      echo $file >> ${whitelist_log}
-      rm -f $file
-    fi
-  done
-  set +o noglob
+
+  # Set the grep pattern file
+  whitelist_pattern_file=${rootmnt}/host/$image_dir/whitelist_paths.pattern
+  grep -v "^\s*#" ${whitelist_file} | awk -v rw_dir="$rw_dir" '{print rw_dir"/"$0"$"}' > $whitelist_pattern_file
+
+  # Find the files in the rw folder, and remove the files not in the whitelist
+  find ${rw_dir} -type f | grep -v -f $whitelist_pattern_file | xargs /bin/rm -f
+  rm -f $whitelist_pattern_file
 }
 
 ## Mount the overlay file system: rw layer over squashfs
