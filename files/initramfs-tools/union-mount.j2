@@ -39,10 +39,49 @@ set_tmpfs_log_partition_size()
   [ $maxsize -le $varlogsize ] && varlogsize=$maxsize
 }
 
+whitelist_rw_folder()
+{
+  image_dir=$1
+  whitelist_file=${rootmnt}/host/$image_dir/whitelist
+ 
+  # Return if the whitelist file does not exist
+  if ! test -f "${whitelist_file}"; then
+    return
+  fi
+ 
+  # Return if the secure_boot_enable option is not set
+  if cat /proc/cmdline | grep -v -q "secure_boot_enable=true"; then
+    return
+  fi
+ 
+  whitelist_log=${rootmnt}/host/$image_dir/whitelist.log
+  rw_dir=${rootmnt}/host/$image_dir/rw
+  whitelist=$(cat ${rootmnt}/host/$image_dir/whitelist | grep -v "^\s*#" | awk '{$1=$1};1')
+  set -o noglob
+  find ${rw_dir} -type f |
+  while IFS= read -r file; do
+    found="false"
+    for line in $whitelist; do
+      pattern="^${rw_dir}/${line}\$"
+      if echo "$file" | grep -q "$pattern"; then
+        found="true"
+        break
+      fi
+    done
+    if [ $found = "false" ]; then
+      echo $file >> ${whitelist_log}
+      rm -f $file
+    fi
+  done
+  set +o noglob
+}
+
 ## Mount the overlay file system: rw layer over squashfs
 image_dir=$(cat /proc/cmdline | sed -e 's/.*loop=\(\S*\)\/.*/\1/')
 mkdir -p ${rootmnt}/host/$image_dir/rw
 mkdir -p ${rootmnt}/host/$image_dir/work
+## Whitelist rw folder
+whitelist_rw_folder "$image_dir"
 mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s
