@@ -50,7 +50,7 @@ whitelist_rw_folder()
   fi
 
   # Return if the secure_boot_enable option is not set
-  if cat /proc/cmdline | grep -v -q "secure_boot_enable=true"; then
+  if ! (cat /proc/cmdline | grep -i -q "secure_boot_enable=[y1]"); then
     return
   fi
 
