@@ -1,8 +1,5 @@
 #!/bin/bash -ex
 
-#  Copyright (C) 2014 Curt Brune <curt@cumulusnetworks.com>
-#
-#  SPDX-License-Identifier:     GPL-2.0
 
 IMAGE=""
 SIGNING_KEY=""
