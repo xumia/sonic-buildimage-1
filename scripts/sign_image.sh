@@ -15,9 +15,9 @@ usage()
     exit 1
 }
 
-generate_singing_key()
+generate_signing_key()
 {
-    SINGING_CSR="${TMP_CERT_PATH}/signing.csr"
+    SIGNING_CSR="${TMP_CERT_PATH}/signing.csr"
     CA_KEY="${TMP_CERT_PATH}/ca.key"
     mkdir -p "${TMP_CERT_PATH}"
 
@@ -27,8 +27,8 @@ generate_singing_key()
 
     # Generate the signing key, certificate request and certificate
     openssl genrsa -out $SIGNING_KEY 4096
-    openssl req -new -key $SIGNING_KEY -subj "/C=US/ST=Seattle/L=Redmond/O=SONiC/CN=www.sonic.com" -out $SINGING_CSR
-    openssl x509 -req -in $SINGING_CSR -CA $CA_CERT -CAkey $CA_KEY -CAcreateserial -out $SIGNING_CERT -days 1825 -sha256
+    openssl req -new -key $SIGNING_KEY -subj "/C=US/ST=Seattle/L=Redmond/O=SONiC/CN=www.sonic.com" -out $SIGNING_CSR
+    openssl x509 -req -in $SIGNING_CSR -CA $CA_CERT -CAkey $CA_KEY -CAcreateserial -out $SIGNING_CERT -days 1825 -sha256
 
     # Remove no use files
     rm -f $CA_CEY
@@ -58,7 +58,7 @@ SIGNING_CERT="${TMP_CERT_PATH}/signing.crt"
 CA_CERT="${TMP_CERT_PATH}/ca.crt"
 
 # Generate the self signed cert if not provided by input
-[ -z $CERT_PATH ] && generate_singing_key
+[ -z $CERT_PATH ] && generate_signing_key
 
 [ ! -f $SIGNING_KEY ] && echo "$SIGNING_KEY not exist" && exit 1
 [ ! -f $SIGNING_CERT ] && echo "$SIGNING_CERT not exist" && exit 1
@@ -70,7 +70,7 @@ swi-signature prepare $IMAGE
 # Sign the image
 swi-signature sign $IMAGE $SIGNING_CERT $CA_CERT --key $SIGNING_KEY
 
-# Copy the CA cert target folder
+# Copy the CA cert to the target folder
 [ ! -z $TARGET_PATH ] && cp $CA_CERT $TARGET_PATH
 
 exit 0
