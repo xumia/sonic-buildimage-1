@@ -22,6 +22,7 @@ generate_singing_key()
 {
     SINGING_CSR="${TMP_CERT_PATH}/signing.csr"
     CA_KEY="${TMP_CERT_PATH}/ca.key"
+    mkdir -p "${TMP_CERT_PATH}"
 
     # Generate the CA key and certificate
     openssl genrsa -out $CA_KEY 4096
@@ -37,7 +38,7 @@ generate_singing_key()
     rm -f $SIGNING_CSR
 }
 
-while getopts ":i:k:c:a:t:" opt; do
+while getopts ":i:c:t:" opt; do
     case $opt in
         i)
             IMAGE=$OPTARG
@@ -60,7 +61,7 @@ SIGNING_CERT="${TMP_CERT_PATH}/signing.crt"
 CA_CERT="${TMP_CERT_PATH}/ca.crt"
 
 # Generate the self signed cert if not provided by input
-[ -z $SIGNING_KEY ] && generate_singing_key
+[ -z $CERT_PATH ] && generate_singing_key
 
 [ ! -f $SIGNING_KEY ] && echo "$SIGNING_KEY not exist" && exit 1
 [ ! -f $SIGNING_CERT ] && echo "$SIGNING_CERT not exist" && exit 1
@@ -70,7 +71,7 @@ CA_CERT="${TMP_CERT_PATH}/ca.crt"
 swi-signature prepare $IMAGE
 
 # Sign the image
-swi-signature sign $IMAGE $SIGNING_CERT $CA_CERT -key $SIGNING_KEY
+swi-signature sign $IMAGE $SIGNING_CERT $CA_CERT --key $SIGNING_KEY
 
 # Copy the CA cert target folder
 [ ! -z $TARGET_PATH ] && cp $CA_CERT $TARGET_PATH

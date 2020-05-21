@@ -147,7 +147,7 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     zip -g $OUTPUT_ABOOT_IMAGE $ABOOT_BOOT_IMAGE
     rm $ABOOT_BOOT_IMAGE
     if [ "$SONIC_ENABLE_IMAGE_SIGNATURE" = "y" ]; then
-        sudo -E ./scripts/sign_image.sh -i $OUTPUT_ABOOT_IMAGE -t $TARGET_PATH -c $SONIC_CETIFICATE_PATH
+        sudo -E ./scripts/sign_image.sh -i "$OUTPUT_ABOOT_IMAGE" -t "$TARGET_PATH" -c "$SONIC_CETIFICATE_PATH"
     fi
 else
     echo "Error: Non supported image type $IMAGE_TYPE"
