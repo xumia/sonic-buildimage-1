@@ -304,7 +304,7 @@ RUN apt-get update && apt-get install -y \
         libexplain-dev \
         libevent-dev \
 # For SWI Tools
-	python-m2crypto
+        python-m2crypto
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
@@ -421,5 +421,4 @@ RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/d
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 # Install swi tools
-RUN git clone https://github.com/aristanetworks/swi-tools.git /usr/share/swi_tools
-RUN cd /usr/share/swi_tools && python setup.py install
+RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00

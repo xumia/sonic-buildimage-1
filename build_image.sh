@@ -147,7 +147,15 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     zip -g $OUTPUT_ABOOT_IMAGE $ABOOT_BOOT_IMAGE
     rm $ABOOT_BOOT_IMAGE
     if [ "$SONIC_ENABLE_IMAGE_SIGNATURE" = "y" ]; then
-        sudo -E ./scripts/sign_image.sh -i "$OUTPUT_ABOOT_IMAGE" -t "$TARGET_PATH" -c "$SONIC_CETIFICATE_PATH"
+        TARGET_CA_CERT="$TARGET_PATH/ca.cert"
+        if [ ! -z "$SONIC_CETIFICATE_PATH" ]; then
+            SIGNING_KEY="$SONIC_CETIFICATE_PATH/signing.key"
+            SIGNING_CERT="$SONIC_CETIFICATE_PATH/signing.cert"
+            CA_CERT="$SONIC_CETIFICATE_PATH/ca.cert"
+            [ ! -f "$CA_CERT" ] && echo "The CA certificate $CA_CERT does not exist" && exit 1
+            cp "$CA_CERT" "$TARGET_CA_CERT"
+        fi
+        ./scripts/sign_image.sh -i "$OUTPUT_ABOOT_IMAGE" -k "$SIGNING_KEY" -c "$SIGNING_CERT" -a "$TARGET_CA_CERT"
     fi
 else
     echo "Error: Non supported image type $IMAGE_TYPE"

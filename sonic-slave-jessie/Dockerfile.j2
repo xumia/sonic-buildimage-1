@@ -371,5 +371,4 @@ RUN apt-get -o Acquire::Check-Valid-Until=false update
 RUN apt-get -y -o Acquire::Check-Valid-Until=false install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
 
 # Install swi tools
-RUN git clone https://github.com/aristanetworks/swi-tools.git /usr/share/swi_tools
-RUN cd /usr/share/swi_tools && python setup.py install
+RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00
