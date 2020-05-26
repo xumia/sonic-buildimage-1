@@ -22,11 +22,11 @@ generate_signing_key()
 
     # Generate the CA key and certificate
     openssl genrsa -out $CA_KEY 4096
-    openssl req -x509 -new -nodes -key $CA_KEY -sha256 -days 3650 -subj "/C=Test/ST=Test/L=Test/O=Test/CN=Test" -out $CA_CERT
+    openssl req -x509 -new -nodes -key $CA_KEY -sha256 -days 3650 -subj "/C=US/ST=Test/L=Test/O=Test/CN=Test" -out $CA_CERT
 
     # Generate the signing key, certificate request and certificate
     openssl genrsa -out $SIGNING_KEY 4096
-    openssl req -new -key $SIGNING_KEY -subj "/C=Test/ST=Test/L=Test/O=Test/CN=Test" -out $SIGNING_CSR
+    openssl req -new -key $SIGNING_KEY -subj "/C=US/ST=Test/L=Test/O=Test/CN=Test" -out $SIGNING_CSR
     openssl x509 -req -in $SIGNING_CSR -CA $CA_CERT -CAkey $CA_KEY -CAcreateserial -out $SIGNING_CERT -days 1825 -sha256
 }
 

@@ -146,9 +146,9 @@ K8s_GCR_IO_PAUSE_VERSION = 3.2
 K8s_CNI_CALICO_VERSION = 3.12.1
 
 # SONIC_ENABLE_IMAGE_SIGNATURE - enable image signature
-SONIC_ENABLE_IMAGE_SIGNATURE = y
-
-# SONIC_CETIFICATE_PATH - the certificate path
-# The expected files in the folder: signing.key, signing.cert, ca.cert
-# If the parameter SONIC_CETIFICATE_PATH is no specified, then the test self-signed certificate will be generated
+# To not use the auto-generated self-signed certificate, the required options:
+#     SIGNING_KEY =
+#     SIGNING_CERT =
+#     CA_CERT =
+SONIC_ENABLE_IMAGE_SIGNATURE ?= n
 

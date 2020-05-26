@@ -148,13 +148,8 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     rm $ABOOT_BOOT_IMAGE
     if [ "$SONIC_ENABLE_IMAGE_SIGNATURE" = "y" ]; then
         TARGET_CA_CERT="$TARGET_PATH/ca.cert"
-        if [ ! -z "$SONIC_CETIFICATE_PATH" ]; then
-            SIGNING_KEY="$SONIC_CETIFICATE_PATH/signing.key"
-            SIGNING_CERT="$SONIC_CETIFICATE_PATH/signing.cert"
-            CA_CERT="$SONIC_CETIFICATE_PATH/ca.cert"
-            [ ! -f "$CA_CERT" ] && echo "The CA certificate $CA_CERT does not exist" && exit 1
-            cp "$CA_CERT" "$TARGET_CA_CERT"
-        fi
+        rm -f "$TARGET_CA_CERT"
+        [ -f "$CA_CERT" ] && cp "$CA_CERT" "$TARGET_CA_CERT"
         ./scripts/sign_image.sh -i "$OUTPUT_ABOOT_IMAGE" -k "$SIGNING_KEY" -c "$SIGNING_CERT" -a "$TARGET_CA_CERT"
     fi
 else
