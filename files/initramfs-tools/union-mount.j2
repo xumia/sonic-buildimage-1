@@ -56,9 +56,9 @@ whitelist_rw_folder()
 
   rw_dir=${rootmnt}/host/$image_dir/rw
 
-  # Set the grep pattern file
+  # Set the grep pattern file, remove the blank line in config file
   whitelist_pattern_file=${rootmnt}/host/$image_dir/whitelist_paths.pattern
-  grep -v "^\s*$" ${whitelist_file} | awk -v rw_dir="$rw_dir" '{print rw_dir"/"$0"$"}' > $whitelist_pattern_file
+  awk -v rw_dir="$rw_dir" 'NF {print rw_dir"/"$0"$"}' ${whitelist_file} > $whitelist_pattern_file
 
   # Find the files in the rw folder, and remove the files not in the whitelist
   find ${rw_dir} -type f | grep -v -f $whitelist_pattern_file | xargs /bin/rm -f
