@@ -39,7 +39,7 @@ set_tmpfs_log_partition_size()
   [ $maxsize -le $varlogsize ] && varlogsize=$maxsize
 }
 
-whitelist_rw_folder()
+remove_not_whitelist_files()
 {
     image_dir=$1
     whitelist_file=${rootmnt}/host/$image_dir/whitelist_paths.conf
@@ -70,8 +70,8 @@ whitelist_rw_folder()
 image_dir=$(cat /proc/cmdline | sed -e 's/.*loop=\(\S*\)\/.*/\1/')
 mkdir -p ${rootmnt}/host/$image_dir/rw
 mkdir -p ${rootmnt}/host/$image_dir/work
-## Whitelist rw folder
-whitelist_rw_folder "$image_dir"
+## Remove the files not in whitelist in the rw folder
+remove_not_whitelist_files "$image_dir"
 
 ## Remove the executable permission for all the files in rw folder except home folder
 rw_dir=${rootmnt}/host/$image_dir/rw
