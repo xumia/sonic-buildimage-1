@@ -50,7 +50,7 @@ while getopts "i:k:c:a:t:" opt; do
     esac
 done
 
-[ -z $CA_CERT ] && echo "Not to sign the image since the CA certificate not provided" && exit 0
+[ -z $CA_CERT ] && echo "Not to sign the image since the CA certificate not provided" 1>&2 && exit 1
 
 # Generate the self signed cert if not provided by input
 [ ! -f $CA_CERT ] && generate_signing_key
