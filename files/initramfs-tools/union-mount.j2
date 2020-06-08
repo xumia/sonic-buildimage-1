@@ -41,28 +41,29 @@ set_tmpfs_log_partition_size()
 
 whitelist_rw_folder()
 {
-  image_dir=$1
-  whitelist_file=${rootmnt}/host/$image_dir/whitelist_paths.conf
+    image_dir=$1
+    whitelist_file=${rootmnt}/host/$image_dir/whitelist_paths.conf
   
-  # Return if the whitelist file does not exist
-  if ! test -f "${whitelist_file}"; then
-    return
-  fi
+    # Return if the secure_boot_enable option is not set
+    if ! (cat /proc/cmdline | grep -i -q "secure_boot_enable=[y1]"); then
+        return
+    fi
 
-  # Return if the secure_boot_enable option is not set
-  if ! (cat /proc/cmdline | grep -i -q "secure_boot_enable=[y1]"); then
-    return
-  fi
+    # Return if the whitelist file does not exist
+    if ! test -f "${whitelist_file}"; then
+        echo "The file ${whitelist_file} is missing, failed to mount rw folder." 1>&2
+        exit 1
+    fi
 
-  rw_dir=${rootmnt}/host/$image_dir/rw
+    rw_dir=${rootmnt}/host/$image_dir/rw
 
-  # Set the grep pattern file, remove the blank line in config file
-  whitelist_pattern_file=${rootmnt}/host/$image_dir/whitelist_paths.pattern
-  awk -v rw_dir="$rw_dir" 'NF {print rw_dir"/"$0"$"}' ${whitelist_file} > $whitelist_pattern_file
+    # Set the grep pattern file, remove the blank line in config file
+    whitelist_pattern_file=${rootmnt}/host/$image_dir/whitelist_paths.pattern
+    awk -v rw_dir="$rw_dir" 'NF {print rw_dir"/"$0"$"}' ${whitelist_file} > $whitelist_pattern_file
 
-  # Find the files in the rw folder, and remove the files not in the whitelist
-  find ${rw_dir} -type f | grep -v -f $whitelist_pattern_file | xargs /bin/rm -f
-  rm -f $whitelist_pattern_file
+    # Find the files in the rw folder, and remove the files not in the whitelist
+    find ${rw_dir} -type f | grep -v -f $whitelist_pattern_file | xargs /bin/rm -f
+    rm -f $whitelist_pattern_file
 }
 
 ## Mount the overlay file system: rw layer over squashfs
@@ -71,6 +72,11 @@ mkdir -p ${rootmnt}/host/$image_dir/rw
 mkdir -p ${rootmnt}/host/$image_dir/work
 ## Whitelist rw folder
 whitelist_rw_folder "$image_dir"
+
+## Remove the executable permission for all the files in rw folder except home folder
+rw_dir=${rootmnt}/host/$image_dir/rw
+find ${rw_dir} -type f -not -path ${rw_dir}/home -exec chmod a-x {} +
+
 mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s
