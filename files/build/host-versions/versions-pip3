@@ -1,0 +1,8 @@
+natsort==7.0.1
+platform-arista==1.0
+PyYAML==5.3.1
+redis==3.5.3
+redis-dump-load==1.1
+sonic-py-common==1.0
+sonic-yang-models==1.0
+swsssdk==2.0.1

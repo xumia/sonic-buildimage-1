@@ -1,0 +1,14 @@
+{% if generate_code == 'before_run' %}
+# ---- Begin Auto-Generated Code ----
+COPY ["buildinfo", "/usr/local/share/buildinfo"]
+COPY ["buildinfo/scripts", "/usr/local/sbin"]
+ENV OLDPATH=$PATH
+ENV PATH="/usr/local/share/buildinfo/scripts:$PATH"
+RUN generate_version_files
+# --- End Auto-Generated Code ----
+{% elif generate_code == 'after_run' %}
+# ---- Begin Auto-Generated Code ----
+RUN collect_and_verify_versions
+{% if env("set_env_path", default='y') == 'y' %}ENV PATH=$OLDPATH{% endif %}
+# ---- End Auto-Generated Code ----
+{% endif %}

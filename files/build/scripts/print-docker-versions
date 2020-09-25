@@ -1,0 +1,75 @@
+#!/bin/bash -x
+
+
+VERSIONS_PATH=target/versions
+
+export_versions()
+{
+    local package=$1
+    local image=$2
+    [ -z $image ] && image="${package}:latest"
+    docker create  --rm --name ${package} --entrypoint sleep $image 600
+    docker start ${package}
+    local os_release=$(docker exec ${package} cat /etc/os-release)
+    distro=$(echo "${os_release}" | grep VERSION_CODENAME | cut -d= -f2)
+    if [ -z $distr ]; then
+       if echo "$os_release" | grep -q jessie; then
+           distro="jessie"
+       fi
+    fi
+    local package_path="${VERSIONS_PATH}/${distro}/${package}"
+    mkdir -p ${package_path}
+    docker exec ${package} dpkg-query -W -f '${Package}==${Version}\n' > ${package_path}/versions-deb
+    local pip_path=$(docker exec ${package} which pip)
+    [ ! -z "$pip_path" ] && docker exec ${package} pip freeze | grep -v " @ " > ${package_path}/versions-pip2
+    local pip3_path=$(docker exec ${package} which pip3)
+    [ ! -z "$pip3_path" ] && docker exec ${package} pip3 freeze | grep -v " @ " > ${package_path}/versions-pip3
+    docker exec ${package} mkdir -p /usr/local/share/buildinfo/init-versions
+    docker cp ${package}:/usr/local/share/buildinfo/init-versions ${package_path}
+    docker kill ${package} > /dev/null
+}
+
+mkdir -p ${VERSIONS_PATH}
+
+for file in $(ls target/*.gz)
+do
+    package=${file#target/}
+    package=${package%.gz}
+    echo "Loading package ${package}"
+    docker load --input "$file" > /dev/null
+    export_versions "$package" "${package}:latest"
+    docker image rm ${package}:latest > /dev/null
+done
+
+for file in $(ls -d sonic-slave-*)
+do
+    package=$file
+    slave_tag=$(sha1sum ${file}/Dockerfile | awk '{print substr($1,0,11);}')
+    echo "Loading package ${package}:${slave_tag}"
+    export_versions "$package" ${package}:${slave_tag}
+done
+
+distros=("jessie" "stretch" "buster")
+
+#no use, can be removed
+for package in ${distros[@]}
+do
+    break
+    echo "Loading package debian-${package}"
+    export_versions "debian-$package" "debian:${package}"
+done
+
+for distro in $(ls target/debs)
+do
+    tmpfile=$(mktemp)
+    for file in $(ls target/debs/$distro/*.deb 2>/dev/null)
+    do
+        dpkginfo=$(dpkg-deb --info $file)
+        package=$(echo "$dpkginfo" | grep " Package:" | cut  -c11-)
+        version=$(echo "$dpkginfo" | grep " Version:" | cut  -c11-)
+        echo "$package==$version" >> $tmpfile
+    done
+
+    sort $tmpfile > "${VERSIONS_PATH}/${distro}/build-packages/versions-deb"
+    rm -rf $tmpfile
+done

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-pip"
+paras=($@)
+
+COMMAND=/usr/bin/pip
+[ ! -f $COMMAND ] && COMMAND=/usr/local/bin/pip
+FOUND=false
+for para in "${paras[@]}"
+do
+    ([[ "$para" == "-c" ]] || [[ "$para" == "--constraint" ]]) && FOUND=true
+done
+
+if [[ "$FOUND" == "true" ]]; then
+    paras+=("-c")
+    paras+=("${VERSION_FILE}")
+fi
+
+
+$COMMAND ${paras[@]}

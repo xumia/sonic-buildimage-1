@@ -1,0 +1,75 @@
+#!/bin/bash -x
+
+
+VERSIONS_PATH=target/versions
+
+export_versions()
+{
+    local package=$1
+    local image=$2
+    [ -z $image ] && image="${package}:latest"
+    docker create  --rm --name ${package} --entrypoint sleep $image 600
+    docker start ${package}
+    local os_release=$(docker exec ${package} cat /etc/os-release)
+    distro=$(echo "${os_release}" | grep VERSION_CODENAME | cut -d= -f2)
+    if [ -z $distr ]; then
+       if echo "$os_release" | grep -q jessie; then
+           distro="jessie"
+       fi
+    fi
+    docker exec ${package} dpkg-query -W -f '${Package}==${Version}\n' > ${VERSIONS_PATH}/versions-deb-${distro}-${package}
+    local pip_path=$(docker exec ${package} which pip)
+    [ ! -z "$pip_path" ] && docker exec ${package} pip freeze | grep -v " @ " > ${VERSIONS_PATH}/versions-pip2-${package}
+    local pip3_path=$(docker exec ${package} which pip3)
+    [ ! -z "$pip3_path" ] && docker exec ${package} pip3 freeze | grep -v " @ " > ${VERSIONS_PATH}/versions-pip3-${package}
+    docker kill ${package} > /dev/null
+}
+
+mkdir -p ${VERSIONS_PATH}
+
+for file in $(ls target/*.gz)
+do
+    package=${file#target/}
+    package=${package%.gz}
+    echo "Loading package ${package}"
+    docker load --input "$file" > /dev/null
+    export_versions "$package" "${package}:latest"
+    docker image rm ${package}:latest > /dev/null
+done
+
+for file in $(ls -d sonic-slave-*)
+do
+    package=$file
+    slave_tag=$(sha1sum ${file}/Dockerfile | awk '{print substr($1,0,11);}')
+    echo "Loading package ${package}:${slave_tag}"
+    export_versions "$package" ${package}:${slave_tag}
+done
+
+distros=("jessie" "stretch" "buster")
+for package in ${distros[@]}
+do
+    echo "Loading package debian-${package}"
+    export_versions "debian-$package" "debian:${package}"
+done
+
+for distro in $(ls target/debs)
+do
+    unset build_packages
+    declare -A build_packages
+    for file in $(ls target/debs/$distro/*.deb 2>/dev/null)
+    do
+        dpkginfo=$(dpkg-deb --info $file)
+        package=$(echo "$dpkginfo" | grep " Package:" | cut  -c11-)
+        version=$(echo "$dpkginfo" | grep " Version:" | cut  -c11-)
+        build_packages[$package]=$version
+    done
+    tmpfile=$(mktemp)
+    for package in "${!build_packages[@]}" 
+    do
+        version="${build_packages[$package]}"
+        echo "$package==$version" >> $tmpfile
+    done
+
+    sort $tmpfile > "target/versions-deb-$distro-build-packages"
+    rm -rf $tmpfile
+done

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+
+PARENT_PATH=$(dirname $0)
+REAL_COMMAND=/usr/bin/curl
+
+REAL_COMMAND=$REAL_COMMAND ${PARENT_PATH}/wget $@

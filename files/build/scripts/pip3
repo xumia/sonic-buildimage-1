@@ -1,0 +1,19 @@
+#!/bin/bash
+
+VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-pip3"
+paras=($@)
+
+
+FOUND=false
+for para in "${paras[@]}"
+do
+    ([[ "$para" == "-c" ]] || [[ "$para" == "--constraint" ]]) && FOUND=true
+done
+
+if [[ "$FOUND" == "flase" ]]; then
+    paras+=("-c")
+    paras+=("${VERSION_FILE}")
+fi
+
+
+/usr/bin/pip3 ${paras[@]}

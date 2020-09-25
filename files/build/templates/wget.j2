@@ -1,0 +1,38 @@
+#!/bin/bash
+
+VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-web"
+DYNAMIC_VERSION_PATH="/usr/local/share/buildinfo/dynamic-versions"
+[ -z "${REAL_COMMAND}" ] && REAL_COMMAND=/usr/bin/wget
+[ -d "./target" ] && DYNAMIC_VERSION_PATH="./target"
+DYNAMIC_VERSION_FILE="${DYNAMIC_VERSION_PATH}/versions-web"
+URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
+paras=($@)
+for (( i=0; i<${#paras[@]}; i++ ))
+do
+    para=${paras[$i]}
+    if [[ "$para" == *://* ]]; then
+        package_url=$para
+
+        # If the package url is in the same file storage, not necessary to use the file version
+        if echo "$package_url" | grep -q "$URL_PREFIX"; then
+            break
+        fi
+
+        # If the version file contains the package, redirect to the specified version in the file storage
+        if grep "^${package_url}==" $VERSION_FILE; then
+            version=$(grep "^${package_url}=" $VERSION_FILE | awk -F"==" '{print $NF}')
+            filename=$(echo $package_url | awk -F"/" '{print $NF}')
+            version_filename="${filename}-${version}"
+            paras[$i]="${PACKAGE_URL_PREFIX}${version_filename}"
+            ${REAL_COMMAND} ${paras[@]}
+            result=$?
+            [ $result -eq 0 ] && [ -f "$version_filename" ] && mv -f "${version_filename}" "${filename}"
+            exit $result
+        else
+            mkdir -p ${DYNAMIC_VERSION_PATH}
+            echo ${package_url} >> ${DYNAMIC_VERSION_FILE}
+        fi
+    fi
+done
+
+${REAL_COMMAND} $@

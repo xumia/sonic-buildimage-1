@@ -1,0 +1,4 @@
+# ---- Begin Auto-Generated Code ----
+RUN collect_and_verify_versions
+ENV PATH=$OLDPATH
+# ---- End Auto-Generated Code ----

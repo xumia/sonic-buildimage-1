@@ -1,0 +1,8 @@
+#!/bin/bash
+
+VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-web"
+DYNAMIC_VERSION_PATH="/usr/local/share/buildinfo/dynamic-versions"
+[ -z "${REAL_COMMAND}" ] && REAL_COMMAND=/usr/bin/wget
+[ -d "./target" ] && DYNAMIC_VERSION_PATH="./target"
+DYNAMIC_VERSION_FILE="${DYNAMIC_VERSION_PATH}/versions-web"
+PACKAGE_URL_PREFIX={{ PACKAGE_URL_PREFIX }}
