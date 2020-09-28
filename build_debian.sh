@@ -75,16 +75,16 @@ pushd $FILESYSTEM_ROOT
 sudo mount --bind . .
 popd
 
-## Build a basic Debian system by debootstrap
-echo '[INFO] Debootstrap...'
-if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-    # qemu arm bin executable for cross-building
-    sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
-    sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://deb.debian.org/debian
-else
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
-fi
+## Load the host base debian system
+echo '[INFO] Load host base image...'
+scripts/load_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $PACKAGE_URL_PREFIX
+
+# Copy buildinfo
+sudo scripts/copy_buildinfo.sh $FILESYSTEM_ROOT/usr/local/share $FILESYSTEM_ROOT
+
+# Generate version files for apt/pip/pip3 packages
+sudo LANG=C chroot $FILESYSTEM_ROOT generate_version_files
+
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"

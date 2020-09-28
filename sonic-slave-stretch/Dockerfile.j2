@@ -34,6 +34,9 @@ RUN echo "deb [arch=arm64] http://deb.debian.org/debian stretch main contrib non
         echo 'deb [arch=arm64] http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/sources.list
 {%- endif %}
 
+RUN echo "deb [arch=arm64] https://packages.trafficmanager.net/debian/debian stretch main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb [arch=arm64] https://packages.trafficmanager.net/debian/debian stretch-updates main contrib non-free" >> /etc/apt/sources.list
+
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 

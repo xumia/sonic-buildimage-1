@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#apt list --installed | sed "1d" | awk '{gsub("/.*", "", $1); print $1"="$2}'
+dpkg-query -W -f '${Package}==${Version}\n'

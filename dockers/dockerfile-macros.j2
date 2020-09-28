@@ -20,3 +20,9 @@ COPY \
     {%- endfor %}
     {{ dest }}
 {%- endmacro %}
+
+{% macro set_version_env() -%}
+COPY ["buildinfo", "versions-*", "/tmp/buildinfo/"]
+ENV PATH="/tmp/buildinfo/scripts:${PATH#/tmp/buildinfo/scripts:}"
+RUN generate_version_files
+{%- endmacro %}

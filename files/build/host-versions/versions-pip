@@ -1,0 +1,4 @@
+M2Crypto==0.31.0
+bitarray==0.8.1
+scapy==2.4.0
+tabulate==0.8.2
