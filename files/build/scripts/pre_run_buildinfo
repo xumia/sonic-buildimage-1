@@ -5,7 +5,7 @@ BUILDINFO_PATH="/usr/local/share/buildinfo"
 PRE_VERSION_PATH="$BUILDINFO_PATH/pre-versions"
 VERSION_DEB_PREFERENCE="$BUILDINFO_PATH/versions/01-versions-deb"
 
-. $(dirname $0)/buildinfo.config
+. $BUILDINFO_PATH/config/buildinfo.config
 
 [ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
 collect_version_files $PRE_VERSION_PATH
