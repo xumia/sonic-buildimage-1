@@ -45,7 +45,6 @@ SONIC_ENFORCE_VERSIONS=$SONIC_ENFORCE_VERSIONS TRUSTED_GPG_URLS=$TRUSTED_GPG_URL
 
 # Copy the docker build info scirpts
 cp -rf files/build/scripts "${BUILDINFO_PATH}/"
-cp -rf files/build/config "${BUILDINFO_PATH}/"
 
 # Generate the version lock files
 scripts/generate_version_lock_files.py -t "$BUILDINFO_VERSION_PATH" -o "$DOCKERFILE_PATH" -d "$DISTRO" -a "$ARCH"
