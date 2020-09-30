@@ -7,8 +7,8 @@ FROM multiarch/debian-debootstrap:arm64-buster
 FROM debian:buster
 {% endif %}
 
-RUN echo "deb [arch=arm64] https://sonicstoragepublic.blob.core.windows.net/debian/public buster main contrib non-free" >> /etc/apt/sources.list
-RUN wget -qO -  https://sonicstoragepublic.blob.core.windows.net/debian/public/public_key.asc | apt-key add -
+RUN echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian buster main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian buster-updates main contrib non-free" >> /etc/apt/sources.list
 
 # Clean documentation in FROM image
 RUN find /usr/share/doc -depth \( -type f -o -type l \) ! -name copyright | xargs rm || true

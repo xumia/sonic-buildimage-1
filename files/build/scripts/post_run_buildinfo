@@ -8,6 +8,7 @@ DIFF_VERSION_PATH="$BUILDINFO_PATH/diff-versions"
 [ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
 
 collect_version_files $POST_VERSION_PATH
+chmod a+rw -R $DIFF_VERSION_PATH
 
 for file in $POST_VERSION_PATH/versions-*
 do
