@@ -11,7 +11,7 @@ BUILDINFO_INSTALL_PATH=${FILESYSTEM_ROOT}/usr/local/sbin
 BUILDINFO_VERSION_PATH=${FILESYSTEM_ROOT}/usr/local/share/buildinfo/versions
 BUILDINFO_VERSION_DEB=${BUILDINFO_VERSION_PATH}/${VERSION_DEB_PREFERENCE}
 OVERRIDE_VERSION_PATH=files/build/host-versions
-DIFF_VERSIONS_PATH=$BUILDINFO_PATH/versions/diff-versions
+DIFF_VERSIONS_PATH=$BUILDINFO_PATH/diff-versions
 
 
 # Copy build info
@@ -35,4 +35,4 @@ fi
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "pre_run_buildinfo"
 
 sudo mkdir -p $DIFF_VERSIONS_PATH
-dpkg-query -W -f '${Package}==${Version}\n' > $DIFF_VERSIONS_PATH/base-versions-deb
+sudo LANG=C chroot $FILESYSTEM_ROOT dpkg-query -W -f '${Package}==${Version}\n' > $DIFF_VERSIONS_PATH/base-versions-deb
