@@ -75,15 +75,17 @@ pushd $FILESYSTEM_ROOT
 sudo mount --bind . .
 popd
 
-## Load the host base debian system
-echo '[INFO] Load host base image...'
-scripts/load_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $PACKAGE_URL_PREFIX
+## Build the host base debian system
+echo '[INFO] Build host base image...'
+#scripts/load_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $PACKAGE_URL_PREFIX
+scripts/build_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
 
 # Copy buildinfo
-sudo scripts/copy_buildinfo.sh $FILESYSTEM_ROOT/usr/local/share $FILESYSTEM_ROOT
+#sudo scripts/copy_buildinfo.sh $FILESYSTEM_ROOT/usr/local/share $FILESYSTEM_ROOT
+sudo SONIC_ENFORCE_VERSIONS=$SONIC_ENFORCE_VERSIONS TRUSTED_GPG_URLS=$TRUSTED_GPG_URLS PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX scripts/prepare_base_image_buildinfo.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
 
 # Generate version files for apt/pip/pip3 packages
-sudo LANG=C chroot $FILESYSTEM_ROOT generate_version_files
+# sudo LANG=C chroot $FILESYSTEM_ROOT generate_version_files
 
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
