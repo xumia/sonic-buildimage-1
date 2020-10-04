@@ -2,8 +2,8 @@
 
 BUILDINFO_PATH="/usr/local/share/buildinfo"
 VERSION_FILE="${BUILDINFO_PATH}/versions/versions-web"
-LOG_PATH="${BUILDINFO_PATH}/log"
-VERSOIN_LOG_FILE="${BUILDINFO_PATH}/diff-versions/versions-web"
+LOG_PATH="${BUILDINFO_PATH}/diff-versions"
+VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
 
@@ -44,7 +44,7 @@ do
                 exit 1
             fi
 
-            mkdir -p $LOG_PATH
+            mkdir -p $LOG_PATH > /dev/null 2>&1
             echo ${package_url} >> ${VERSOIN_LOG_FILE}
         fi
     fi
