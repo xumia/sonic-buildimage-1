@@ -82,7 +82,7 @@ scripts/build_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
 
 # Copy buildinfo
 #sudo scripts/copy_buildinfo.sh $FILESYSTEM_ROOT/usr/local/share $FILESYSTEM_ROOT
-sudo SONIC_ENFORCE_VERSIONS=$SONIC_ENFORCE_VERSIONS TRUSTED_GPG_URLS=$TRUSTED_GPG_URLS PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX scripts/prepare_base_image_buildinfo.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
+sudo SONIC_ENFORCE_VERSIONS=$SONIC_ENFORCE_VERSIONS TRUSTED_GPG_URLS=$TRUSTED_GPG_URLS PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX scripts/prepare_base_image_buildinfo.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $http_proxy
 
 # Generate version files for apt/pip/pip3 packages
 # sudo LANG=C chroot $FILESYSTEM_ROOT generate_version_files
