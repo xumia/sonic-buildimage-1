@@ -638,6 +638,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 		--label Tag=$(SONIC_IMAGE_VERSION) \
 		-f $(TARGET_DOCKERFILE)/Dockerfile.buildinfo \
 		-t $* $($*.gz_PATH) $(LOG)
+	scripts/collect_docker_version_files.sh $* $(TARGET_PATH)
 	docker save $* | gzip -c > $@
 	# Clean up
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
@@ -728,6 +729,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 			--build-arg frr_user_gid=$(FRR_USER_GID) \
 			--label Tag=$(SONIC_IMAGE_VERSION) \
 			-t $* $($*.gz_PATH) $(LOG)
+		scripts/collect_docker_version_files.sh $* $(TARGET_PATH)
 		docker save $* | gzip -c > $@
 		# Clean up
 		if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
@@ -774,6 +776,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 			--label Tag=$(SONIC_IMAGE_VERSION) \
 			--file $($*.gz_PATH)/Dockerfile-dbg \
 			-t $*-dbg $($*.gz_PATH) $(LOG)
+		scripts/collect_docker_version_files.sh $*-dbg $(TARGET_PATH)
 		docker save $*-dbg | gzip -c > $@
 		# Clean up
 		if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
