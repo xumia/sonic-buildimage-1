@@ -14,7 +14,10 @@ RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bust
         echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ buster/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian buster-backports main" >> /etc/apt/sources.list
+        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian buster-backports main" >> /etc/apt/sources.list && \
+        echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian buster main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=amd64] http://packages.trafficmanager.net/debian/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=amd64] http://packages.microsoft.com/debian/10/prod buster main" >> /etc/apt/sources.list
 
 {%- if CONFIGURED_ARCH == "armhf" %}
 RUN echo "deb [arch=armhf] http://deb.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
@@ -23,7 +26,10 @@ RUN echo "deb [arch=armhf] http://deb.debian.org/debian buster main contrib non-
         echo "deb-src [arch=armhf] http://deb.debian.org/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=armhf] http://security.debian.org buster/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=armhf] http://security.debian.org buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo 'deb [arch=armhf] http://ftp.debian.org/debian buster-backports main' >> /etc/apt/sources.list
+        echo 'deb [arch=armhf] http://ftp.debian.org/debian buster-backports main' >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian buster main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.microsoft.com/debian/10/prod buster main" >> /etc/apt/sources.list
 {%- elif CONFIGURED_ARCH == "arm64" %}
 RUN echo "deb [arch=arm64] http://deb.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list && \
         echo "deb-src [arch=arm64] http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list && \
@@ -31,8 +37,13 @@ RUN echo "deb [arch=arm64] http://deb.debian.org/debian buster main contrib non-
         echo "deb-src [arch=arm64] http://deb.debian.org/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=arm64] http://security.debian.org buster/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=arm64] http://security.debian.org buster/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo 'deb [arch=arm64] http://ftp.debian.org/debian buster-backports main' >> /etc/apt/sources.list
+        echo 'deb [arch=arm64] http://ftp.debian.org/debian buster-backports main' >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian buster main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.microsoft.com/debian/10/prod buster main" >> /etc/apt/sources.list
+
 {%- endif %}
+
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -316,7 +327,9 @@ RUN apt-get update && apt-get install -y \
 # For SWI Tools
         python-m2crypto \
 # For build dtb
-	device-tree-compiler
+    	device-tree-compiler \
+# For build base image
+        dotnet-sdk-3.1
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
@@ -447,3 +460,6 @@ RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 # Install swi tools
 RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00
+
+# Install for build base image
+RUN dotnet tool install AptTool --tool-path /usr/local/bin/

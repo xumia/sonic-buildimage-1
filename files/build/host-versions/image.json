@@ -1,0 +1,19 @@
+{
+    "packages": {
+        "locales": "latest",
+        "grub-efi-amd64": "latest",
+        "linux-image-amd64": "latest",
+        "network-manager": "latest"
+    },
+    "repositories": [
+        {
+            "uri": "http://deb.debian.org/debian",
+            "distribution": "buster",
+            "components": [
+                "main",
+                "contrib",
+                "non-free"
+            ]
+        }
+    ]
+}

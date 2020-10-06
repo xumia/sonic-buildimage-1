@@ -1,0 +1,106 @@
+#!/bin/bash
+
+BUILDINFO_PATH="/usr/local/share/buildinfo"
+INIT_VERSIONS_PATH="${BUILDINFO_PATH}/init-versions"
+DEFAULT_VERSIONS_PATH="${BUILDINFO_PATH}/versions"
+BASE_VERSION_PATH="${BUILDINFO_PATH}/base-versions"
+APT_PREFERENCES_PATH="/etc/apt/preferences.d/"
+PIP_PRIORITY="999"
+SCRIPT_PATH=$(dirname "$0")
+
+get_code_name()
+{
+    local code_name=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
+    if [ -z $distr ]; then
+       if grep -q jessie /etc/os-release; then
+            code_name="jessie"
+       fi
+    fi
+    echo $code_name
+}
+
+# Generate the base versions file, it will merge the versions of the override packages
+generate_base_versions_file()
+{
+    local versions_filename=$1
+    local code_name=$(get_code_name)
+    local default_versions_file="${DEFAULT_VERSIONS_PATH}/${versions_filename}"
+    local base_versions_file="${BASE_VERSION_PATH}/${versions_filename}"
+    local version_file="${BUILDINFO_PATH}/${versions_filename}"
+
+    mkdir -p "${BASE_VERSION_PATH}"
+    [ -f "${default_versions_file}" ] && cp "${default_versions_file}" "${base_versions_file}"
+    [ -f "${default_versions_file}-${code_name}" ] && cp -f "${default_versions_file}-${code_name}" "${base_versions_file}"
+    [ ! -f "${base_versions_file}" ] && "${base_versions_file}"
+    [ ! -f "${version_file}" ] && touch "${version_file}"
+    
+    # The base versions file exists, merge together with the versions file
+    declare -A packages
+    while IFS= read -r line
+    do
+        package=$(echo $line | cut -d= -f1)
+        verson=$(echo $line | cut -d= -f3)
+        packages[$package]=$version
+    done < ${version_file}
+    
+    local temp_file=$(mktemp)
+    declare -A override_packages
+    while IFS= read -r line
+    do
+        package=$(echo $line | cut -d= -f1)
+        verson=$(echo $line | cut -d= -f3)
+        override_version="${packages[$package]}"
+        if [ ! -z "${override_version}" ]; then
+            verson="${override_version}"
+            override_packages[$package]="${override_version}"
+        fi
+        echo "${package}==${verson}" >> $temp_file
+    done < ${base_versions_file}
+    
+    for package in "${package[@]}" ; do
+        version="${override_packages[$package]}"
+        if [ -z "$version" ]; then
+            echo "${package}==${verson}" >> $temp_file
+        fi
+    done
+    
+    sort "${temp_file}" > "${base_versions_file}"
+    rm -f "${temp_file}"
+}
+
+# Generate the debian package version preferences
+generate_debian_versions()
+{
+    local code_name=$(get_code_name)
+    if [ "$code_name" = "jessie" ]; then
+        echo "Not support for jessie, need to split the config file of the apt preferences"
+        return
+    fi
+    local versions_filename="$1"
+    local versions_preferences="${APT_PREFERENCES_PATH}/${versions_filename}"
+    generate_base_versions_file "${versions_filename}"
+    [ -f "${versions_preferences}" ] && rm -f "${versions_preferences}"
+    while IFS= read -r line
+    do
+        package=$(echo $line | cut -d= -f1)
+        verson=$(echo $line | cut -d= -f3)
+        echo "Package: $package" >> "${versions_preferences}"
+        echo "Pin: version $verson" >> "${versions_preferences}"
+        echo -e "Pin-Priority: $PIP_PRIORITY\n" >> "${versions_preferences}"
+    done < "${BASE_VERSION_PATH}/${versions_filename}"
+}
+
+# Generate the initial package versions
+generate_init_versions()
+{
+    mkdir -p "${INIT_VERSIONS_PATH}"
+    [ -f /usr/bin/apt ] && apt list --installed | sed "1d" | awk '{gsub("/.*", "", $1); print $1"=="$2}' > "${INIT_VERSIONS_PATH}/versions-deb"
+    [ -f /usr/bin/pip ] && pip freeze > "${INIT_VERSIONS_PATH}/versions-pip"
+    [ -f /usr/bin/pip3 ] && pip3 freeze > "${INIT_VERSIONS_PATH}/versions-pip3"
+}
+
+generate_init_versions
+generate_debian_versions "versions-deb"
+generate_base_versions_file "versions-pip"
+generate_base_versions_file "versions-pip3"
+

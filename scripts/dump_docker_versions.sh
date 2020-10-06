@@ -1,0 +1,5 @@
+#!/bin/bash -ex
+
+TARGET_PATH=$1
+DOCKER_IMAGE=$2
+DOCKERFILE=$3

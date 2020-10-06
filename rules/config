@@ -158,3 +158,12 @@ K8s_GCR_IO_PAUSE_VERSION = 3.2
 #     CA_CERT =
 # The relative path is build root folder.
 SONIC_ENABLE_IMAGE_SIGNATURE ?= n
+
+# PACKAGE_URL_PREFIX - the package url prefix
+PACKAGE_URL_PREFIX ?= https://packages.trafficmanager.net/public
+
+# TRUSTED_GPG_URLS - the trusted gpgs, separate by comma
+TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,https://packages.microsoft.com/keys/microsoft.asc
+
+# SONIC_ENFORCE_VERSIONS - Enforce the versions of Debian packages, Pypi packages, Web packages to install when installing docker/host images
+SONIC_ENFORCE_VERSIONS ?= n

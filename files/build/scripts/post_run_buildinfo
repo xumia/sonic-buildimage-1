@@ -1,0 +1,22 @@
+#!/bin/bash
+
+BUILDINFO_PATH="/usr/local/share/buildinfo"
+PRE_VERSION_PATH="$BUILDINFO_PATH/pre-versions"
+POST_VERSION_PATH="$BUILDINFO_PATH/post-versions"
+DIFF_VERSION_PATH="$BUILDINFO_PATH/diff-versions"
+
+[ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
+
+collect_version_files $POST_VERSION_PATH
+chmod a+rw -R $DIFF_VERSION_PATH
+
+for file in $POST_VERSION_PATH/versions-*
+do
+    filename=$(basename $file)
+    init_file=$PRE_VERSION_PATH/$filename
+    diff_file=$DIFF_VERSION_PATH/$filename
+    cat $file | sort > $diff_file
+    if [ -f $init_file ]; then
+        cat $file $init_file | sort | LC_ALL=C uniq -u > $diff_file
+    fi
+done
