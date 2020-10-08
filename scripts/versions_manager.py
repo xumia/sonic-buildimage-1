@@ -1,23 +1,38 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import argparse
+import glob
 import os
 import sys
 
 
 DEFAULT_VERSION_PATH = 'files/build/versions'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
+VERSION_PREFIX="versions-"
+PACKAGE_DEBIAN = 'deb'
+VERSION_TYPES = [ 'deb', 'py2', 'py3', 'wget', 'git' ]
 VERSION_PREFIX_DEB = 'versions-deb'
-VERSION_PREFIX_PIP2 = 'versions-pip'
-VERSION_PREFIX_PIP3 = 'versions-pip3'
+VERSION_PREFIX_PY2 = 'versions-py2'
+VERSION_PREFIX_PY3 = 'versions-py3'
 VERSION_PREFIX_WGET = 'versions-wget'
 VERSION_PREFIX_GIT = 'versions-git'
-VERSION_PREFIXES_COMMON = [VERSION_PREFIX_PIP2, VERSION_PREFIX_PIP3, VERSION_PREFIX_WGET, VERSION_PREFIX_GIT]
+VERSION_PREFIXES_COMMON = [VERSION_PREFIX_PY2, VERSION_PREFIX_PY3, VERSION_PREFIX_WGET, VERSION_PREFIX_GIT]
 
 
-class PackageVersions:
-    def __init__(self, versions):
+class Component:
+    '''
+    The component consists of mutiple packages
+
+    ctype -- Component Type, such as deb, py2, etc
+    dist  -- Distribution, such as stretch, buster, etc
+    arch  -- Architectrue, such as amd64, arm64, etc
+    
+    '''
+    def __init__(self, versions, ctype, dist, arch):
         self.versions = versions
+        self.ctype = ctype
+        self.dist = dist
+        self.arch = arch
 
     @classmethod
     def get_versions(cls, version_file):
@@ -31,10 +46,10 @@ class PackageVersions:
                     package = line[:offset].strip()
                     version = line[offset+2:].strip()
                     result[package] = version
-        return PackageVersions(result)
+        return result
 
     def clone(self):
-        return PackageVersions(self.versions.copy())
+        return PackageVersions(self.versions.copy(), self.ctype, self.dist, self.arch)
 
     def merge(self, package_versions):
         for package in package_versions.versions:
@@ -51,7 +66,151 @@ class PackageVersions:
             f.writ(self.dump())
 
 
-class VersionManager:
+class VersionModule:
+    '''
+    The version module represents a build target, such as docker image, host image, consists of multiple components.
+
+    name   -- The name of the image, such as sonic-slave-buster, docker-lldp, etc
+    '''
+    def __init__(self, name, components):
+        self.name = name
+        self.components = components
+
+    def inherit(self, base_image):
+        pass
+
+    def merge(self, base_image):
+        pass
+
+    def subtract(self, base_image):
+        for base_component in base_image.components:
+            for component in self.components:
+                if base_component.ctype != component.ctype:
+                    continue
+                if 
+
+    def load(self, image_path, filter_ctype=None, filter_dist=None, filter_arch=None):
+        version_file_pattern = os.path.join(image_path, VERSION_PREFIX) + '*'
+        file_path = glob.glob(version_file_pattern)
+        components = []
+        self.name = os.path.basename(image_path)
+        self.components = components
+        for file_path in file_paths:
+            filename = os.path.basename(file_path)
+            items = filename.split('-')
+            if len(items) < 2:
+                continue
+            ctype = items[1]
+            if filter_ctype and filter_ctype != ctype:
+                continue
+            dist = ''
+            arch = ''
+            if len(items) > 2:
+                dist = items[2]
+            if filter_dist and dist and filter_dist != dist:
+                continue
+            if len(items) > 3:
+                arch = items[3]
+            if filter_arch and arch and filter_arch != arch:
+                continue
+            versions = Component.get_versions()
+            component = Component(versions, ctype, dist, arch)
+            components.append(component)
+
+    def load_from_build_result(self, image_path):
+        self.load(image_path)
+        arch = self._get_dist(image_path)
+        dist = self._get_dist(image_path)
+        for component in self.components:
+            if arch:
+                component.arch = arch
+            if dist:
+                component.dist = dist
+
+    def _get_dist(self, image_path):
+        dist = ''
+        os_release = os.path.join(image_path, 'os_release')
+        if not os.path.exists(os_release):
+            return dist
+        with open(os_release, 'r') as f:
+            lines=f.readlines()
+            for line in lines:
+                line = line.strip()
+                items = line.split('=')
+                if len(items) != 2:
+                    continue
+                if items[0] == 'VERSION_CODENAME':
+                    dist = items[1].strip()
+                if not dist and 'jessie' in line:
+                    dist = 'jessie'
+        return dist
+
+    def _get_arch(self):
+        arch = ''
+        arch_path = '.arch'
+        if not os.path.exists(arch_path):
+            return arch
+        with open(arch_path, 'r') as f:
+            lines=f.readlines()
+            if len(lines) > 0:
+                arch = lines[0].strip()
+        return arch
+
+class Build:
+    '''
+    The Build consists of multiple version modules.
+
+    self.name        The name of the image, such as sonic-slave-buster, docker-lldp, etc
+    '''
+    def __init__(self, target_path="./target", source_path='.'):
+        self.target_path = target_path
+        self.source_path = source_path
+        self.modules = {}
+
+    def load_from_target(self):
+        dockers_path = os.path.join(self.target_path, 'versions/dockers')
+        modules = {}
+        self.modules = modules
+        for file_path in os.walk(dockers_path):
+            module = load_from_build_result(self, file_path)
+            modules[module.name] = module
+
+    def load_from_source(self):
+        pass
+
+    def merge(self, build):
+        pass
+
+    def freeze(self):
+        pass
+
+    def get_base_image(self):
+        pass
+
+    def get_docker_version_modules(self):
+        pass
+
+
+'''
+Version Freezer
+
+Freeze the versions after a build. It is used to freeze the versions of python packages,
+debian packages, and the package downloaded from web, etc.
+'''
+class VersionFreezer:
+    def __init__(self, versions):
+        self.versions = versions
+        self.arch = arch
+        self
+
+
+    def freeze(self, distro, arch):
+        pass
+
+class VersionGenerator:
+    pass
+
+class VersionManager2:
     @classmethod
     def get_versions(cls, version_file):
         result = {}
@@ -121,7 +280,7 @@ class VersionManager:
         cls.generate_all_common_version_lock_file(target_path, default_version_path, merge_version_path, distro, arch)
 
 
-class VersionManagerCommand:
+class VersionManagerCommands:
     def __init__(self):
         usage = 'version_manager <command> [<args>]\n\n'
         usage = usage + 'The most commonly used commands are:\n'
@@ -162,4 +321,4 @@ def main(args):
     VersionManager.generate_all_version_lock_file(args.target_path, args.base_path, args.override_path, args.distribution, args.architecture, args.priority)
 
 if __name__ == "__main__":
-    VersionManagerCommand()
+    VersionManagerCommands()
