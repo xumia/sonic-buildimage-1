@@ -6,6 +6,7 @@ import os
 import sys
 
 
+COMMON_MODULE = 'common_module'
 DEFAULT_VERSION_PATH = 'files/build/versions'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX="versions-"
@@ -17,6 +18,8 @@ VERSION_PREFIX_PY3 = 'versions-py3'
 VERSION_PREFIX_WGET = 'versions-wget'
 VERSION_PREFIX_GIT = 'versions-git'
 VERSION_PREFIXES_COMMON = [VERSION_PREFIX_PY2, VERSION_PREFIX_PY3, VERSION_PREFIX_WGET, VERSION_PREFIX_GIT]
+ALL_DIST = 'all'
+ALL_ARCH = 'all'
 
 
 class Component:
@@ -28,7 +31,7 @@ class Component:
     arch  -- Architectrue, such as amd64, arm64, etc
     
     '''
-    def __init__(self, versions, ctype, dist, arch):
+    def __init__(self, versions, ctype, dist=None, arch=None):
         self.versions = versions
         self.ctype = ctype
         self.dist = dist
@@ -36,7 +39,7 @@ class Component:
 
     @classmethod
     def get_versions(cls, version_file):
-        version = {}
+        result = {}
         if not os.path.exists(version_file):
             return result
         with open(version_file) as fp:
@@ -62,8 +65,33 @@ class Component:
         return "\n".join(result)
 
     def dump_to_file(self, version_file):
+        if len(self.versions) <= 0:
+            return
         with open(version_file, 'w') as f:
-            f.writ(self.dump())
+            f.write(self.dump())
+
+    def dump_to_path(self, file_path):
+        filename = self.get_filename()
+        file_path = os.path.join(file_path, filename)
+        self.dump_to_file(file_path)
+
+    '''
+    Get the file name
+
+    The file name format: versions-{ctype}-{dist}-{arch}
+    If {arch} is all, then the file name format: versions-{ctype}-{dist}
+    if {arch} is all and {dist} is all, then the file name format: versions-{ctype}
+    '''
+    def get_filename(self):
+        filename = VERSION_PREFIX + self.ctype
+        dist = self.dist
+        if self.arch and self.arch != ALL_ARCH:
+            if not dist:
+                dist = ALL_DIST
+            return filename + '-' + dist + '-' + self.arch
+        if dist and self.dist != ALL_DIST:
+            filename = filename + '-' + dist
+        return filename
 
 
 class VersionModule:
@@ -72,7 +100,7 @@ class VersionModule:
 
     name   -- The name of the image, such as sonic-slave-buster, docker-lldp, etc
     '''
-    def __init__(self, name, components):
+    def __init__(self, name=None, components=None):
         self.name = name
         self.components = components
 
@@ -82,16 +110,22 @@ class VersionModule:
     def merge(self, base_image):
         pass
 
-    def subtract(self, base_image):
-        for base_component in base_image.components:
-            for component in self.components:
-                if base_component.ctype != component.ctype:
+    def subtract(self, base_module):
+        for component in self.components:
+            for base_component in base_module.components:
+                if component.ctype != base_component.ctype:
                     continue
-                if 
+                versions = {}
+                for package in component.versions:
+                    version = component.versions[package]
+                    if package not in base_component.versions or version !=  base_component.versions[package]:
+                        versions[package] = version
+                component.versions = versions
+
 
     def load(self, image_path, filter_ctype=None, filter_dist=None, filter_arch=None):
         version_file_pattern = os.path.join(image_path, VERSION_PREFIX) + '*'
-        file_path = glob.glob(version_file_pattern)
+        file_paths = glob.glob(version_file_pattern)
         components = []
         self.name = os.path.basename(image_path)
         self.components = components
@@ -113,13 +147,13 @@ class VersionModule:
                 arch = items[3]
             if filter_arch and arch and filter_arch != arch:
                 continue
-            versions = Component.get_versions()
+            versions = Component.get_versions(file_path)
             component = Component(versions, ctype, dist, arch)
             components.append(component)
 
-    def load_from_build_result(self, image_path):
+    def load_from_target(self, image_path):
         self.load(image_path)
-        arch = self._get_dist(image_path)
+        arch = self._get_arch()
         dist = self._get_dist(image_path)
         for component in self.components:
             if arch:
@@ -127,9 +161,16 @@ class VersionModule:
             if dist:
                 component.dist = dist
 
+    def dump(self, module_path):
+        version_file_pattern = os.path.join(module_path, VERSION_PREFIX + '*')
+        for filename in glob.glob(version_file_pattern):
+            os.remove(filename)
+        for component in self.components:
+            component.dump_to_path(module_path)
+
     def _get_dist(self, image_path):
         dist = ''
-        os_release = os.path.join(image_path, 'os_release')
+        os_release = os.path.join(image_path, 'os-release')
         if not os.path.exists(os_release):
             return dist
         with open(os_release, 'r') as f:
@@ -171,9 +212,14 @@ class Build:
         dockers_path = os.path.join(self.target_path, 'versions/dockers')
         modules = {}
         self.modules = modules
-        for file_path in os.walk(dockers_path):
-            module = load_from_build_result(self, file_path)
+        file_paths = glob.glob(dockers_path + '/*')
+        for file_path in file_paths:
+            if not os.path.isdir(file_path):
+                continue
+            module = VersionModule()
+            module.load_from_target(file_path)
             modules[module.name] = module
+        self._merge_dgb_modules()
 
     def load_from_source(self):
         pass
@@ -182,13 +228,141 @@ class Build:
         pass
 
     def freeze(self):
+        common_module = self.get_common_module()
+        for module in self.modules.values():
+            if module.name == COMMON_MODULE:
+                continue
+            module.subtract(common_module)
+            module_path = self.get_module_path(module)
+            module.dump(module_path)
+        common_module_path = os.path.join(self.source_path, "files/build/versions")
+        common_module.dump(common_module_path)
         pass
 
-    def get_base_image(self):
-        pass
+    def get_common_module(self):
+        ctypes = self.get_component_types()
+        dists = self.get_dists()
+        components = []
+        for ctype in ctypes:
+            if ctype == 'deb':
+                for dist in dists:
+                    versions = self._get_versions(ctype, dist)
+                    common_versions = self._get_common_versions(versions)
+                    component = Component(common_versions, ctype, dist)
+                    components.append(component)
+            else:
+                versions = self._get_versions(ctype)
+                common_versions = self._get_common_versions(versions)
+                component = Component(common_versions, ctype)
+                components.append(component)
+        return VersionModule(COMMON_MODULE, components)
 
     def get_docker_version_modules(self):
-        pass
+        modules = []
+        for module_name in self.modules:
+            if module_name.startswith('sonic-slave-'):
+                continue
+            if module_name == COMMON_MODULE:
+                continue
+            module = self.modules[module_name]
+            modules.append(module)
+        return modules
+
+    def get_components(self):
+        components = []
+        for module_name in self.modules:
+            module = self.modules[module_name]
+            for component in module.components:
+                components.append(component)
+        return components
+
+    def get_component_types(self):
+        ctypes = []
+        for module_name in self.modules:
+            module = self.modules[module_name]
+            for component in module.components:
+               if component.ctype not in ctypes:
+                   ctypes.append(component.ctype)
+        return ctypes
+
+    def get_dists(self):
+        dists = []
+        components = self.get_components()
+        for component in components:
+            if component.dist not in dists:
+                dists.append(component.dist)
+        return dists
+
+    def get_archs(self):
+        archs = []
+        components = self.get_components()
+        for component in components:
+            if component.arch not in archs:
+                archs.append(component.arch)
+        return archs
+
+    def get_module_path(self, module):
+        if module.name.startswith('sonic-slave-'):
+            return os.path.join(self.source_path, module.name)
+        file_path = os.path.join(self.source_path, 'dockers', module.name)
+        if os.path.exists(file_path):
+            return file_path
+        file_path = os.path.join(self.source_path, 'platform', '*', module.name)
+        files = glob.glob(file_path)
+        if len(files) == 1:
+            return files[0]
+        raise Exception('The path of module name {0} not found'.format(module.name))
+
+    def _merge_dgb_modules(self):
+        dbg_modules = []
+        for module_name in self.modules:
+            if not module_name.endswith('-dbg'):
+                continue
+            dbg_modules.append(module_name)
+            base_module_name = module_name[:-4]
+            if base_module_name not in self.modules:
+                import pdb; pdb.set_trace()
+                raise Exception('The Module {0} not found'.format(base_module_name))
+            base_module = self.modules[base_module_name]
+            dbg_module = self.modules[module_name]
+            for dbg_component in dbg_module.components:
+                found_component = None
+                for component in base_module.components:
+                    if component.ctype == dbg_component.ctype:
+                        found_component = component
+                if not found_component:
+                    base_module.components.append(dbg_component)
+                else:
+                    base_module.merge(dbg_component)
+        for module_name in dbg_modules:
+            del self.modules[module_name]
+
+    def _get_versions(self, ctype, dist=None, arch=None):
+        versions = {}
+        modules = self.get_docker_version_modules()
+        for module in modules:
+            for component in module.components:
+                if ctype != component.ctype:
+                    continue
+                if dist and dist != component.dist:
+                    continue
+                if arch and arch != component.arch:
+                    continue
+                for package in component.versions:
+                    version = component.versions[package]
+                    package_versions = versions.get(package, [])
+                    if version not in package_versions:
+                        package_versions.append(version)
+                    versions[package] = package_versions
+        return versions
+
+    def _get_common_versions(self, versions):
+        common_versions = {}
+        for package in versions:
+            package_versions = versions[package]
+            if len(package_versions) == 1:
+                common_versions[package] = package_versions[0]
+        return common_versions
 
 
 '''
@@ -290,7 +464,7 @@ class VersionManagerCommands:
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
         if not hasattr(self, args.command):
-            print 'Unrecognized command'
+            print('Unrecognized command')
             parser.print_help()
             exit(1)
         getattr(self, args.command)()
@@ -314,6 +488,19 @@ class VersionManagerCommands:
 
     def freeze(self):
         parser = argparse.ArgumentParser(description = 'Freeze the version files')
+        build = Build()
+        build.load_from_target()
+        versions = build._get_versions('deb', dist='buster')
+        dists = build.get_dists()
+        archs = build.get_archs()
+        common_versions = build._get_common_versions(versions)
+        nono_common_versions = {}
+        common_module = build.get_common_module()
+        build.freeze()
+        for package in versions:
+            if package not in common_versions:
+                nono_common_versions[package] = versions[package]
+        import pdb; pdb.set_trace()
 
 def main(args):
     if not os.path.exists(args.target_path):
