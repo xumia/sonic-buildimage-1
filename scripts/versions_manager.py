@@ -60,7 +60,7 @@ class Component:
 
     def dump(self):
         result = []
-        for package in sorted(self.versions.keys()):
+        for package in sorted(self.versions.keys(), key=str.casefold):
             result.append('{0}=={1}'.format(package, self.versions[package]))
         return "\n".join(result)
 
@@ -229,6 +229,7 @@ class Build:
 
     def freeze(self):
         common_module = self.get_common_module()
+        self._clean_component_info()
         for module in self.modules.values():
             if module.name == COMMON_MODULE:
                 continue
@@ -237,7 +238,6 @@ class Build:
             module.dump(module_path)
         common_module_path = os.path.join(self.source_path, "files/build/versions")
         common_module.dump(common_module_path)
-        pass
 
     def get_common_module(self):
         ctypes = self.get_component_types()
@@ -336,6 +336,14 @@ class Build:
                     base_module.merge(dbg_component)
         for module_name in dbg_modules:
             del self.modules[module_name]
+
+    def _clean_component_info(self, clean_dist=True, clean_arch=True):
+        for module in self.modules.values():
+            for component in module.components:
+                if clean_dist:
+                    component.dist = None
+                if clean_arch:
+                    component.arch = None
 
     def _get_versions(self, ctype, dist=None, arch=None):
         versions = {}
