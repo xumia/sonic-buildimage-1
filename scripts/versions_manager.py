@@ -6,7 +6,7 @@ import os
 import sys
 
 
-COMMON_MODULE = 'common_module'
+COMMON_MODULE = 'default'
 DEFAULT_VERSION_PATH = 'files/build/versions'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX="versions-"
@@ -222,7 +222,17 @@ class Build:
         self._merge_dgb_modules()
 
     def load_from_source(self):
-        pass
+        # Load dockers
+        docker_pattern = os.path.join(self.source_path, 'dockers/*/versions-*')
+        paths = self._get_docker_paths_by_pattern(docker_pattern)
+        slave_docker_pattern = os.path.join(self.source_path, 'sonic-slave-*/versions-*')
+        paths = paths + self._get_docker_paths_by_pattern(slave_docker_pattern)
+        platform_docker_pattern = os.path.join(self.source_path, 'platform/*/*/versions-*')
+        paths = paths + self._get_docker_paths_by_pattern(platform_docker_pattern)
+
+        # Load base settings
+        default_
+        paths += []
 
     def merge(self, build):
         pass
@@ -236,7 +246,7 @@ class Build:
             module.subtract(common_module)
             module_path = self.get_module_path(module)
             module.dump(module_path)
-        common_module_path = os.path.join(self.source_path, "files/build/versions")
+        common_module_path = os.path.join(self.source_path, "files/build/versions/default")
         common_module.dump(common_module_path)
 
     def get_common_module(self):
@@ -312,6 +322,15 @@ class Build:
         if len(files) == 1:
             return files[0]
         raise Exception('The path of module name {0} not found'.format(module.name))
+
+    def _get_docker_paths_by_pattern(self, pattern):
+        files = glob.glob(pattern)
+        paths = []
+        for file_path in files:
+            parent = os.path.dirname(file_path)
+            if parent not in paths:
+                paths.append(parent)
+        return paths
 
     def _merge_dgb_modules(self):
         dbg_modules = []
