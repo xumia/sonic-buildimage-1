@@ -7,6 +7,17 @@ FILESYSTEM_ROOT=$3
 http_proxy=$4
 
 
+TARGET=$TARGET_PATH
+[ -z "$TARGET" ] && TARGET=target
+
+TARGET_BASEIMAGE_PATH=$TARGET/versions/host-base-image
+mkdir -p $TARGET_BASEIMAGE_PATH
+
+generate_version_file()
+{
+    sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb
+}
+
 if [ $SONIC_ENFORCE_VERSIONS != "y" ]; then
     if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
         # qemu arm bin executable for cross-building
@@ -16,8 +27,12 @@ if [ $SONIC_ENFORCE_VERSIONS != "y" ]; then
     else
         sudo http_proxy=$HTTP_PROXY debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
     fi
-RET=$?
-exit $RET
+    RET=$?
+    if [ $RET -ne 0 ]; then
+        exit $RET
+    fi
+
+    generate_version_file
 fi
 
 ARCH=$(dpkg --print-architecture)
@@ -27,8 +42,7 @@ if [ "$ARCH" != "$CONFIGURED_ARCH" ] || [ "$DISTRO" != "$IMAGE_DISTRO" ]; then
     exit 1
 fi
 
-TARGET=target
-BASE_VERSIONS=files/build/host-versions/base-versions-deb
+BASE_VERSIONS=files/build/versions/host-base-image/versions-deb
 BASEIMAGE_TARBALLPATH=$TARGET/baseimage
 BASEIMAGE_TARBALL=$(realpath -e $TARGET)/baseimage.tgz
 
@@ -64,4 +78,8 @@ touch $DEBOOTSTRAP_BASE
 (cd $BASEIMAGE_TARBALLPATH && tar -zcf $BASEIMAGE_TARBALL .)
 
 sudo debootstrap --verbose --variant=minbase --arch $CONFIGURED_ARCH --unpack-tarball=$BASEIMAGE_TARBALL $IMAGE_DISTRO $FILESYSTEM_ROOT
+if [ $RET -ne 0 ]; then
+    exit $RET
+fi
 
+generate_version_file

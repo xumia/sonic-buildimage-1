@@ -2,7 +2,7 @@
 
 TARGET=$1
 FILESYSTEM_ROOT=$2
-VERSIONS_PATH=$TARGET/versions/host-versions
+VERSIONS_PATH=$TARGET/versions/host-image
 
 mkdir -p $VERSIONS_PATH
 

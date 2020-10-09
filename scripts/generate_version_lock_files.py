@@ -5,7 +5,7 @@ import os
 import sys
 
 
-DEFAULT_VERSION_PATH = 'files/build/versions'
+DEFAULT_VERSION_PATH = 'files/build/versions/default'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX_DEB = 'versions-deb'
 VERSION_PREFIX_PIP2 = 'versions-pip'

@@ -78,7 +78,7 @@ popd
 ## Build the host base debian system
 echo '[INFO] Build host base image...'
 #scripts/load_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $PACKAGE_URL_PREFIX
-scripts/build_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
+TARGET_PATH=$TARGET_PATH scripts/build_host_base_image.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
 
 # Copy buildinfo
 #sudo scripts/copy_buildinfo.sh $FILESYSTEM_ROOT/usr/local/share $FILESYSTEM_ROOT
@@ -575,7 +575,7 @@ sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
-scripts/collect_host_base_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
+scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
 
 ## Compress docker files
 pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd
