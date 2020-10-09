@@ -54,9 +54,15 @@ class Component:
     def clone(self):
         return PackageVersions(self.versions.copy(), self.ctype, self.dist, self.arch)
 
-    def merge(self, package_versions):
-        for package in package_versions.versions:
-            self.versions[package] = package_versions.versions[package]
+    def merge(self, versions, overwritten=True):
+        for package in versions:
+            if overwritten or package not in self.versions:
+                self.versions[package] = versions[package]
+
+    def subtract(self, versions):
+        for package in versions:
+            if package in self.versions and self.versions[package] == versions[package]:
+                del self.versions[package]
 
     def dump(self):
         result = []
@@ -93,6 +99,14 @@ class Component:
             filename = filename + '-' + dist
         return filename
 
+    def get_order_keys(self):
+        dist = self.dist
+        if not dist or  dist == ALL_DIST:
+            dist = ''
+        if not arch or arch == ALL_ARCH:
+            arch = ''
+        return (ctype, dist, arch)
+
 
 class VersionModule:
     '''
@@ -104,23 +118,41 @@ class VersionModule:
         self.name = name
         self.components = components
 
-    def inherit(self, base_image):
-        pass
-
-    def merge(self, base_image):
-        pass
-
-    def subtract(self, base_module):
+    def overwrite(self, module):
         for component in self.components:
-            for base_component in base_module.components:
-                if component.ctype != base_component.ctype:
+            for default_component in default_module.components:
+                if component.ctype != default_component.ctype:
                     continue
-                versions = {}
-                for package in component.versions:
-                    version = component.versions[package]
-                    if package not in base_component.versions or version !=  base_component.versions[package]:
-                        versions[package] = version
-                component.versions = versions
+                component.merge(default_component.versions, True)
+
+    def inherit(self, default_module):
+        for component in self.components:
+            for default_component in default_module.components:
+                if component.ctype != default_component.ctype:
+                    continue
+                component.merge(default_component.versions, False)
+
+    def merge(self, module, overwritten=True):
+        # If overwritten is true, then overritten from the common component to detail component (has dist and arch info)
+        components = sorted(self.components, key = lambda x : x.get_order_keys(), reverse = not overwritten)
+        for component in self.components:
+            for merge_component in module.components:
+                if component.ctype != merge_component.ctype:
+                    continue
+                dist = merge_component.dist
+                if dist and dist != ALL_DIST and dist != component.dist:
+                    continue
+                arch = merge_component.arch
+                if arch and arch != ALL_DIST and arch != component.arch:
+                    continue
+                component.merge(merge_component.versions, overwritten)
+
+    def subtract(self, default_module):
+        for component in self.components:
+            for default_component in default_module.components:
+                if component.ctype != default_component.ctype:
+                    continue
+                component.subtract(default_component.versions)
 
 
     def load(self, image_path, filter_ctype=None, filter_dist=None, filter_arch=None):
