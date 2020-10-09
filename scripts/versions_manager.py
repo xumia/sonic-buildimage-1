@@ -201,7 +201,6 @@ class Build:
     '''
     The Build consists of multiple version modules.
 
-    self.name        The name of the image, such as sonic-slave-buster, docker-lldp, etc
     '''
     def __init__(self, target_path="./target", source_path='.'):
         self.target_path = target_path
@@ -213,6 +212,8 @@ class Build:
         modules = {}
         self.modules = modules
         file_paths = glob.glob(dockers_path + '/*')
+        file_paths.append(os.path.join(self.target_path, 'versions/host-image'))
+        file_paths.append(os.path.join(self.target_path, 'versions/host-base-image'))
         for file_path in file_paths:
             if not os.path.isdir(file_path):
                 continue
@@ -224,15 +225,21 @@ class Build:
     def load_from_source(self):
         # Load dockers
         docker_pattern = os.path.join(self.source_path, 'dockers/*/versions-*')
-        paths = self._get_docker_paths_by_pattern(docker_pattern)
+        paths = self._get_module_paths_by_pattern(docker_pattern)
         slave_docker_pattern = os.path.join(self.source_path, 'sonic-slave-*/versions-*')
-        paths = paths + self._get_docker_paths_by_pattern(slave_docker_pattern)
+        paths = paths + self._get_module_paths_by_pattern(slave_docker_pattern)
         platform_docker_pattern = os.path.join(self.source_path, 'platform/*/*/versions-*')
-        paths = paths + self._get_docker_paths_by_pattern(platform_docker_pattern)
+        paths = paths + self._get_module_paths_by_pattern(platform_docker_pattern)
 
-        # Load base settings
-        default_
-        paths += []
+        # Load default versions and host image versions
+        other_pattern = os.path.join(self.source_path, 'files/build/versions/*/versions-*')
+        paths = paths + self._get_module_paths_by_pattern(other_pattern)
+        modules = {}
+        self.modules = modules
+        for image_path in paths:
+            module = VersionModule()
+            module.load(image_path)
+            modules[module.name] = module
 
     def merge(self, build):
         pass
@@ -243,7 +250,8 @@ class Build:
         for module in self.modules.values():
             if module.name == COMMON_MODULE:
                 continue
-            module.subtract(common_module)
+            if module.name != 'host-base-image':
+                module.subtract(common_module)
             module_path = self.get_module_path(module)
             module.dump(module_path)
         common_module_path = os.path.join(self.source_path, "files/build/versions/default")
@@ -273,6 +281,8 @@ class Build:
             if module_name.startswith('sonic-slave-'):
                 continue
             if module_name == COMMON_MODULE:
+                continue
+            if module_name == 'host-image' or module_name == 'host-base-image':
                 continue
             module = self.modules[module_name]
             modules.append(module)
@@ -312,6 +322,9 @@ class Build:
         return archs
 
     def get_module_path(self, module):
+        common_modules = ['default', 'host-image', 'host-base-image']
+        if module.name in common_modules:
+            return os.path.join(self.source_path, 'files/build/versions', module.name)
         if module.name.startswith('sonic-slave-'):
             return os.path.join(self.source_path, module.name)
         file_path = os.path.join(self.source_path, 'dockers', module.name)
@@ -323,7 +336,7 @@ class Build:
             return files[0]
         raise Exception('The path of module name {0} not found'.format(module.name))
 
-    def _get_docker_paths_by_pattern(self, pattern):
+    def _get_module_paths_by_pattern(self, pattern):
         files = glob.glob(pattern)
         paths = []
         for file_path in files:
@@ -340,7 +353,6 @@ class Build:
             dbg_modules.append(module_name)
             base_module_name = module_name[:-4]
             if base_module_name not in self.modules:
-                import pdb; pdb.set_trace()
                 raise Exception('The Module {0} not found'.format(base_module_name))
             base_module = self.modules[base_module_name]
             dbg_module = self.modules[module_name]
@@ -524,6 +536,8 @@ class VersionManagerCommands:
         nono_common_versions = {}
         common_module = build.get_common_module()
         build.freeze()
+        build2 = Build()
+        build2.load_from_source()
         for package in versions:
             if package not in common_versions:
                 nono_common_versions[package] = versions[package]
