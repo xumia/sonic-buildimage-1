@@ -3,7 +3,7 @@
 BUILDINFO_PATH="/usr/local/share/buildinfo"
 . $BUILDINFO_PATH/config/buildinfo.config
 
-VERSION_FILE="$BUILDINFO_PATH/versions/versions-pip"
+VERSION_FILE="$BUILDINFO_PATH/versions/versions-py2"
 paras=($@)
 
 COMMAND=/usr/local/bin/pip

@@ -68,22 +68,26 @@ class Component:
             if package in self.versions and self.versions[package] == versions[package]:
                 del self.versions[package]
 
-    def dump(self):
+    def dump(self, config=False, priority=999):
         result = []
         for package in sorted(self.versions.keys(), key=str.casefold):
-            result.append('{0}=={1}'.format(package, self.versions[package]))
+            if config and self.ctype == 'deb':
+                lines = 'Package: {0}\nPin: version {1}\nPin-Priority: {2}\n\n'.format(package, self.versions[package], priority)
+                result.append(lines)
+            else:
+                result.append('{0}=={1}'.format(package, self.versions[package]))
         return "\n".join(result)
 
-    def dump_to_file(self, version_file):
+    def dump_to_file(self, version_file, config=False, priority=999):
         if len(self.versions) <= 0:
             return
         with open(version_file, 'w') as f:
-            f.write(self.dump())
+            f.write(self.dump(config, priority))
 
-    def dump_to_path(self, file_path):
+    def dump_to_path(self, file_path, config=False, priority=999):
         filename = self.get_filename()
         file_path = os.path.join(file_path, filename)
-        self.dump_to_file(file_path)
+        self.dump_to_file(file_path, config, priority)
 
     # Check if the self component can be overwritten by the input component
     def check_overwritable(self, component, for_all_dist=False, for_all_arch=False):
@@ -152,7 +156,7 @@ class VersionModule:
         for merge_component in components:
             merged = False
             for component in self.components:
-                if component.check_overwritable(merge_component):
+                if component.check_overwritable(merge_component, for_all_dist=for_all_dist, for_all_arch=for_all_arch):
                     component.merge(merge_component.versions, True)
                     merged = True
             if not merged:
@@ -163,11 +167,15 @@ class VersionModule:
     def inherit(self, default_module):
         # Inherit from the detail one to the generic one
         # Prefer to inherit versions from versions-deb-buster, better than versions-deb
-        components = sorted(default_components, key = lambda x : x.get_order_keys(), reverse=True)
-        for component in self.components:
-            for merge_component in components:
+        components = sorted(default_module.components, key = lambda x : x.get_order_keys(), reverse=True)
+        for merge_component in components:
+            merged = False
+            for component in self.components:
                 if component.check_inheritable(merge_component):
-                    component.merge(default_component.versions, False)
+                    component.merge(merge_component.versions, False)
+                    merged = True
+            if not merged:
+                self.components.append(merge_component)
 
     def subtract(self, default_module):
         for component in self.components:
@@ -215,12 +223,12 @@ class VersionModule:
             if dist:
                 component.dist = dist
 
-    def dump(self, module_path):
+    def dump(self, module_path, config=False, priority=999):
         version_file_pattern = os.path.join(module_path, VERSION_PREFIX + '*')
         for filename in glob.glob(version_file_pattern):
             os.remove(filename)
         for component in self.components:
-            component.dump_to_path(module_path)
+            component.dump_to_path(module_path, config, priority)
 
     def clean_info(self, clean_dist=True, clean_arch=True):
         for component in self.components:
@@ -309,12 +317,12 @@ class Build:
             modules[module.name] = module
 
     def load_by_module_name(self, module_name, filter_ctype=None, filter_dist=None, filter_arch=None):
-        module_path = self.get_module_path(module_name)
+        module_path = self.get_module_path_by_name(module_name)
         module = VersionModule()
-        module.load(image_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
-        default_module_path = self.get_module_path(DEFAULT_MODULE)
+        module.load(module_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
+        default_module_path = self.get_module_path_by_name(DEFAULT_MODULE)
         default_module = VersionModule()
-        default_module.load(default_image_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
+        default_module.load(default_module_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
         module.inherit(default_module)
         return module
         
@@ -428,19 +436,22 @@ class Build:
         return archs
 
     def get_module_path(self, module):
+        return self.get_module_path_by_name(module.name)
+
+    def get_module_path_by_name(self, module_name):
         common_modules = ['default', 'host-image', 'host-base-image']
-        if module.name in common_modules:
-            return os.path.join(self.source_path, 'files/build/versions', module.name)
-        if module.name.startswith('sonic-slave-'):
-            return os.path.join(self.source_path, module.name)
-        file_path = os.path.join(self.source_path, 'dockers', module.name)
+        if module_name in common_modules:
+            return os.path.join(self.source_path, 'files/build/versions', module_name)
+        if module_name.startswith('sonic-slave-'):
+            return os.path.join(self.source_path, module_name)
+        file_path = os.path.join(self.source_path, 'dockers', module_name)
         if os.path.exists(file_path):
             return file_path
-        file_path = os.path.join(self.source_path, 'platform', '*', module.name)
+        file_path = os.path.join(self.source_path, 'platform', '*', module_name)
         files = glob.glob(file_path)
         if len(files) == 1:
             return files[0]
-        raise Exception('The path of module name {0} not found'.format(module.name))
+        raise Exception('The path of module name {0} not found'.format(module_name))
 
     def _get_module_paths_by_pattern(self, pattern):
         files = glob.glob(pattern)
@@ -593,7 +604,7 @@ class VersionManagerCommands:
         parser.add_argument('-d', '--for_all_dist', action='store_true', help='apply the versions for all distributions')
         parser.add_argument('-a', '--for_all_arch', action='store_true', help='apply the versions for all architectures')
         args = parser.parse_args(sys.argv[2:])
-        build = Build()
+        build = Build(target_path=args.target_path, source_path=args.source_path)
         build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
         import pdb; pdb.set_trace()
 
@@ -609,10 +620,14 @@ class VersionManagerCommands:
         parser.add_argument('-d', '--distribution', required=True, help="distribution")
         parser.add_argument('-a', '--architecture', required=True, help="architecture")
         parser.add_argument('-p', '--priority', default=999, help="priority of the debian apt preference")
-        parser.add_argument('-m', '--module_name', help="module name, such as docker-lldp, sonic-slave-buster, etc")
+
+        args = parser.parse_args(sys.argv[2:])
         if not os.path.exists(args.target_path):
             os.makedirs(args.target_path)
-        VersionManager.generate_all_version_lock_file(args.target_path, args.base_path, args.override_path, args.distribution, args.architecture, args.priority)
+        build = Build(source_path=args.source_path)
+        module = build.load_by_module_name(args.module_name, filter_dist=args.distribution, filter_arch=args.architecture)
+        module.dump(args.target_path, config=True, priority=args.priority)
+        import pdb; pdb.set_trace()
 
 def main(args):
     if not os.path.exists(args.target_path):

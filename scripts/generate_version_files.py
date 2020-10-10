@@ -170,6 +170,6 @@ def generate_versions_pip(version_file_name):
             prefer_versions = module_versions[module]
         generate_versions_file(module, version_file_name, prefer_versions)
 
-generate_versions_pip("versions-pip")
-generate_versions_pip("versions-pip3")
+generate_versions_pip("versions-py2")
+generate_versions_pip("versions-py3")
 generate_versions_deb()

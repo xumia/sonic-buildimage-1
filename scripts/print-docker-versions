@@ -21,9 +21,9 @@ export_versions()
     mkdir -p ${package_path}
     docker exec ${package} dpkg-query -W -f '${Package}==${Version}\n' > ${package_path}/versions-deb
     local pip_path=$(docker exec ${package} which pip)
-    [ ! -z "$pip_path" ] && docker exec ${package} pip freeze | grep -v " @ " > ${package_path}/versions-pip
+    [ ! -z "$pip_path" ] && docker exec ${package} pip freeze | grep -v " @ " > ${package_path}/versions-py2
     local pip3_path=$(docker exec ${package} which pip3)
-    [ ! -z "$pip3_path" ] && docker exec ${package} pip3 freeze | grep -v " @ " > ${package_path}/versions-pip3
+    [ ! -z "$pip3_path" ] && docker exec ${package} pip3 freeze | grep -v " @ " > ${package_path}/versions-py3
     docker exec ${package} mkdir -p /usr/local/share/buildinfo/init-versions
     docker cp ${package}:/usr/local/share/buildinfo/init-versions ${package_path}
     docker kill ${package} > /dev/null
@@ -63,8 +63,8 @@ done
 HOST_IMAGE=${VERSIONS_PATH}/host-image
 mkdir -p ${VERSIONS_PATH}/host-image
 cp -rf fsroot/usr/local/share/buildinfo/init-versions ${HOST_IMAGE}
-sudo LANG=C chroot fsroot pip freeze > ${HOST_IMAGE}/versions-pip
-sudo LANG=C chroot fsroot pip3 freeze > ${HOST_IMAGE}/versions-pip3
+sudo LANG=C chroot fsroot pip freeze > ${HOST_IMAGE}/versions-py2
+sudo LANG=C chroot fsroot pip3 freeze > ${HOST_IMAGE}/versions-py3
 sudo LANG=C chroot fsroot dpkg-query -W -f '${Package}==${Version}\n' > ${HOST_IMAGE}/versions-deb
 
 for distro in $(ls target/debs)

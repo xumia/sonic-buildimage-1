@@ -95,12 +95,12 @@ generate_init_versions()
 {
     mkdir -p "${INIT_VERSIONS_PATH}"
     [ -f /usr/bin/apt ] && apt list --installed | sed "1d" | awk '{gsub("/.*", "", $1); print $1"=="$2}' > "${INIT_VERSIONS_PATH}/versions-deb"
-    [ -f /usr/bin/pip ] && pip freeze > "${INIT_VERSIONS_PATH}/versions-pip"
-    [ -f /usr/bin/pip3 ] && pip3 freeze > "${INIT_VERSIONS_PATH}/versions-pip3"
+    [ -f /usr/bin/pip ] && pip freeze > "${INIT_VERSIONS_PATH}/versions-py2"
+    [ -f /usr/bin/pip3 ] && pip3 freeze > "${INIT_VERSIONS_PATH}/versions-py3"
 }
 
 generate_init_versions
 generate_debian_versions "versions-deb"
-generate_base_versions_file "versions-pip"
-generate_base_versions_file "versions-pip3"
+generate_base_versions_file "versions-py2"
+generate_base_versions_file "versions-py3"
 

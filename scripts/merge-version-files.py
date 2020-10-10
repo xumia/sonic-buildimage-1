@@ -44,7 +44,7 @@ def merge_versions_file(distro, version_dir, version_file_name):
     return versions
 
 def merge_and_generate_versions_file(distro, version_dir, target_dir):
-    version_file_names = ['versions-deb', 'versions-pip', 'versions-pip3', 'versions-web']
+    version_file_names = ['versions-deb', 'versions-py2', 'versions-py3', 'versions-web']
     for version_file_name in version_file_names:
         versions = merge_versions_file(distro, version_dir, version_file_name)
         file_path = os.path.join(target_dir, version_file_name)
