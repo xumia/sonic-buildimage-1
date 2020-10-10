@@ -10,14 +10,6 @@ DEFAULT_MODULE = 'default'
 DEFAULT_VERSION_PATH = 'files/build/versions'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX="versions-"
-PACKAGE_DEBIAN = 'deb'
-VERSION_TYPES = [ 'deb', 'py2', 'py3', 'wget', 'git' ]
-VERSION_PREFIX_DEB = 'versions-deb'
-VERSION_PREFIX_PY2 = 'versions-py2'
-VERSION_PREFIX_PY3 = 'versions-py3'
-VERSION_PREFIX_WGET = 'versions-wget'
-VERSION_PREFIX_GIT = 'versions-git'
-VERSION_PREFIXES_COMMON = [VERSION_PREFIX_PY2, VERSION_PREFIX_PY3, VERSION_PREFIX_WGET, VERSION_PREFIX_GIT]
 ALL_DIST = 'all'
 ALL_ARCH = 'all'
 
@@ -86,6 +78,8 @@ class Component:
 
     def dump_to_path(self, file_path, config=False, priority=999):
         filename = self.get_filename()
+        if config and self.ctype == 'deb':
+            filename = VERSION_DEB_PREFERENCE 
         file_path = os.path.join(file_path, filename)
         self.dump_to_file(file_path, config, priority)
 
@@ -272,9 +266,9 @@ class VersionModule:
                 arch = lines[0].strip()
         return arch
 
-class Build:
+class VersionBuild:
     '''
-    The Build consists of multiple version modules.
+    The VersionBuild consists of multiple version modules.
 
     '''
     def __init__(self, target_path="./target", source_path='.'):
@@ -361,7 +355,7 @@ class Build:
             return
         self.load_from_source()
         default_module = self.modules.get(DEFAULT_MODULE, None)
-        target_build = Build(self.target_path, self.source_path)
+        target_build = VersionBuild(self.target_path, self.source_path)
         target_build.load_from_target()
         if not default_module:
             raise Exception("The default versions does not exist")
@@ -509,76 +503,6 @@ class Build:
         return common_versions
 
 
-class VersionManager2:
-    @classmethod
-    def get_versions(cls, version_file):
-        result = {}
-        if not os.path.exists(version_file):
-            return result
-        with open(version_file) as fp:
-            for line in fp.readlines():
-                offset = line.rfind('==')
-                if offset > 0:
-                    package = line[:offset].strip()
-                    version = line[offset+2:].strip()
-                    result[package] = version
-        return result
-
-    @classmethod
-    def merge_versions(cls, versions, version_file):
-        result = versions.copy()
-        new_versions = cls.get_versions(version_file)
-        for package in new_versions:
-            result[package] = new_versions[package]
-        return result
-
-    @classmethod
-    def merge_version_files(cls, default_version_path, merge_version_path, version_prefix, distro, arch):
-        version_file_distro = version_prefix + '-' + distro
-        version_file_arch = version_file_distro + '-' + arch
-        version_files = [version_prefix, version_file_distro, version_file_arch]
-        versions = {}
-        for version_file in version_files:
-            default_version_file = os.path.join(default_version_path, version_file)
-            versions = cls.merge_versions(versions, default_version_file)
-
-        for version_file in version_files:
-            merge_version_file = os.path.join(merge_version_path, version_file)
-            versions = cls.merge_versions(versions, merge_version_file)
-
-        return versions
-
-    @classmethod
-    def generate_deb_version_lock_file(cls, target_version_file, default_version_path, merge_version_path, distro, arch, priority=999):
-        versions = cls.merge_version_files(default_version_path, merge_version_path, VERSION_PREFIX_DEB, distro, arch)
-        if not versions:
-            return
-        with open(target_version_file, 'w') as f:
-            for package in versions:
-                f.write('Package: {0}\nPin: version {1}\nPin-Priority: {2}\n\n'.format(package, versions[package], priority))
-
-    @classmethod
-    def generate_common_version_lock_file(cls, target_version_file, default_version_path, merge_version_path, version_prefix, distro, arch):
-        versions = cls.merge_version_files(default_version_path, merge_version_path, version_prefix, distro, arch)
-        if not versions:
-            return
-        with open(target_version_file, 'w') as f:
-            for package in versions:
-                f.write('{0}=={1}\n'.format(package, versions[package]))
-
-    @classmethod
-    def generate_all_common_version_lock_file(cls, target_path, default_version_path, merge_version_path, distro, arch):
-        for version_prefix in VERSION_PREFIXES_COMMON:
-            target_version_file = os.path.join(target_path, version_prefix)
-            cls.generate_common_version_lock_file(target_version_file, default_version_path, merge_version_path, version_prefix, distro, arch)
-
-    @classmethod
-    def generate_all_version_lock_file(cls, target_path, default_version_path, merge_version_path, distro, arch, priority=999):
-        target_version_deb_file = os.path.join(target_path, VERSION_DEB_PREFERENCE)
-        cls.generate_deb_version_lock_file(target_version_deb_file, default_version_path, merge_version_path, distro, arch, priority)
-        cls.generate_all_common_version_lock_file(target_path, default_version_path, merge_version_path, distro, arch)
-
-
 class VersionManagerCommands:
     def __init__(self):
         usage = 'version_manager.py <command> [<args>]\n\n'
@@ -604,7 +528,7 @@ class VersionManagerCommands:
         parser.add_argument('-d', '--for_all_dist', action='store_true', help='apply the versions for all distributions')
         parser.add_argument('-a', '--for_all_arch', action='store_true', help='apply the versions for all architectures')
         args = parser.parse_args(sys.argv[2:])
-        build = Build(target_path=args.target_path, source_path=args.source_path)
+        build = VersionBuild(target_path=args.target_path, source_path=args.source_path)
         build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
         import pdb; pdb.set_trace()
 
@@ -624,15 +548,9 @@ class VersionManagerCommands:
         args = parser.parse_args(sys.argv[2:])
         if not os.path.exists(args.target_path):
             os.makedirs(args.target_path)
-        build = Build(source_path=args.source_path)
+        build = VersionBuild(source_path=args.source_path)
         module = build.load_by_module_name(args.module_name, filter_dist=args.distribution, filter_arch=args.architecture)
         module.dump(args.target_path, config=True, priority=args.priority)
-        import pdb; pdb.set_trace()
-
-def main(args):
-    if not os.path.exists(args.target_path):
-        os.makedirs(args.target_path)
-    VersionManager.generate_all_version_lock_file(args.target_path, args.base_path, args.override_path, args.distribution, args.architecture, args.priority)
 
 if __name__ == "__main__":
     VersionManagerCommands()
