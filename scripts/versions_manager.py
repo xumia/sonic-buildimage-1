@@ -6,7 +6,7 @@ import os
 import sys
 
 
-COMMON_MODULE = 'default'
+DEFAULT_MODULE = 'default'
 DEFAULT_VERSION_PATH = 'files/build/versions'
 VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX="versions-"
@@ -31,9 +31,13 @@ class Component:
     arch  -- Architectrue, such as amd64, arm64, etc
     
     '''
-    def __init__(self, versions, ctype, dist=None, arch=None):
+    def __init__(self, versions, ctype, dist=ALL_DIST, arch=ALL_ARCH):
         self.versions = versions
         self.ctype = ctype
+        if not dist:
+            dist = ALL_DIST
+        if not arch:
+            arch = ALL_ARCH
         self.dist = dist
         self.arch = arch
 
@@ -52,7 +56,7 @@ class Component:
         return result
 
     def clone(self):
-        return PackageVersions(self.versions.copy(), self.ctype, self.dist, self.arch)
+        return Component(self.versions.copy(), self.ctype, self.dist, self.arch)
 
     def merge(self, versions, overwritten=True):
         for package in versions:
@@ -81,6 +85,26 @@ class Component:
         file_path = os.path.join(file_path, filename)
         self.dump_to_file(file_path)
 
+    # Check if the self component can be overwritten by the input component
+    def check_overwritable(self, component, for_all_dist=False, for_all_arch=False):
+        if self.ctype != component.ctype:
+            return False
+        if self.dist != component.dist and not (for_all_dist and self.dist == ALL_DIST):
+            return False
+        if self.arch != component.arch and not (for_all_arch and self.arch == ALL_ARCH):
+            return False
+        return True
+
+    # Check if the self component can inherit the package versions from the input component
+    def check_inheritable(self, component):
+        if self.ctype != component.ctype:
+            return False
+        if self.dist != component.dist and component.dist == ALL_DIST:
+            return False
+        if self.arch != component.arch and component.arch == ALL_ARCH:
+            return False
+        return True
+
     '''
     Get the file name
 
@@ -101,11 +125,12 @@ class Component:
 
     def get_order_keys(self):
         dist = self.dist
-        if not dist or  dist == ALL_DIST:
+        if not dist or dist == ALL_DIST:
             dist = ''
+        arch = self.arch
         if not arch or arch == ALL_ARCH:
             arch = ''
-        return (ctype, dist, arch)
+        return (self.ctype, dist, arch)
 
 
 class VersionModule:
@@ -118,34 +143,30 @@ class VersionModule:
         self.name = name
         self.components = components
 
-    def overwrite(self, module):
+    # Overwrite the docker/host image/base image versions
+    def overwrite(self, module, for_all_dist=False, for_all_arch=False):
+        # Overwrite from generic one to detail one
+        # For examples: versions-deb overwrtten by versions-deb-buster, and versions-deb-buster overwritten by versions-deb-buster-amd64
+        components = sorted(module.components, key = lambda x : x.get_order_keys())
+        not_merged_components = []
         for component in self.components:
-            for default_component in default_module.components:
-                if component.ctype != default_component.ctype:
-                    continue
-                component.merge(default_component.versions, True)
+            for merge_component in components:
+                if component.check_overwritable(merge_component):
+                    component.merge(merge_component.versions, True)
+                else:
+                    not_merged_components.append(merge_component)
+        self.components = self.components + not_merged_components
 
+
+    # Inherit the package versions from the default setting
     def inherit(self, default_module):
+        # Inherit from the detail one to the generic one
+        # Prefer to inherit versions from versions-deb-buster, better than versions-deb
+        components = sorted(default_components, key = lambda x : x.get_order_keys(), reverse=True)
         for component in self.components:
-            for default_component in default_module.components:
-                if component.ctype != default_component.ctype:
-                    continue
-                component.merge(default_component.versions, False)
-
-    def merge(self, module, overwritten=True):
-        # If overwritten is true, then overritten from the common component to detail component (has dist and arch info)
-        components = sorted(self.components, key = lambda x : x.get_order_keys(), reverse = not overwritten)
-        for component in self.components:
-            for merge_component in module.components:
-                if component.ctype != merge_component.ctype:
-                    continue
-                dist = merge_component.dist
-                if dist and dist != ALL_DIST and dist != component.dist:
-                    continue
-                arch = merge_component.arch
-                if arch and arch != ALL_DIST and arch != component.arch:
-                    continue
-                component.merge(merge_component.versions, overwritten)
+            for merge_component in components:
+                if component.check_inheritable(merge_component):
+                    component.merge(default_component.versions, False)
 
     def subtract(self, default_module):
         for component in self.components:
@@ -199,6 +220,19 @@ class VersionModule:
             os.remove(filename)
         for component in self.components:
             component.dump_to_path(module_path)
+
+    def clean_info(self, clean_dist=True, clean_arch=True):
+        for component in self.components:
+            if clean_dist:
+                component.dist = ALL_DIST
+            if clean_arch:
+                component.arch = ALL_ARCH
+
+    def clone(self):
+        components = []
+        for component in self.components:
+            components.append(component.clone())
+        return VersionModule(self.name, components)
 
     def _get_dist(self, image_path):
         dist = ''
@@ -273,23 +307,62 @@ class Build:
             module.load(image_path)
             modules[module.name] = module
 
-    def merge(self, build):
-        pass
+    def load_by_module_name(self, module_name, filter_ctype=None, filter_dist=None, filter_arch=None):
+        module_path = self.get_module_path(module_name)
+        module = VersionModule()
+        module.load(image_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
+        default_module_path = self.get_module_path(DEFAULT_MODULE)
+        default_module = VersionModule()
+        default_module.load(default_image_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
+        module.inherit(default_module)
+        return module
+        
 
-    def freeze(self):
-        common_module = self.get_common_module()
-        self._clean_component_info()
+    def overwrite(self, build, for_all_dist=False, for_all_arch=False):
+        for target_module in build.modules.values():
+            module = self.modules.get(target_module.name, None)
+            tmp_module = target_module.clone()
+            tmp_module.clean_info(for_all_dist, for_all_arch)
+            if module:
+                module.overwrite(tmp_module, for_all_dist=for_all_dist, for_all_arch=for_all_arch)
+            else:
+                self.modules[target_module.name] = tmp_module
+
+    def dump(self):
         for module in self.modules.values():
-            if module.name == COMMON_MODULE:
-                continue
-            if module.name != 'host-base-image':
-                module.subtract(common_module)
             module_path = self.get_module_path(module)
             module.dump(module_path)
-        common_module_path = os.path.join(self.source_path, "files/build/versions/default")
-        common_module.dump(common_module_path)
 
-    def get_common_module(self):
+    def subtract(self, default_module):
+        for module in self.modules.values():
+            if module.name == DEFAULT_MODULE:
+                continue
+            if module.name == 'host-base-image':
+                continue
+            module.subtract(default_module)
+
+    def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False):
+        if rebuild:
+            self.load_from_target()
+            default_module = self.get_default_module()
+            self._clean_component_info()
+            self.subtract(default_module)
+            self.modules[DEFAULT_MODULE] = default_module
+            self.dump()
+            return
+        self.load_from_source()
+        default_module = self.modules.get(DEFAULT_MODULE, None)
+        target_build = Build(self.target_path, self.source_path)
+        target_build.load_from_target()
+        if not default_module:
+            raise Exception("The default versions does not exist")
+        target_build.subtract(default_module)
+        self.overwrite(target_build, for_all_dist=for_all_dist, for_all_arch=for_all_arch)
+        self.dump()
+
+    def get_default_module(self):
+        if DEFAULT_MODULE in self.modules:
+            return self.modules[DEFAULT_MODULE]
         ctypes = self.get_component_types()
         dists = self.get_dists()
         components = []
@@ -305,14 +378,14 @@ class Build:
                 common_versions = self._get_common_versions(versions)
                 component = Component(common_versions, ctype)
                 components.append(component)
-        return VersionModule(COMMON_MODULE, components)
+        return VersionModule(DEFAULT_MODULE, components)
 
     def get_docker_version_modules(self):
         modules = []
         for module_name in self.modules:
             if module_name.startswith('sonic-slave-'):
                 continue
-            if module_name == COMMON_MODULE:
+            if module_name == DEFAULT_MODULE:
                 continue
             if module_name == 'host-image' or module_name == 'host-base-image':
                 continue
@@ -388,25 +461,13 @@ class Build:
                 raise Exception('The Module {0} not found'.format(base_module_name))
             base_module = self.modules[base_module_name]
             dbg_module = self.modules[module_name]
-            for dbg_component in dbg_module.components:
-                found_component = None
-                for component in base_module.components:
-                    if component.ctype == dbg_component.ctype:
-                        found_component = component
-                if not found_component:
-                    base_module.components.append(dbg_component)
-                else:
-                    base_module.merge(dbg_component)
+            base_module.overwrite(dbg_module, True)
         for module_name in dbg_modules:
             del self.modules[module_name]
 
     def _clean_component_info(self, clean_dist=True, clean_arch=True):
         for module in self.modules.values():
-            for component in module.components:
-                if clean_dist:
-                    component.dist = None
-                if clean_arch:
-                    component.arch = None
+            module.clean_info(clean_dist, clean_arch)
 
     def _get_versions(self, ctype, dist=None, arch=None):
         versions = {}
@@ -435,25 +496,6 @@ class Build:
                 common_versions[package] = package_versions[0]
         return common_versions
 
-
-'''
-Version Freezer
-
-Freeze the versions after a build. It is used to freeze the versions of python packages,
-debian packages, and the package downloaded from web, etc.
-'''
-class VersionFreezer:
-    def __init__(self, versions):
-        self.versions = versions
-        self.arch = arch
-        self
-
-
-    def freeze(self, distro, arch):
-        pass
-
-class VersionGenerator:
-    pass
 
 class VersionManager2:
     @classmethod
@@ -527,10 +569,10 @@ class VersionManager2:
 
 class VersionManagerCommands:
     def __init__(self):
-        usage = 'version_manager <command> [<args>]\n\n'
+        usage = 'version_manager.py <command> [<args>]\n\n'
         usage = usage + 'The most commonly used commands are:\n'
-        usage = usage + '   generate   Generate the version files\n'
-        usage = usage + '   freeze     Freeze the version files'
+        usage = usage + '   freeze     Freeze the version files\n'
+        usage = usage + '   generate   Generate the version files'
         parser = argparse.ArgumentParser(description='Version manager', usage=usage)
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
@@ -540,6 +582,20 @@ class VersionManagerCommands:
             exit(1)
         getattr(self, args.command)()
 
+    def freeze(self):
+        parser = argparse.ArgumentParser(description = 'Freeze the version files')
+        parser.add_argument('-t', '--target_path', default='./target', help='target path')
+        parser.add_argument('-s', '--source_path', default='.', help='source path')
+
+        # store_true which implies default=True
+        parser.add_argument('-r', '--rebuild', action='store_true', help='rebuild all versions')
+        parser.add_argument('-d', '--for_all_dist', action='store_true', help='apply the versions for all distributions')
+        parser.add_argument('-a', '--for_all_arch', action='store_true', help='apply the versions for all architectures')
+        args = parser.parse_args(sys.argv[2:])
+        build = Build()
+        build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
+        import pdb; pdb.set_trace()
+
     def generate(self):
         script_path = os.path.dirname(sys.argv[0])
         root_path = os.path.dirname(script_path)
@@ -547,33 +603,15 @@ class VersionManagerCommands:
 
         parser = argparse.ArgumentParser(description = 'Generate the version files')
         parser.add_argument('-t', '--target_path', required=True, help='target path to generate the version lock files')
-        parser.add_argument('-o', '--override_path', required=True, help='version path to override the default version files')
+        parser.add_argument('-m', '--module_name', required=True, help="module name, such as docker-lldp, sonic-slave-buster, etc")
+        parser.add_argument('-s', '--source_path', default='.', help='source path')
         parser.add_argument('-d', '--distribution', required=True, help="distribution")
         parser.add_argument('-a', '--architecture', required=True, help="architecture")
         parser.add_argument('-p', '--priority', default=999, help="priority of the debian apt preference")
-        parser.add_argument('-b', '--base_path', default=default_version_path, help="base version path that contains the default version files")
-        args = parser.parse_args(sys.argv[2:])
+        parser.add_argument('-m', '--module_name', help="module name, such as docker-lldp, sonic-slave-buster, etc")
         if not os.path.exists(args.target_path):
             os.makedirs(args.target_path)
         VersionManager.generate_all_version_lock_file(args.target_path, args.base_path, args.override_path, args.distribution, args.architecture, args.priority)
-
-    def freeze(self):
-        parser = argparse.ArgumentParser(description = 'Freeze the version files')
-        build = Build()
-        build.load_from_target()
-        versions = build._get_versions('deb', dist='buster')
-        dists = build.get_dists()
-        archs = build.get_archs()
-        common_versions = build._get_common_versions(versions)
-        nono_common_versions = {}
-        common_module = build.get_common_module()
-        build.freeze()
-        build2 = Build()
-        build2.load_from_source()
-        for package in versions:
-            if package not in common_versions:
-                nono_common_versions[package] = versions[package]
-        import pdb; pdb.set_trace()
 
 def main(args):
     if not os.path.exists(args.target_path):

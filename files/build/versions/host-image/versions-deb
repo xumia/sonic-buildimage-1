@@ -42,11 +42,9 @@ libcgroup1==0.41-8.1
 libcryptsetup12==2:2.1.0-5+deb10u2
 libdbd-sqlite3-perl==1.62-3
 libdbi-perl==1.642-1+deb10u1
-libdw1==0.176-1.1
 libelf1==0.176-1.1
 libffi-dev==3.2.1-9
 libftdi1-2==1.4-1+b2
-libgpm2==1.20.7-5
 libhavege1==1.9.1-7
 libidn11==1.33-2.2
 libklibc==2.0.6-1
@@ -109,5 +107,3 @@ u-boot-tools==2019.01+dfsg-7
 unzip==6.0-23+deb10u1
 usb.ids==2019.07.27-0+deb10u1
 usbutils==1:010-3
-vim==2:8.1.0875-5
-vim-runtime==2:8.1.0875-5
