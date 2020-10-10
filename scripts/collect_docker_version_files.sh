@@ -1,15 +1,18 @@
 #!/bin/bash
-
+  
 DOCKER_IMAGE=$1
 TARGET_PATH=$2
-TARGET_PATH_ABS=$(realpath $TARGET_PATH)
 
-MOUNT_POINT=/share
 DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE | cut -d: -f1)
-DOCKER_VERSIONS=versions/dockers/$DOCKER_IMAGE_NAME
-DOCKER_VERSIONS_PATH=/$MOUNT_POINT/$DOCKER_VERSIONS
+DOCKER_CONTAINER=$DOCKER_IMAGE_NAME
+TARGET_VERSIONS_PATH=$TARGET_PATH/versions/dockers/$DOCKER_IMAGE_NAME
 
-[ -d $TARGET_PATH/$DOCKER_VERSIONS ] && rm -rf $TARGET_PATH/$DOCKER_VERSIONS
-mkdir -p $TARGET_PATH/$DOCKER_VERSIONS
+[ -d $TARGET_VERSIONS_PATH ] && rm -rf $TARGET_VERSIONS_PATH
+mkdir -p $TARGET_VERSIONS_PATH
 
-docker run -v $TARGET_PATH_ABS:$MOUNT_POINT --rm --entrypoint /bin/bash $DOCKER_IMAGE -c "cp /etc/os-release /usr/local/share/buildinfo/diff-versions/* $DOCKER_VERSIONS_PATH/"
+docker run --name $DOCKER_CONTAINER --entrypoint /bin/bash $DOCKER_IMAGE
+docker cp -L $DOCKER_CONTAINER:/etc/os-release $TARGET_VERSIONS_PATH/
+docker cp -L $DOCKER_CONTAINER:/usr/local/share/buildinfo/diff-versions $TARGET_VERSIONS_PATH/
+mv $TARGET_VERSIONS_PATH/diff-versions/* $TARGET_VERSIONS_PATH/
+rm -rf $TARGET_VERSIONS_PATH/diff-versions
+docker container rm $DOCKER_CONTAINER
