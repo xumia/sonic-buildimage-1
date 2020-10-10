@@ -149,13 +149,14 @@ class VersionModule:
         # For examples: versions-deb overwrtten by versions-deb-buster, and versions-deb-buster overwritten by versions-deb-buster-amd64
         components = sorted(module.components, key = lambda x : x.get_order_keys())
         not_merged_components = []
-        for component in self.components:
-            for merge_component in components:
+        for merge_component in components:
+            merged = False
+            for component in self.components:
                 if component.check_overwritable(merge_component):
                     component.merge(merge_component.versions, True)
-                else:
-                    not_merged_components.append(merge_component)
-        self.components = self.components + not_merged_components
+                    merged = True
+            if not merged:
+                self.components.append(merge_component)
 
 
     # Inherit the package versions from the default setting
@@ -461,7 +462,7 @@ class Build:
                 raise Exception('The Module {0} not found'.format(base_module_name))
             base_module = self.modules[base_module_name]
             dbg_module = self.modules[module_name]
-            base_module.overwrite(dbg_module, True)
+            base_module.overwrite(dbg_module)
         for module_name in dbg_modules:
             del self.modules[module_name]
 
