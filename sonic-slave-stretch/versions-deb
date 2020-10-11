@@ -130,7 +130,7 @@ gettext==0.19.8.1-2+deb9u1
 gettext-base==0.19.8.1-2+deb9u1
 ghostscript==9.26a~dfsg-0+deb9u7
 gir1.2-glib-2.0==1.50.0-1+b1
-gir1.2-packagekitglib-1.0==1.1.5-2+deb9u1
+gir1.2-packagekitglib-1.0==1.1.5-2+deb9u2
 git==1:2.11.0-3+deb9u7
 git-buildpackage==0.8.12.2
 git-man==1:2.11.0-3+deb9u7
@@ -527,7 +527,7 @@ libhttp-daemon-perl==6.01-1
 libhttp-date-perl==6.02-1
 libhttp-message-perl==6.11-1
 libhttp-negotiate-perl==6.00-2
-libhttpclient-java==4.5.2-2
+libhttpclient-java==4.5.2-2+deb9u1
 libhttpcore-java==4.4.6-1
 libhwloc-dev==1.11.5-1
 libhwloc-plugins==1.11.5-1
@@ -601,10 +601,12 @@ libjsoup-java==1.10.2-1
 libjsr305-java==0.1~+svn49-10
 libjtidy-java==7+svn20110807-4
 libjudy-dev==1.0.5-5
+libjudydebian1==1.0.5-5
 libjxr-tools==1.1-6+b1
 libjxr0==1.1-6+b1
 libjzlib-java==1.1.3-1
 libkpathsea6==2016.20160513.41080.dfsg-2+deb9u1
+libksba8==1.3.5-2
 libkyotocabinet16v5==1.2.76-4.2+b1
 liblcms2-2==2.8-4+deb9u1
 libldap-2.4-2==2.4.44+dfsg-5+deb9u4
@@ -721,7 +723,7 @@ libossp-uuid16==1.6.2-1.5+b4
 libp11-kit0==0.23.3-2
 libpackage-stash-perl==0.37-1
 libpackage-stash-xs-perl==0.28-3+b1
-libpackagekit-glib2-18==1.1.5-2+deb9u1
+libpackagekit-glib2-18==1.1.5-2+deb9u2
 libpam-cap==1:2.25-1
 libpam-systemd==232-25+deb9u12
 libpam0g-dev==1.1.8-3.6
@@ -1136,8 +1138,8 @@ openmpi-common==2.0.2-2
 opensp==1.5.2-13+b1
 openssh-server==1:7.4p1-10+deb9u7
 openssh-sftp-server==1:7.4p1-10+deb9u7
-packagekit==1.1.5-2+deb9u1
-packagekit-tools==1.1.5-2+deb9u1
+packagekit==1.1.5-2+deb9u2
+packagekit-tools==1.1.5-2+deb9u2
 patch==2.7.5-1+deb9u2
 patchutils==0.3.4-2
 pbuilder==0.228.7
@@ -1157,12 +1159,12 @@ php-text-template==1.2.1-2
 php-timer==1.0.8-1
 php-token-stream==1.4.8-2
 php-xml==1:7.0+49
-php7.0-cli==7.0.33-0+deb9u9
-php7.0-common==7.0.33-0+deb9u9
-php7.0-json==7.0.33-0+deb9u9
-php7.0-opcache==7.0.33-0+deb9u9
-php7.0-readline==7.0.33-0+deb9u9
-php7.0-xml==7.0.33-0+deb9u9
+php7.0-cli==7.0.33-0+deb9u10
+php7.0-common==7.0.33-0+deb9u10
+php7.0-json==7.0.33-0+deb9u10
+php7.0-opcache==7.0.33-0+deb9u10
+php7.0-readline==7.0.33-0+deb9u10
+php7.0-xml==7.0.33-0+deb9u10
 phpunit==5.4.6-2~deb9u1
 phpunit-code-unit-reverse-lookup==1.0.0-2
 phpunit-comparator==1.2.0-2
@@ -1205,6 +1207,7 @@ python-backports.functools-lru-cache==1.3-1
 python-bs4==4.5.3-1
 python-cffi-backend==1.9.1-2
 python-chardet==2.3.0-2
+python-colorama==0.3.7-1
 python-constantly==15.1.0-1
 python-cov-core==1.15.0-1
 python-coverage==4.2+dfsg.1-2

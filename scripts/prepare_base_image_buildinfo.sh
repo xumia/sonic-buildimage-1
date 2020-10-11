@@ -33,6 +33,3 @@ if [ "$SONIC_ENFORCE_VERSIONS" != "y" ] && [ -f $BUILDINFO_VERSION_DEB ]; then
 fi
 
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "pre_run_buildinfo"
-
-sudo mkdir -p $DIFF_VERSIONS_PATH
-sudo LANG=C chroot $FILESYSTEM_ROOT dpkg-query -W -f '${Package}==${Version}\n' > $DIFF_VERSIONS_PATH/base-versions-deb

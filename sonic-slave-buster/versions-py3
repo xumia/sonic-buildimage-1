@@ -54,7 +54,7 @@ python-debian==0.1.35
 python-magic==0.4.16
 pytz==2019.1
 pyxdg==0.25
-regex==2020.9.27
+regex==2020.10.11
 requests==2.21.0
 roman==2.0.0
 SecretStorage==2.3.1

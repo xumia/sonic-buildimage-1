@@ -33,6 +33,7 @@ if [ $SONIC_ENFORCE_VERSIONS != "y" ]; then
     fi
 
     generate_version_file
+    exit $RET
 fi
 
 ARCH=$(dpkg --print-architecture)
