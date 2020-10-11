@@ -26,7 +26,7 @@ cp -rf $BUILDINFO_PATH/scripts/* "$BUILDINFO_INSTALL_PATH/"
 cp $BUILDINFO_PATH/trusted.gpg.d/* "${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/"
 
 # Generate version lock files
-scripts/generate_version_lock_files.py -t "$BUILDINFO_VERSION_PATH" -o "$OVERRIDE_VERSION_PATH" -d "$DISTRO" -a "$ARCH"
+scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -m "$OVERRIDE_VERSION_PATH" -d "$DISTRO" -a "$ARCH"
 
 if [ "$SONIC_ENFORCE_VERSIONS" != "y" ] && [ -f $BUILDINFO_VERSION_DEB ]; then
     cp -f $BUILDINFO_VERSION_DEB ${FILESYSTEM_ROOT}/etc/apt/preferences.d/

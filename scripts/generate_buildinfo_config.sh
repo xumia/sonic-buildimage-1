@@ -20,6 +20,3 @@ for url in $(echo $TRUSTED_GPG_URLS | sed 's/[,;]/ /g')
 do
     wget -q "$url" -P "$TRUSTED_GPG_PATH/"
 done
-
-# Generate version lock files
-#scripts/generate_version_lock_files.py -t "$BUILDINFO_VERSION_PATH" -o "$DOCKERFILE_PATH" -d "$DISTRO" -a "$ARCH"

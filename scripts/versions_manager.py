@@ -237,6 +237,22 @@ class VersionModule:
             components.append(component.clone())
         return VersionModule(self.name, components)
 
+    @classmethod
+    def get_module_path_by_name(cls, source_path, module_name):
+        common_modules = ['default', 'host-image', 'host-base-image']
+        if module_name in common_modules:
+            return os.path.join(source_path, 'files/build/versions', module_name)
+        if module_name.startswith('sonic-slave-'):
+            return os.path.join(source_path, module_name)
+        file_path = os.path.join(source_path, 'dockers', module_name)
+        if os.path.exists(file_path):
+            return file_path
+        file_path = os.path.join(source_path, 'platform', '*', module_name)
+        files = glob.glob(file_path)
+        if len(files) == 1:
+            return files[0]
+        raise Exception('The path of module name {0} not found'.format(module_name))
+
     def _get_dist(self, image_path):
         dist = ''
         os_release = os.path.join(image_path, 'os-release')
@@ -433,19 +449,7 @@ class VersionBuild:
         return self.get_module_path_by_name(module.name)
 
     def get_module_path_by_name(self, module_name):
-        common_modules = ['default', 'host-image', 'host-base-image']
-        if module_name in common_modules:
-            return os.path.join(self.source_path, 'files/build/versions', module_name)
-        if module_name.startswith('sonic-slave-'):
-            return os.path.join(self.source_path, module_name)
-        file_path = os.path.join(self.source_path, 'dockers', module_name)
-        if os.path.exists(file_path):
-            return file_path
-        file_path = os.path.join(self.source_path, 'platform', '*', module_name)
-        files = glob.glob(file_path)
-        if len(files) == 1:
-            return files[0]
-        raise Exception('The path of module name {0} not found'.format(module_name))
+        return VersionModule.get_module_path_by_name(self.source_path, module_name)
 
     def _get_module_paths_by_pattern(self, pattern):
         files = glob.glob(pattern)
@@ -513,7 +517,7 @@ class VersionManagerCommands:
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
         if not hasattr(self, args.command):
-            print('Unrecognized command')
+            print('Unrecognized command: {0}'.format(args.command))
             parser.print_help()
             exit(1)
         getattr(self, args.command)()
@@ -530,7 +534,6 @@ class VersionManagerCommands:
         args = parser.parse_args(sys.argv[2:])
         build = VersionBuild(target_path=args.target_path, source_path=args.source_path)
         build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
-        import pdb; pdb.set_trace()
 
     def generate(self):
         script_path = os.path.dirname(sys.argv[0])
@@ -539,17 +542,26 @@ class VersionManagerCommands:
 
         parser = argparse.ArgumentParser(description = 'Generate the version files')
         parser.add_argument('-t', '--target_path', required=True, help='target path to generate the version lock files')
-        parser.add_argument('-m', '--module_name', required=True, help="module name, such as docker-lldp, sonic-slave-buster, etc")
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('-m', '--module_path', help="module apth, such as ./dockers/docker-lldp, ./sonic-slave-buster, etc")
+        group.add_argument('-n', '--module_name', help="module name, such as docker-lldp, sonic-slave-buster, etc")
         parser.add_argument('-s', '--source_path', default='.', help='source path')
         parser.add_argument('-d', '--distribution', required=True, help="distribution")
         parser.add_argument('-a', '--architecture', required=True, help="architecture")
         parser.add_argument('-p', '--priority', default=999, help="priority of the debian apt preference")
 
         args = parser.parse_args(sys.argv[2:])
+        module_path = args.module_path
+        if not module_path:
+            module_path = VersionModule.get_module_path_by_name(args.source_path, module_name)
         if not os.path.exists(args.target_path):
             os.makedirs(args.target_path)
-        build = VersionBuild(source_path=args.source_path)
-        module = build.load_by_module_name(args.module_name, filter_dist=args.distribution, filter_arch=args.architecture)
+        module = VersionModule()
+        module.load(module_path, filter_dist=args.distribution, filter_arch=args.architecture)
+        default_module_path = VersionModule.get_module_path_by_name(args.source_path, DEFAULT_MODULE)
+        default_module = VersionModule()
+        default_module.load(default_module_path, filter_dist=args.distribution, filter_arch=args.architecture)
+        module.inherit(default_module)
         module.dump(args.target_path, config=True, priority=args.priority)
 
 if __name__ == "__main__":
