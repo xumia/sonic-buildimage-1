@@ -3,6 +3,7 @@
 BUILDINFO_PATH="/usr/local/share/buildinfo"
 VERSION_FILE="${BUILDINFO_PATH}/versions/versions-web"
 LOG_PATH="${BUILDINFO_PATH}/diff-versions"
+[ -d "./target" ] && LOG_PATH="./target/versions/build"
 VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
