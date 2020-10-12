@@ -9,6 +9,41 @@ VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 
 . $BUILDINFO_PATH/config/buildinfo.config
 
+
+# Get the URL protocal and DNS, remove the specified path in the tail
+URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
+paras=($@)
+
+get_version()
+{
+    local package_url=$1
+    /usr/bin/wget -qO - "$package_url" | md5sum | cut -d' ' -f1
+}
+
+# Try to download the package from cache
+# If failed, validate the package not changed in the remote web site
+download()
+{
+    local package_url=$1
+    local version=$(grep "^${package_url}=" $VERSION_FILE | awk -F"==" '{print $NF}')
+    local filename=$(echo $package_url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
+    local version_filename="${filename}-${version}"
+    paras[$i]="${PACKAGE_URL_PREFIX}${version_filename}"
+    ${REAL_COMMAND} ${paras[@]}
+    result=$?
+    if [ $result -ne 0 ]; then
+        [ -f "$version_filename" ] && mv -f "${version_filename}" "${filename}"
+        exit 0
+    else
+        # Check if the remote package has changed
+        local real_version = $(get_version "$package_url")
+        mkdir -p $LOG_PATH > /dev/null 2>&1
+        echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
+        ([ "$SONIC_ENFORCE_VERSIONS" == "y" ] && [ "$version" != "$real_version" ]) || exit 1
+    fi
+}
+
+
 # Get the URL protocal and DNS, remove the specified path in the tail
 URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
 paras=($@)
@@ -25,19 +60,7 @@ do
 
         # If the version file contains the package, redirect to the specified version in the file storage
         if [ -f $VERSION_FILE ] && grep "^${package_url}==" $VERSION_FILE; then
-            version=$(grep "^${package_url}=" $VERSION_FILE | awk -F"==" '{print $NF}')
-            filename=$(echo $package_url | awk -F"/" '{print $NF}')
-            version_filename="${filename}-${version}"
-            paras[$i]="${PACKAGE_URL_PREFIX}${version_filename}"
-            ${REAL_COMMAND} ${paras[@]}
-            result=$?
-            if [ $result -ne 0 ]; then
-                REAL_VERSION = $(wget -qO - "$package_url" | md5sum | cut -d' ' -f1)
-                [ "$version" != "${REAL_VERSION}" ] || exit 1
-            else
-                [ -f "$version_filename" ] && mv -f "${version_filename}" "${filename}"
-                exit 0
-            fi
+            download $package_url
         else
             if [ "$SONIC_ENFORCE_VERSIONS" == "y" ]; then
                 echo "Failed to get version config for the package url: $package_url"
@@ -45,8 +68,11 @@ do
             fi
 
             mkdir -p $LOG_PATH > /dev/null 2>&1
-            echo ${package_url} >> ${VERSOIN_LOG_FILE}
+            real_version = $(get_version "$package_url")
+            echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
         fi
+
+        break
     fi
 done
 
