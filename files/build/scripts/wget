@@ -3,7 +3,7 @@
 BUILDINFO_PATH="/usr/local/share/buildinfo"
 VERSION_FILE="${BUILDINFO_PATH}/versions/versions-web"
 LOG_PATH="${BUILDINFO_PATH}/diff-versions"
-[ -d "./target" ] && LOG_PATH="./target/versions/build"
+[ -d "/share/target" ] && LOG_PATH="/share/target/versions/build"
 VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
@@ -69,7 +69,7 @@ do
             fi
 
             mkdir -p $LOG_PATH > /dev/null 2>&1
-            real_version = $(get_version "$package_url")
+            real_version=$(get_version "$package_url")
             echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
         fi
 
