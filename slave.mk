@@ -625,7 +625,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && QUILT_PATCHES=../$(notdir $($*.gz_PATH)).patch quilt push -a; popd; fi
 	# Prepare docker build info
 	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-	SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
+	SONIC_ENABLE_VERSION_CONTROL=$(SONIC_ENABLE_VERSION_CONTROL) \
 	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
 	scripts/prepare_docker_buildinfo.sh $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(TARGET_DOCKERFILE)/Dockerfile.buildinfo
 	docker info $(LOG)

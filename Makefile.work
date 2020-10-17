@@ -92,7 +92,7 @@ endif
 include rules/config
 
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
-$(shell BUILD_SLAVE=y PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) scripts/prepare_docker_buildinfo.sh $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
+$(shell BUILD_SLAVE=y PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) SONIC_ENABLE_VERSION_CONTROL=$(SONIC_ENABLE_VERSION_CONTROL) TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) scripts/prepare_docker_buildinfo.sh $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
 SLAVE_BASE_TAG = $(shell sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
