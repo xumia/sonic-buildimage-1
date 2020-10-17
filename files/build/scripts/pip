@@ -16,7 +16,7 @@ do
     ([ "$para" == "-c" ] || [ "$para" == "--constraint" ]) && FOUND=true
 done
 
-if [ "$SONIC_ENFORCE_VERSIONS" == "y" ] && [ "$FOUND" == "false" ]; then
+if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$FOUND" == "false" ]; then
     paras+=("-c")
     paras+=("${VERSION_FILE}")
 fi

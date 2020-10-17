@@ -76,10 +76,10 @@ process()
         fi
 
         real_version=$(get_version "$package_url")
-        if [ "$SONIC_ENFORCE_VERSIONS" == "y" ] && [ "$version" != "$real_version" ]; then
+        if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$version" != "$real_version" ]; then
             return 1
         fi
-    elif [ "$SONIC_ENFORCE_VERSIONS" == "y" ]; then
+    elif [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ]; then
         return 1
     fi
 
@@ -88,7 +88,7 @@ process()
     echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
 
     # If the version is mismatched, exit the wget/curl
-    if [ "$SONIC_ENFORCE_VERSIONS" == "y" ] && [ "$version" != "$real_version" ]; then
+    if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$version" != "$real_version" ]; then
         return 1
     fi
 
