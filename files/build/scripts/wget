@@ -10,7 +10,6 @@ VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 . $BUILDINFO_PATH/config/buildinfo.config
 URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
 PARAS=("$@")
-ORG_PARAS="$@"
 [ ! -d $LOG_PATH ] && mkdir -p $LOG_PATH
 log_err()
 {
@@ -21,7 +20,11 @@ log_err()
 get_version()
 {
     local package_url=$1
-    /usr/bin/wget -qO - "$package_url" | md5sum | cut -d' ' -f1
+    if [[ "$REAL_COMMAND" == */curl ]]; then
+        $REAL_COMMAND "$package_url" | md5sum | cut -d' ' -f1
+    else
+        $REAL_COMMAND -qO - "$package_url" | md5sum | cut -d' ' -f1
+    fi
 }
 
 get_weburl_index()
@@ -36,6 +39,15 @@ get_weburl_index()
     done
 }
 
+check_if_file_exist()
+{
+    if [[ "$REAL_COMMAND" == */curl ]]; then
+        $REAL_COMMAND --output /dev/null --silent --head --fail "$1" > /dev/null 2>&1
+    else
+        $REAL_COMMAND -S --spider $url 2>&1 | grep -q "200 OK"
+    fi
+}
+
 process()
 {
     local index=$(get_weburl_index)
@@ -46,22 +58,24 @@ process()
     fi
     local package_url=${PARAS[$index]}
     local version=""
+    local real_version=""
     [ -f $VERSION_FILE ] && version=$(grep "^${package_url}=" $VERSION_FILE | awk -F"==" '{print $NF}')
 
     if [ ! -z "$version" ]; then
         local filename=$(echo $package_url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
         local version_filename="${filename}-${version}"
-        PARAS[$index]="${PACKAGE_URL_PREFIX}${version_filename}"
+        local url="${PACKAGE_URL_PREFIX}${version_filename}"
+        PARAS[$index]=$url
 
         # Try to download package from the proxy
-        ${REAL_COMMAND} ${PARAS[@]}
-        result=$?
-        if [ $result -eq 0 ]; then
+        if check_if_file_exist $url; then
+            ${REAL_COMMAND} ${PARAS[@]}
+            local result=$?
             [ -f "$version_filename" ] && mv -f "${version_filename}" "${filename}"
             return $result
         fi
 
-        local real_version=$(get_version "$package_url")
+        real_version=$(get_version "$package_url")
         if [ "$SONIC_ENFORCE_VERSIONS" == "y" ] && [ "$version" != "$real_version" ]; then
             return 1
         fi
@@ -69,7 +83,7 @@ process()
         return 1
     fi
 
-    local real_version=$(get_version "$package_url")
+    [ -z "$real_version" ] && real_version=$(get_version "$package_url")
     mkdir -p $LOG_PATH > /dev/null 2>&1
     echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
 
