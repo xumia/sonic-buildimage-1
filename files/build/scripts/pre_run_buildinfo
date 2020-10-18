@@ -4,13 +4,10 @@
 
 [ -d $DIFF_VERSION_PATH ] && rm -rf $DIFF_VERSION_PATH
 mkdir -p $DIFF_VERSION_PATH
-chmod a+rw $DIFF_VERSION_PATH
-
 mkdir -p $BUILD_VERSION_PATH
-chmod a+rw $BUILD_VERSION_PATH
-
 mkdir -p $LOG_PATH
-chmod a+rw $LOG_PATH
+
+chmod -R a+rw $BUILDINFO_PATH
 
 [ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
 collect_version_files $PRE_VERSION_PATH
