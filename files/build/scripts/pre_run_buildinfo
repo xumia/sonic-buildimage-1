@@ -1,16 +1,16 @@
 #!/bin/bash
 
-VERSION_DEB_PREFERENCE="01-versions-deb"
-BUILDINFO_PATH="/usr/local/share/buildinfo"
-PRE_VERSION_PATH="$BUILDINFO_PATH/pre-versions"
-DIFF_VERSION_PATH="${BUILDINFO_PATH}/diff-versions"
-VERSION_DEB_PREFERENCE="$BUILDINFO_PATH/versions/01-versions-deb"
-
 . $BUILDINFO_PATH/config/buildinfo.config
 
 [ -d $DIFF_VERSION_PATH ] && rm -rf $DIFF_VERSION_PATH
 mkdir -p $DIFF_VERSION_PATH
 chmod a+rw $DIFF_VERSION_PATH
+
+mkdir -p $BUILD_VERSION_PATH
+chmod a+rw $BUILD_VERSION_PATH
+
+mkdir -p $LOG_PATH
+chmod a+rw $LOG_PATH
 
 [ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
 collect_version_files $PRE_VERSION_PATH

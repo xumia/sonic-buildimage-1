@@ -1,19 +1,11 @@
 #!/bin/bash
 
-BUILDINFO_PATH="/usr/local/share/buildinfo"
-VERSION_FILE="${BUILDINFO_PATH}/versions/versions-web"
-LOG_PATH="${BUILDINFO_PATH}/build-versions"
-VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
+. /usr/local/share/buildinfo/config/buildinfo.config
+VERSION_FILE=$VERSION_PATH/versions-web
+BUILD_VERSION_FILE=$BUILD_VERSION_PATH/versions-web
+
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
-. $BUILDINFO_PATH/config/buildinfo.config
-URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
 PARAS=("$@")
-[ ! -d $LOG_PATH ] && mkdir -p $LOG_PATH
-log_err()
-{
-    echo "$1" >> $LOG_PATH/error.log
-    echo "$1" 1>&2
-}
 
 get_version()
 {
@@ -83,7 +75,7 @@ process()
 
     [ -z "$real_version" ] && real_version=$(get_version "$package_url")
     mkdir -p $LOG_PATH > /dev/null 2>&1
-    echo "$package_url==$real_version" >> ${VERSOIN_LOG_FILE}
+    echo "$package_url==$real_version" >> ${BUILD_VERSION_FILE}
 
     # If the version is mismatched, exit the wget/curl
     if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$version" != "$real_version" ]; then
