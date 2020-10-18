@@ -1,0 +1,7 @@
+j2cli==0.3.10
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+meld3==1.0.2
+supervisor==3.3.3
+supervisord-dependent-startup==1.4.0
+toposort==1.5

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+VERSION_DEB_PREFERENCE="01-versions-deb"
+BUILDINFO_PATH="/usr/local/share/buildinfo"
+PRE_VERSION_PATH="$BUILDINFO_PATH/pre-versions"
+DIFF_VERSION_PATH="${BUILDINFO_PATH}/diff-versions"
+VERSION_DEB_PREFERENCE="$BUILDINFO_PATH/versions/01-versions-deb"
+
+. $BUILDINFO_PATH/config/buildinfo.config
+
+[ -d $DIFF_VERSION_PATH ] && rm -rf $DIFF_VERSION_PATH
+mkdir -p $DIFF_VERSION_PATH
+chmod a+rw $DIFF_VERSION_PATH
+
+[ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
+collect_version_files $PRE_VERSION_PATH
+
+if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ]; then
+    [ -f $VERSION_DEB_PREFERENCE ] && cp -f $VERSION_DEB_PREFERENCE /etc/apt/preferences.d/
+fi
+
+cp -rf $BUILDINFO_PATH/trusted.gpg.d/* /etc/apt/trusted.gpg.d/
+
+exit 0

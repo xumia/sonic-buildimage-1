@@ -1,0 +1,25 @@
+#!/bin/bash
+
+BUILDINFO_PATH="/usr/local/share/buildinfo"
+. $BUILDINFO_PATH/config/buildinfo.config
+
+VERSION_FILE="$BUILDINFO_PATH/versions/versions-py2"
+paras=($@)
+
+COMMAND=/usr/local/bin/pip
+[ ! -f $COMMAND ] && COMMAND=/usr/bin/pip
+
+
+FOUND=false
+for para in "${paras[@]}"
+do
+    ([ "$para" == "-c" ] || [ "$para" == "--constraint" ]) && FOUND=true
+done
+
+if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$FOUND" == "false" ]; then
+    paras+=("-c")
+    paras+=("${VERSION_FILE}")
+fi
+
+
+$COMMAND ${paras[@]}
