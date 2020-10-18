@@ -535,6 +535,31 @@ class VersionManagerCommands:
         build = VersionBuild(target_path=args.target_path, source_path=args.source_path)
         build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
 
+    def merge(self):
+        parser = argparse.ArgumentParser(description = 'Merge the version files')
+        parser.add_argument('-t', '--target_path', required=True, help='target path to save the merged version files')
+        parser.add_argument('-m', '--module_path', default=None, help='merge path, use the target path if not specified')
+        parser.add_argument('-b', '--base_path', required=True, help='base path, merge to the module path')
+        parser.add_argument('-e', '--exclude_module_path', default=None, help='exclude module path')
+        args = parser.parse_args(sys.argv[2:])
+        module_path = args.module_path
+        if not module_path:
+            module_path = args.target_path
+        if not os.path.exists(module_path):
+            print('The module path {0} does not exist'.format(module_path))
+        if not os.path.exists(args.target_path):
+            os.makedirs(args.target_path)
+        module = VersionModule()
+        module.load(module_path)
+        base_module = VersionModule()
+        base_module.load(args.base_path)
+        module.overwrite(base_module)
+        if args.exclude_module_path:
+            exclude_module = VersionModule()
+            exclude_module.load(args.exclude_module_path)
+            module.subtract(exclude_module)
+        module.dump(args.target_path)
+
     def generate(self):
         script_path = os.path.dirname(sys.argv[0])
         root_path = os.path.dirname(script_path)

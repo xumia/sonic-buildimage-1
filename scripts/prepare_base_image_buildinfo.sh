@@ -14,12 +14,12 @@ OVERRIDE_VERSION_PATH=files/build/versions/host-image
 DIFF_VERSIONS_PATH=$BUILDINFO_PATH/diff-versions
 
 
-# Copy build info
+# Copy build info scripts
 mkdir -p $BUILDINFO_PATH
 cp -rf files/build/scripts ${BUILDINFO_PATH}/
 
-# Generate the build info config
-SONIC_ENABLE_VERSION_CONTROL=$SONIC_ENABLE_VERSION_CONTROL TRUSTED_GPG_URLS=$TRUSTED_GPG_URLS PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX scripts/generate_buildinfo_config.sh $BUILDINFO_PATH
+# Copy the build info config
+cp -rf files/build/buildinfo/* $BUILDINFO_PATH/
 
 # Install the config files
 cp -rf $BUILDINFO_PATH/scripts/* "$BUILDINFO_INSTALL_PATH/"

@@ -40,8 +40,8 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "$AUTO_GENERATE_CODE_TEXT" $DOCKERFIL
     rm -f $TEMP_FILE
 fi
 
-# Generate the build info config
-SONIC_ENABLE_VERSION_CONTROL=$SONIC_ENABLE_VERSION_CONTROL TRUSTED_GPG_URLS=$TRUSTED_GPG_URLS PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX scripts/generate_buildinfo_config.sh $BUILDINFO_PATH
+# Copy the build info config
+cp -rf files/build/buildinfo/* $BUILDINFO_PATH
 
 # Copy the docker build info scirpts
 cp -rf files/build/scripts "${BUILDINFO_PATH}/"

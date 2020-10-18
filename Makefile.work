@@ -91,8 +91,9 @@ endif
 
 include rules/config
 
+$(shell SONIC_ENABLE_VERSION_CONTROL=$(SONIC_ENABLE_VERSION_CONTROL) TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) scripts/generate_buildinfo_config.sh)
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
-$(shell BUILD_SLAVE=y PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) SONIC_ENABLE_VERSION_CONTROL=$(SONIC_ENABLE_VERSION_CONTROL) TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) scripts/prepare_docker_buildinfo.sh $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
+$(shell BUILD_SLAVE=y scripts/prepare_docker_buildinfo.sh $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
 SLAVE_BASE_TAG = $(shell sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
@@ -220,9 +221,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            TELEMETRY_WRITABLE=$(TELEMETRY_WRITABLE) \
                            EXTRA_DOCKER_TARGETS=$(EXTRA_DOCKER_TARGETS) \
                            BUILD_LOG_TIMESTAMP=$(BUILD_LOG_TIMESTAMP) \
-                           SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
-                           SONIC_ENABLE_VERSION_CONTROL=$(ENABLE_VERSION_CONTROL) \
-                           SONIC_VERSION_CONTROL_COMPONENTS=$(VERSION_CONTROL_COMPONENTS) \
+                           SLAVE_DIR=$(SLAVE_DIR) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
@@ -247,12 +246,12 @@ endif
 	    $(DOCKER_BUILD) ; }
 ifeq "$(KEEP_SLAVE_ON)" "yes"
     ifdef SOURCE_FOLDER
-		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; /bin/bash"
+		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@;  scripts/collect_build_version_files.sh $$?; /bin/bash"
     else
-		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; /bin/bash"
+		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh $$?; /bin/bash"
     endif
 else
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) $(SONIC_BUILD_INSTRUCTION) $@
+	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh $$?"
 endif
 
 sonic-slave-base-build :

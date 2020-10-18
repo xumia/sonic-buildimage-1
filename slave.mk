@@ -237,11 +237,13 @@ $(info "INCLUDE_SFLOW"                   : "$(INCLUDE_SFLOW)")
 $(info "INCLUDE_NAT"                     : "$(INCLUDE_NAT)")
 $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
 $(info "TELEMETRY_WRITABLE"              : "$(TELEMETRY_WRITABLE)")
-$(info "SONIC_ENABLE_VERSION_CONTROL"    : "$(SONIC_ENABLE_VERSION_CONTROL)")
 $(info )
 else
 $(info SONiC Build System for $(CONFIGURED_PLATFORM):$(CONFIGURED_ARCH))
 endif
+
+# Overwrite the buildinfo in slave container
+$(shell sudo cp -rf $(SLAVE_DIR)/buildinfo/* /usr/local/share/buildinfo/)
 
 include Makefile.cache
 
@@ -624,9 +626,6 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 	# Apply series of patches if exist
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && QUILT_PATCHES=../$(notdir $($*.gz_PATH)).patch quilt push -a; popd; fi
 	# Prepare docker build info
-	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-	SONIC_ENABLE_VERSION_CONTROL=$(SONIC_ENABLE_VERSION_CONTROL) \
-	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
 	scripts/prepare_docker_buildinfo.sh $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(TARGET_DOCKERFILE)/Dockerfile.buildinfo
 	docker info $(LOG)
 	docker build --squash --no-cache \

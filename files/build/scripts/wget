@@ -1,10 +1,8 @@
 #!/bin/bash
 
-SHOW_VERSION=y
 BUILDINFO_PATH="/usr/local/share/buildinfo"
 VERSION_FILE="${BUILDINFO_PATH}/versions/versions-web"
-LOG_PATH="${BUILDINFO_PATH}/diff-versions"
-[ -d "/sonic/target" ] && LOG_PATH="/sonic/target/versions/build"
+LOG_PATH="${BUILDINFO_PATH}/build-versions"
 VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
 . $BUILDINFO_PATH/config/buildinfo.config
@@ -44,7 +42,7 @@ check_if_file_exist()
     if [[ "$REAL_COMMAND" == */curl ]]; then
         $REAL_COMMAND --output /dev/null --silent --head --fail "$1" > /dev/null 2>&1
     else
-        $REAL_COMMAND -S --spider $url 2>&1 | grep -q "200 OK"
+        $REAL_COMMAND -S --spider $1 2>&1 | grep -q "200 OK"
     fi
 }
 

@@ -1,0 +1,16 @@
+BUILDINFO_PATH="/usr/local/share/buildinfo"
+VERSION_PATH="${BUILDINFO_PATH}/versions"
+LOG_PATH="${BUILDINFO_PATH}/log"
+VERSOIN_LOG_FILE="${LOG_PATH}/versions-web"
+SONIC_ENABLE_VERSION_CONTROL={{SONIC_ENABLE_VERSION_CONTROL}}
+PACKAGE_URL_PREFIX={{ PACKAGE_URL_PREFIX }}
+URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
+
+[ ! -d $LOG_PATH ] && mkdir -p $LOG_PATH
+log_err()
+{
+    echo "$1" >> $LOG_PATH/error.log
+    echo "$1" 1>&2
+}
+
+
