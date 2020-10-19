@@ -1,15 +1,25 @@
 #!/bin/bash
 
-BUILDINFO_PATH="/usr/local/share/buildinfo"
-. $BUILDINFO_PATH/config/buildinfo.config
+. /usr/local/share/buildinfo/config/buildinfo.config
 
-VERSION_FILE="$BUILDINFO_PATH/versions/versions-py2"
+[ -z "$PIP_COMPONENT" ] && PIP_COMPONENT=py2
+
+if [ "$PIP_COMPONENT" == "py2" ]; then
+    PIP_COMMAND=/usr/local/bin/pip
+    [ ! -f $PIP_COMMAND ] && PIP_COMMAND=/usr/bin/pip
+else
+    PIP_COMMAND=/usr/bin/pip3
+fi
+
+VERSION_FILE="$BUILDINFO_PATH/versions/versions-${PIP_COMPONENT}"
+ENABLE_VERSION_CONTROL=$(check_version_control "$PIP_COMPONENT")
+
+if [ "$ENABLE_VERSION_CONTROL" != "y" ]; then
+    $PIP_COMMAND "$@"
+    exit $?
+fi
+
 paras=("$@")
-
-COMMAND=/usr/local/bin/pip
-[ ! -f $COMMAND ] && COMMAND=/usr/bin/pip
-
-
 FOUND=false
 INSTALL=false
 for para in "${paras[@]}"
@@ -24,4 +34,4 @@ if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$FOUND" == "false" ] && [ "$
 fi
 
 
-$COMMAND ${paras[@]}
+$PIP_COMMAND ${paras[@]}

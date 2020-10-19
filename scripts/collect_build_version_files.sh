@@ -8,6 +8,8 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 . /usr/local/share/buildinfo/config/buildinfo.config
 
 [ -z "$BLDENV" ] && BLDENV=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
+[ -z "$BLDENV" ] && exit $RET
+
 [ -z "$TARGET_PATH" ] && TARGET_PATH=./target
 
 VERSION_BUILD_PATH=$TARGET_PATH/versions/build

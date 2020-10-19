@@ -1,25 +1,5 @@
 #!/bin/bash
 
+PARENT_PATH=$(dirname $0)
 
-BUILDINFO_PATH="/usr/local/share/buildinfo"
-. $BUILDINFO_PATH/config/buildinfo.config
-
-VERSION_FILE="$BUILDINFO_PATH/versions/versions-pip3"
-paras=("$@")
-
-
-FOUND=false
-INSTALL=false
-for para in "${paras[@]}"
-do
-    ([[ "$para" == "-c" ]] || [[ "$para" == "--constraint" ]]) && FOUND=true
-    [ "$para" == "install" ] && INSTALL=true
-done
-
-if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$FOUND" == "flase" ] && [ "$INSTALL" == "true" ]; then
-    paras+=("-c")
-    paras+=("${VERSION_FILE}")
-fi
-
-
-/usr/bin/pip3 ${paras[@]}
+PIP_COMPONET=py3 ${PARENT_PATH}/pip $@
