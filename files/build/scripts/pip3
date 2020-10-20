@@ -2,4 +2,4 @@
 
 PARENT_PATH=$(dirname $0)
 
-PIP_COMPONET=py3 ${PARENT_PATH}/pip $@
+PIP_COMPONENT=py3 ${PARENT_PATH}/pip $@
