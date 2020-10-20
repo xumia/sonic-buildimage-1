@@ -527,7 +527,7 @@ class VersionManagerCommands:
         parser.add_argument('-t', '--target_path', default='./target', help='target path')
         parser.add_argument('-s', '--source_path', default='.', help='source path')
 
-        # store_true which implies default=True
+        # store_true which implies default=False
         parser.add_argument('-r', '--rebuild', action='store_true', help='rebuild all versions')
         parser.add_argument('-d', '--for_all_dist', action='store_true', help='apply the versions for all distributions')
         parser.add_argument('-a', '--for_all_arch', action='store_true', help='apply the versions for all architectures')
