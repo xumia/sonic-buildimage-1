@@ -77,6 +77,10 @@ class Component:
             f.write(self.dump(config, priority))
 
     def dump_to_path(self, file_path, config=False, priority=999):
+        if len(self.versions) <= 0:
+            return
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
         filename = self.get_filename()
         if config and self.ctype == 'deb':
             filename = VERSION_DEB_PREFERENCE 
@@ -239,19 +243,10 @@ class VersionModule:
 
     @classmethod
     def get_module_path_by_name(cls, source_path, module_name):
-        common_modules = ['default', 'host-image', 'host-base-image']
+        common_modules = ['host-image', 'host-base-image']
         if module_name in common_modules:
             return os.path.join(source_path, 'files/build/versions', module_name)
-        if module_name.startswith('sonic-slave-'):
-            return os.path.join(source_path, module_name)
-        file_path = os.path.join(source_path, 'dockers', module_name)
-        if os.path.exists(file_path):
-            return file_path
-        file_path = os.path.join(source_path, 'platform', '*', module_name)
-        files = glob.glob(file_path)
-        if len(files) == 1:
-            return files[0]
-        raise Exception('The path of module name {0} not found'.format(module_name))
+        return os.path.join(source_path, 'files/build/versions/dockers', module_name)
 
     def _get_dist(self, image_path):
         dist = ''

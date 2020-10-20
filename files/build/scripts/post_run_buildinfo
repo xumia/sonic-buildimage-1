@@ -1,9 +1,6 @@
 #!/bin/bash
 
-BUILDINFO_PATH="/usr/local/share/buildinfo"
-PRE_VERSION_PATH="$BUILDINFO_PATH/pre-versions"
-POST_VERSION_PATH="$BUILDINFO_PATH/post-versions"
-DIFF_VERSION_PATH="$BUILDINFO_PATH/diff-versions"
+. /usr/local/share/buildinfo/config/buildinfo.config
 
 [ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
 
@@ -20,3 +17,6 @@ do
         cat $file $init_file | sort | LC_ALL=C uniq -u > $diff_file
     fi
 done
+
+[ -d $BUILD_VERSION_PATH ] && cp -rf $BUILD_VERSION_PATH/* $POST_VERSION_PATH/
+rm -rf $BUILD_VERSION_PATH/*
