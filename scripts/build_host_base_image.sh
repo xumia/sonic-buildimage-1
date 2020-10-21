@@ -70,7 +70,7 @@ do
     packagename=$(echo $package | sed -E 's/=[^=]*$//')
     url=${URL_ARR[$i]}
     filename=$(basename "$url")
-    wget $url -P $ARCHIEVES
+    SKIP_BUILD_HOOK=y wget $url -P $ARCHIEVES
     echo $packagename >> $DEBOOTSTRAP_REQUIRED
     echo "$packagename /var/cache/apt/archives/$filename" >> $DEBPATHS
 done

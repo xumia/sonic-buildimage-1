@@ -5,6 +5,7 @@ ARCH=$1
 DISTRO=$2
 FILESYSTEM_ROOT=$3
 
+. /usr/local/share/buildinfo/config/buildinfo.config
 VERSION_DEB_PREFERENCE="01-versions-deb"
 BUILDINFO_PATH=${FILESYSTEM_ROOT}/usr/local/share/buildinfo
 BUILDINFO_INSTALL_PATH=${FILESYSTEM_ROOT}/usr/local/sbin
