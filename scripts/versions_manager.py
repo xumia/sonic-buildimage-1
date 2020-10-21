@@ -593,7 +593,7 @@ class VersionManagerCommands:
         args = parser.parse_args(sys.argv[2:])
         module_path = args.module_path
         if not module_path:
-            module_path = VersionModule.get_module_path_by_name(args.source_path, module_name)
+            module_path = VersionModule.get_module_path_by_name(args.source_path, args.module_name)
         if not os.path.exists(args.target_path):
             os.makedirs(args.target_path)
         module = VersionModule()

@@ -34,7 +34,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "$AUTO_GENERATE_CODE_TEXT" $DOCKERFIL
 
     # Append the docker build script at the end of the docker file
     SET_ENV_PATH=y
-    [ $BUILD_SLAVE == "y" ] && SET_ENV_PATH=n
+    [ "$BUILD_SLAVE" == "y" ] && SET_ENV_PATH=n
     generate_code="after_run" set_env_path=$SET_ENV_PATH j2 $DOCKERFILE_TEMPLATE >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
