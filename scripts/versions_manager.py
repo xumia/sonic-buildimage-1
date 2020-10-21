@@ -246,6 +246,8 @@ class VersionModule:
         common_modules = ['host-image', 'host-base-image']
         if module_name in common_modules:
             return os.path.join(source_path, 'files/build/versions', module_name)
+        if module_name.startswith('build-sonic-slave-'):
+            return os.path.join(source_path, 'files/build/versions/build', module_name)
         return os.path.join(source_path, 'files/build/versions/dockers', module_name)
 
     def _get_dist(self, image_path):
@@ -289,9 +291,11 @@ class VersionBuild:
 
     def load_from_target(self):
         dockers_path = os.path.join(self.target_path, 'versions/dockers')
+        build_path = os.path.join(self.target_path, 'versions/build')
         modules = {}
         self.modules = modules
         file_paths = glob.glob(dockers_path + '/*')
+        file_paths += glob.glob(build_path + '/build-*')
         file_paths.append(os.path.join(self.target_path, 'versions/host-image'))
         file_paths.append(os.path.join(self.target_path, 'versions/host-base-image'))
         for file_path in file_paths:

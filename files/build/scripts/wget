@@ -9,6 +9,11 @@ ENABLE_VERSION_CONTROL=$(check_version_control "$COMPONENT")
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
 PARAS=("$@")
 
+if [ "$SKIP_BUILD_HOOK" == "y" ]; then
+    $REAL_COMMAND "$@"
+    return $?
+fi
+
 get_version()
 {
     local package_url=$1
