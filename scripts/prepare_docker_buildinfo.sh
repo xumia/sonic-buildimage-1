@@ -1,9 +1,10 @@
 #!/bin/bash
 
-DOCKERFILE=$1
-ARCH=$2
-DOCKERFILE_TARGE=$3
-DISTRO=$4
+IMAGENAME=$1
+DOCKERFILE=$2
+ARCH=$3
+DOCKERFILE_TARGE=$4
+DISTRO=$5
 
 [ -z "$DOCKERFILE_TARGE" ] && DOCKERFILE_TARGE=$DOCKERFILE
 DOCKERFILE_PATH=$(dirname "$DOCKERFILE_TARGE")
@@ -33,7 +34,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "$AUTO_GENERATE_CODE_TEXT" $DOCKERFIL
 
     # Append the docker build script at the end of the docker file
     SET_ENV_PATH=y
-    [ ! -z $BUILD_SLAVE ] && SET_ENV_PATH=n
+    [ $BUILD_SLAVE == "y" ] && SET_ENV_PATH=n
     generate_code="after_run" set_env_path=$SET_ENV_PATH j2 $DOCKERFILE_TEMPLATE >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
@@ -46,5 +47,10 @@ cp -rf files/build/buildinfo/* $BUILDINFO_PATH
 # Copy the docker build info scirpts
 cp -rf files/build/scripts "${BUILDINFO_PATH}/"
 
+# Build the slave running config
+if [ "$BUILD_SLAVE" == "y" ]; then
+    scripts/versions_manager.py generate -t "${BUILDINFO_PATH}/build/versions" -n "build-${IMAGENAME}" -d "$DISTRO" -a "$ARCH"
+fi
+
 # Generate the version lock files
-scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -m "$DOCKERFILE_PATH" -d "$DISTRO" -a "$ARCH"
+scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -n "$IMAGENAME" -d "$DISTRO" -a "$ARCH"

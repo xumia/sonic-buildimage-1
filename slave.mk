@@ -243,7 +243,7 @@ $(info SONiC Build System for $(CONFIGURED_PLATFORM):$(CONFIGURED_ARCH))
 endif
 
 # Overwrite the buildinfo in slave container
-$(shell sudo cp -rf $(SLAVE_DIR)/buildinfo/* /usr/local/share/buildinfo/)
+$(shell sudo scripts/prepare_slave_container_buildinfo.sh $(SLAVE_DIR))
 
 include Makefile.cache
 
@@ -626,7 +626,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 	# Apply series of patches if exist
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && QUILT_PATCHES=../$(notdir $($*.gz_PATH)).patch quilt push -a; popd; fi
 	# Prepare docker build info
-	scripts/prepare_docker_buildinfo.sh $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(TARGET_DOCKERFILE)/Dockerfile.buildinfo
+	scripts/prepare_docker_buildinfo.sh $* $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(TARGET_DOCKERFILE)/Dockerfile.buildinfo
 	docker info $(LOG)
 	docker build --squash --no-cache \
 		--build-arg http_proxy=$(HTTP_PROXY) \
@@ -716,7 +716,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 		PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
 		SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
 		TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
-		scripts/prepare_docker_buildinfo.sh $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH)
+		scripts/prepare_docker_buildinfo.sh $* $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH)
 		docker info $(LOG)
 		docker build --squash --no-cache \
 			--build-arg http_proxy=$(HTTP_PROXY) \
@@ -766,7 +766,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 		PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
 		SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
 		TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
-		scripts/prepare_docker_buildinfo.sh $($*.gz_PATH)/Dockerfile-dbg $(CONFIGURED_ARCH)
+		scripts/prepare_docker_buildinfo.sh $* $($*.gz_PATH)/Dockerfile-dbg $(CONFIGURED_ARCH)
 		docker info $(LOG)
 		docker build \
 			$(if $($*.gz_DBG_DEPENDS), --squash --no-cache, --no-cache) \

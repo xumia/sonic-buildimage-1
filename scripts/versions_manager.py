@@ -235,15 +235,19 @@ class VersionModule:
             if clean_arch:
                 component.arch = ALL_ARCH
 
-    def clone(self):
+    def clone(self, ctypes=None, exclude_ctypes=None):
         components = []
         for component in self.components:
+            if exclude_ctypes and component.ctype in exclude_ctypes:
+                continue
+            if ctypes and ctypes not in ctypes:
+                continue
             components.append(component.clone())
         return VersionModule(self.name, components)
 
     @classmethod
     def get_module_path_by_name(cls, source_path, module_name):
-        common_modules = ['host-image', 'host-base-image']
+        common_modules = ['default', 'host-image', 'host-base-image']
         if module_name in common_modules:
             return os.path.join(source_path, 'files/build/versions', module_name)
         if module_name.startswith('build-sonic-slave-'):
@@ -337,14 +341,20 @@ class VersionBuild:
         
 
     def overwrite(self, build, for_all_dist=False, for_all_arch=False):
+        DEFAULT_OVERWRITE_COMPONENTS=['deb', 'py2', 'py3']
+        default_module = self.modules[DEFAULT_MODULE]
         for target_module in build.modules.values():
             module = self.modules.get(target_module.name, None)
+            #tmp_module = target_module.clone(ctype=DEFAULT_OVERWRITE_COMPONENTS)
             tmp_module = target_module.clone()
             tmp_module.clean_info(for_all_dist, for_all_arch)
             if module:
                 module.overwrite(tmp_module, for_all_dist=for_all_dist, for_all_arch=for_all_arch)
             else:
                 self.modules[target_module.name] = tmp_module
+            #tmp_module = target_module.clone(exclude_ctype=DEFAULT_OVERWRITE_COMPONENTS)
+            #tmp_module.clean_info(for_all_dist=True, for_all_arch=True)
+            #default_module.overwrite(tmp_module, for_all_dist=True, for_all_arch=True)
 
     def dump(self):
         for module in self.modules.values():
@@ -402,6 +412,8 @@ class VersionBuild:
         modules = []
         for module_name in self.modules:
             if module_name.startswith('sonic-slave-'):
+                continue
+            if module_name.startswith('build-sonic-slave-'):
                 continue
             if module_name == DEFAULT_MODULE:
                 continue
@@ -567,8 +579,8 @@ class VersionManagerCommands:
         parser = argparse.ArgumentParser(description = 'Generate the version files')
         parser.add_argument('-t', '--target_path', required=True, help='target path to generate the version lock files')
         group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('-m', '--module_path', help="module apth, such as ./dockers/docker-lldp, ./sonic-slave-buster, etc")
         group.add_argument('-n', '--module_name', help="module name, such as docker-lldp, sonic-slave-buster, etc")
+        group.add_argument('-m', '--module_path', help="module apth, such as files/docker/versions/dockers/docker-lldp, files/docker/versions/dockers/sonic-slave-buster, etc")
         parser.add_argument('-s', '--source_path', default='.', help='source path')
         parser.add_argument('-d', '--distribution', required=True, help="distribution")
         parser.add_argument('-a', '--architecture', required=True, help="architecture")
