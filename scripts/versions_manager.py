@@ -12,6 +12,7 @@ VERSION_DEB_PREFERENCE = '01-versions-deb'
 VERSION_PREFIX="versions-"
 ALL_DIST = 'all'
 ALL_ARCH = 'all'
+DEFAULT_OVERWRITE_COMPONENTS=['deb', 'py2', 'py3']
 
 
 class Component:
@@ -341,7 +342,6 @@ class VersionBuild:
         
 
     def overwrite(self, build, for_all_dist=False, for_all_arch=False):
-        DEFAULT_OVERWRITE_COMPONENTS=['deb', 'py2', 'py3']
         default_module = self.modules[DEFAULT_MODULE]
         for target_module in build.modules.values():
             module = self.modules.get(target_module.name, None)
@@ -409,7 +409,7 @@ class VersionBuild:
         return VersionModule(DEFAULT_MODULE, components)
 
     def get_docker_version_modules(self):
-        modules = []
+        modules = {}
         for module_name in self.modules:
             if module_name.startswith('sonic-slave-'):
                 continue
@@ -420,7 +420,7 @@ class VersionBuild:
             if module_name == 'host-image' or module_name == 'host-base-image':
                 continue
             module = self.modules[module_name]
-            modules.append(module)
+            modules[module_name] = module
         return modules
 
     def get_components(self):
@@ -493,7 +493,11 @@ class VersionBuild:
     def _get_versions(self, ctype, dist=None, arch=None):
         versions = {}
         modules = self.get_docker_version_modules()
-        for module in modules:
+        for module_name in self.modules:
+            if module_name not in modules:
+                temp_module = self.modules[module_name].clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)
+                modules[module_name] = temp_module
+        for module in modules.values():
             for component in module.components:
                 if ctype != component.ctype:
                     continue
