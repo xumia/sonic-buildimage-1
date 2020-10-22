@@ -11,7 +11,7 @@ PARAS=("$@")
 
 if [ "$SKIP_BUILD_HOOK" == "y" ]; then
     $REAL_COMMAND "$@"
-    return $?
+    exit $?
 fi
 
 get_version()

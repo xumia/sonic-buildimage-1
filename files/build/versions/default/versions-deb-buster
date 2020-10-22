@@ -81,7 +81,7 @@ libldap-2.4-2==2.4.47+dfsg-3+deb10u2
 libldap-common==2.4.47+dfsg-3+deb10u2
 liblognorm5==2.0.5-1
 liblua5.1-0==5.1.5-8.1+b2
-libmariadb3==1:10.3.23-0+deb10u1
+libmariadb3==1:10.3.25-0+deb10u1
 libmpdec2==2.4.2-2
 libncurses6==6.1+20181013-2+deb10u2
 libnet1==1.1.6+dfsg-3.1
@@ -170,10 +170,11 @@ lsb-base==10.2019051400
 lsof==4.91+dfsg-1
 lua-bitop==1.0.2-5
 lua-cjson==2.1.0+dfsg-2.1
-mariadb-common==1:10.3.23-0+deb10u1
+mariadb-common==1:10.3.25-0+deb10u1
 mime-support==3.62
 mysql-common==5.8+1.0.5
 ndisc6==1.0.4-1
+ndppd==0.2.5-4+deb10u1
 net-tools==1.60+git20180626.aebd88e-1
 openssh-client==1:7.9p1-10+deb10u2
 openssl==1.1.1d-0+deb10u3
@@ -186,7 +187,6 @@ python-bitarray==0.8.1-1+b4
 python-lxml==4.3.2-1
 python-meld3==1.0.2-2
 python-minimal==2.7.16-1
-python-natsort==6.0.0-1
 python-pip==18.1-5
 python-pip-whl==18.1-5
 python-pkg-resources==40.8.0-1

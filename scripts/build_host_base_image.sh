@@ -6,9 +6,10 @@ IMAGE_DISTRO=$2
 FILESYSTEM_ROOT=$3
 http_proxy=$4
 
-
 TARGET=$TARGET_PATH
 [ -z "$TARGET" ] && TARGET=target
+
+. /usr/local/share/buildinfo/config/buildinfo.config
 
 TARGET_BASEIMAGE_PATH=$TARGET/versions/host-base-image
 mkdir -p $TARGET_BASEIMAGE_PATH
@@ -18,7 +19,7 @@ generate_version_file()
     sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb
 }
 
-if [ $SONIC_ENABLE_VERSION_CONTROL != "y" ]; then
+if [ "$SONIC_ENABLE_VERSION_CONTROL" != "y" ]; then
     if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
         # qemu arm bin executable for cross-building
         sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
