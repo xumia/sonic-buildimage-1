@@ -312,17 +312,14 @@ class VersionBuild:
         self._merge_dgb_modules()
 
     def load_from_source(self):
-        # Load dockers
-        docker_pattern = os.path.join(self.source_path, 'dockers/*/versions-*')
-        paths = self._get_module_paths_by_pattern(docker_pattern)
-        slave_docker_pattern = os.path.join(self.source_path, 'sonic-slave-*/versions-*')
-        paths = paths + self._get_module_paths_by_pattern(slave_docker_pattern)
-        platform_docker_pattern = os.path.join(self.source_path, 'platform/*/*/versions-*')
-        paths = paths + self._get_module_paths_by_pattern(platform_docker_pattern)
-
         # Load default versions and host image versions
-        other_pattern = os.path.join(self.source_path, 'files/build/versions/*/versions-*')
-        paths = paths + self._get_module_paths_by_pattern(other_pattern)
+        versions_path = os.path.join(self.source_path, 'files/build/versions')
+        dockers_path = os.path.join(versions_path, "dockers")
+        build_path = os.path.join(versions_path, "build")
+        paths = [os.path.join(versions_path, 'default')]
+        paths += glob.glob(versions_path + '/host-*')
+        paths += glob.glob(dockers_path + '/*')
+        paths += glob.glob(build_path + '/*')
         modules = {}
         self.modules = modules
         for image_path in paths:
