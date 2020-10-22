@@ -1,0 +1,5 @@
+#!/bin/bash
+
+PARENT_PATH=$(dirname $0)
+
+PIP_COMPONENT=py3 ${PARENT_PATH}/pip $@

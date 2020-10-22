@@ -1,0 +1,12 @@
+asyncsnmp==2.1.0
+hiredis==1.1.0
+natsort==6.2.1
+psutil==5.7.2
+python-arptable==0.0.2
+PyYAML==5.3.1
+redis==3.5.3
+redis-dump-load==1.1
+smbus==1.1.post2
+sonic-platform-common==1.0
+sonic-py-common==1.0
+swsssdk==2.0.1

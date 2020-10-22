@@ -1,0 +1,13 @@
+{% if generate_code == 'before_run' %}
+# ---- Begin Auto-Generated Code ----
+COPY ["buildinfo", "/usr/local/share/buildinfo"]
+ENV OLDPATH=$PATH
+ENV PATH="/usr/local/share/buildinfo/scripts:$PATH"
+RUN pre_run_buildinfo
+# --- End Auto-Generated Code ----
+{% elif generate_code == 'after_run' %}
+# ---- Begin Auto-Generated Code ----
+RUN post_run_buildinfo
+{% if env("set_env_path", default='y') == 'y' %}ENV PATH=$OLDPATH{% endif %}
+# ---- End Auto-Generated Code ----
+{% endif %}
