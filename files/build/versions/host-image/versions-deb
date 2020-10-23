@@ -63,6 +63,7 @@ libefiboot1==37-2
 libefivar1==37-2
 libelf1==0.176-1.1
 libffi-dev==3.2.1-9
+libfreetype6==2.9.1-3+deb10u1
 libftdi1-2==1.4-1+b2
 libfuse2==2.9.9-1+deb10u1
 libhavege1==1.9.1-7

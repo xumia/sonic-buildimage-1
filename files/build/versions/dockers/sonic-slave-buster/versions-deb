@@ -505,7 +505,7 @@ libfontbox2-java==2.0.13-2
 libfontconfig1-dev==2.13.1-2
 libfontenc1==1:1.1.3-1+b2
 libfop-java==1:2.3-2
-libfreetype6-dev==2.9.1-3+deb10u1
+libfreetype6-dev==2.9.1-3+deb10u2
 libfstrm0==0.4.0-1
 libfuture-perl==0.39-1
 libgail-common==2.24.32-3

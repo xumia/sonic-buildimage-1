@@ -187,8 +187,8 @@ libbind-export-dev==1:9.10.3.dfsg.P4-12.3+deb9u7
 libbind9-140==1:9.10.3.dfsg.P4-12.3+deb9u7
 libbison-dev==2:3.0.4.dfsg-1+b1
 libbit-vector-perl==7.4-1+b2
-libbluetooth-dev==5.43-2+deb9u2
-libbluetooth3==5.43-2+deb9u2
+libbluetooth-dev==5.43-2+deb9u3
+libbluetooth3==5.43-2+deb9u3
 libboost-all-dev==1.62.0.1
 libboost-atomic-dev==1.62.0.1
 libboost-atomic1.62-dev==1.62.0+dfsg-4
