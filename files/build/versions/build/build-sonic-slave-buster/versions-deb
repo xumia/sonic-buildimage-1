@@ -1,10 +1,15 @@
 libhiredis-dev==0.14.0-3~bpo9+1
+libnl-3-dev==3.5.0-1
 libnl-cli-3-dev==3.5.0-1
 libnl-genl-3-dev==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
+libnl-route-3-dev==3.5.0-1
 libsaimetadata-dev==1.0.0
 libsairedis-dev==1.0.0
 libsaivs==1.0.0
+libsnmp-base==5.7.3+dfsg-5
+libsnmp-dev==5.7.3+dfsg-5
+libsnmp30==5.7.3+dfsg-5
 libswsscommon-dev==1.0.0
 libtac-dev==1.4.1-1
 libtac2==1.4.1-1
