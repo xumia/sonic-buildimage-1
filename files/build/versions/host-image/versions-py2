@@ -12,6 +12,7 @@ docker==4.1.0
 enum34==1.1.10
 futures==3.3.0
 idna==2.10
+importlib-resources==3.1.0
 ipaddress==1.0.23
 jsondiff==1.2.0
 lxml==4.3.2
