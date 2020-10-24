@@ -4,7 +4,7 @@ TARGET_PATH=$1
 
 mkdir -p $TARGET_PATH
 dpkg-query -W -f '${Package}==${Version}\n' > "${TARGET_PATH}/versions-deb"
-[ -f /usr/bin/pip ] && pip freeze > "${TARGET_PATH}/versions-py2"
-[ -f /usr/bin/pip3 ] && pip3 freeze > "${TARGET_PATH}/versions-py3"
+[ -x "$(command -v pip)" ] && pip freeze > "${TARGET_PATH}/versions-py2"
+[ -x "$(command -v pip3)" ] && pip3 freeze > "${TARGET_PATH}/versions-py3"
 
 exit 0
