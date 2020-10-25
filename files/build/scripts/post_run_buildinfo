@@ -14,7 +14,7 @@ do
     diff_file=$DIFF_VERSION_PATH/$filename
     cat $file | sort > $diff_file
     if [ -f $init_file ]; then
-        cat $file $init_file | sort | LC_ALL=C uniq -u > $diff_file
+        cat $file $init_file $init_file | sort | LC_ALL=C uniq -u > $diff_file
     fi
 done
 
