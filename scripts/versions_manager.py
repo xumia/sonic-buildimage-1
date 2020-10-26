@@ -188,6 +188,7 @@ class VersionModule:
 
     def subtract(self, default_module):
         module = self.clone()
+        result = []
         ctype_components = module._get_components_per_ctypes()
         for ctype in ctype_components:
             components = ctype_components[ctype]
@@ -199,6 +200,9 @@ class VersionModule:
                 config_components = config_module._get_components_by_ctype(ctype)
                 config_component = config_components[0]
                 component.subtract(config_component.versions)
+                if len(component.versions):
+                    result.append(component)
+        self.components = result
 
     def adjust(self):
         result_components = []
