@@ -415,24 +415,6 @@ class VersionBuild:
                 continue
             module.subtract(default_module)
 
-    def subtract_build(self, build):
-        default_module = build.modules.get(DEFAULT_MODULE, None)
-        self.subtract_default_module(default_module)
-        for module in self.module.values():
-            source_module = build.modules.get(module.name, None)
-            if source_module:
-                pass
-                
-
-    def subtract_default_module(self, default_module):
-        for module in self.modules.values():
-            if module.name == DEFAULT_MODULE:
-                continue
-            if module.name == 'host-base-image':
-                continue
-            module.subtract(default_module)
-        
-
     def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False):
         if rebuild:
             self.load_from_target()
@@ -525,15 +507,6 @@ class VersionBuild:
 
     def get_module_path_by_name(self, module_name):
         return VersionModule.get_module_path_by_name(self.source_path, module_name)
-
-    def _get_module_paths_by_pattern(self, pattern):
-        files = glob.glob(pattern)
-        paths = []
-        for file_path in files:
-            parent = os.path.dirname(file_path)
-            if parent not in paths:
-                paths.append(parent)
-        return paths
 
     def _merge_dgb_modules(self):
         dbg_modules = []
