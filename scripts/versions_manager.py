@@ -406,8 +406,6 @@ class VersionBuild:
                 continue
             if module.name == 'host-base-image':
                 continue
-            if module.name == 'build-sonic-slave-buster':
-                import pdb; pdb.set_trace()
             module.subtract(default_module)
 
     def subtract_build(self, build):
@@ -433,7 +431,6 @@ class VersionBuild:
             self.load_from_target()
             default_module = self.get_default_module()
             self._clean_component_info()
-            import pdb; pdb.set_trace()
             self.subtract(default_module)
             self.modules[DEFAULT_MODULE] = default_module
             self.dump()
