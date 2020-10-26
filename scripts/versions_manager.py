@@ -204,8 +204,9 @@ class VersionModule:
                 base_module = VersionModule(self.name, components[0:i])
                 config_module = base_module.get_config_module(default_module, component.dist, component.arch)
                 config_components = config_module._get_components_by_ctype(ctype)
-                config_component = config_components[0]
-                component.subtract(config_component.versions)
+                if len(config_components) > 0:
+                    config_component = config_components[0]
+                    component.subtract(config_component.versions)
                 if len(component.versions):
                     result.append(component)
         self.components = result
