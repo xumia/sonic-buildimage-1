@@ -157,7 +157,6 @@ class VersionModule:
         # Overwrite from generic one to detail one
         # For examples: versions-deb overwrtten by versions-deb-buster, and versions-deb-buster overwritten by versions-deb-buster-amd64
         components = sorted(module.components, key = lambda x : x.get_order_keys())
-        not_merged_components = []
         for merge_component in components:
             merged = False
             for component in self.components:
@@ -302,7 +301,7 @@ class VersionModule:
         for component in self.components:
             if exclude_ctypes and component.ctype in exclude_ctypes:
                 continue
-            if ctypes and ctypes not in ctypes:
+            if ctypes and component.ctype not in ctypes:
                 continue
             components.append(component.clone())
         return VersionModule(self.name, components)
@@ -389,19 +388,14 @@ class VersionBuild:
             modules[module.name] = module
 
     def overwrite(self, build, for_all_dist=False, for_all_arch=False):
-        default_module = self.modules[DEFAULT_MODULE]
         for target_module in build.modules.values():
             module = self.modules.get(target_module.name, None)
-            #tmp_module = target_module.clone(ctype=DEFAULT_OVERWRITE_COMPONENTS)
             tmp_module = target_module.clone()
             tmp_module.clean_info(for_all_dist, for_all_arch)
             if module:
                 module.overwrite(tmp_module, for_all_dist=for_all_dist, for_all_arch=for_all_arch)
             else:
                 self.modules[target_module.name] = tmp_module
-            #tmp_module = target_module.clone(exclude_ctype=DEFAULT_OVERWRITE_COMPONENTS)
-            #tmp_module.clean_info(for_all_dist=True, for_all_arch=True)
-            #default_module.overwrite(tmp_module, for_all_dist=True, for_all_arch=True)
 
     def dump(self):
         for module in self.modules.values():
@@ -617,7 +611,6 @@ class VersionManagerCommands:
     def generate(self):
         script_path = os.path.dirname(sys.argv[0])
         root_path = os.path.dirname(script_path)
-        default_version_path = os.path.join(root_path, DEFAULT_VERSION_PATH)
 
         parser = argparse.ArgumentParser(description = 'Generate the version files')
         parser.add_argument('-t', '--target_path', required=True, help='target path to generate the version lock files')
