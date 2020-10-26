@@ -1,0 +1,10 @@
+#!/bin/bash
+
+TARGET_PATH=$1
+
+mkdir -p $TARGET_PATH
+dpkg-query -W -f '${Package}==${Version}\n' > "${TARGET_PATH}/versions-deb"
+([ -x "/usr/local/bin/pip" ] || [ -x "/usr/bin/pip" ]) && pip freeze > "${TARGET_PATH}/versions-py2"
+([ -x "/usr/local/bin/pip3" ] || [ -x "/usr/bin/pip3" ]) && pip3 freeze > "${TARGET_PATH}/versions-py3"
+
+exit 0

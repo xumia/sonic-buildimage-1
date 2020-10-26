@@ -1,0 +1,31 @@
+#!/bin/bash
+
+BUILDINFO_PATH=/usr/local/share/buildinfo
+
+LOG_PATH=$BUILDINFO_PATH/log
+VERSION_PATH=$BUILDINFO_PATH/versions
+PRE_VERSION_PATH=$BUILDINFO_PATH/pre-versions
+DIFF_VERSION_PATH=$BUILDINFO_PATH/diff-versions
+BUILD_VERSION_PATH=$BUILDINFO_PATH/build-versions
+POST_VERSION_PATH=$BUILDINFO_PATH/post-versions
+VERSION_DEB_PREFERENCE=$BUILDINFO_PATH/versions/01-versions-deb
+
+PACKAGE_URL_PREFIX={{ PACKAGE_URL_PREFIX }}
+SONIC_ENABLE_VERSION_CONTROL={{ SONIC_ENABLE_VERSION_CONTROL }}
+SONIC_VERSION_CONTROL_COMPONENTS={{ SONIC_VERSION_CONTROL_COMPONENTS }}
+URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
+
+log_err()
+{
+    echo "$1" >> $LOG_PATH/error.log
+    echo "$1" 1>&2
+}
+
+check_version_control()
+{
+    if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && ([[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,all,* ]] || [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,$1,* ]]); then
+        echo "y"
+    else
+        echo "n"
+    fi
+}
