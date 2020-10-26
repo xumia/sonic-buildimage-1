@@ -368,6 +368,7 @@ libcurl3-gnutls==7.38.0-4+deb8u16
 libcurl3-nss==7.38.0-4+deb8u16
 libcurl4-nss-dev==7.38.0-4+deb8u16
 libdaemon-dev==0.14-6
+libdaemon0==0.14-6
 libdata-optlist-perl==0.109-1
 libdata-section-perl==0.200006-1
 libdatrie1==0.2.8-1
@@ -937,6 +938,7 @@ libx86-1==1.1+ds1-10
 libxalan2-java==2.7.1-9
 libxapian22==1.2.19-1+deb8u1
 libxau-dev==1:1.0.8-1
+libxau6==1:1.0.8-1
 libxaw7==2:1.0.12-2+b1
 libxbean-java==4.0-2
 libxcb-dri2-0==1.10-3+b1
