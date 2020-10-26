@@ -135,6 +135,12 @@ class Component:
             arch = ''
         return (self.ctype, dist, arch)
 
+    def clean_info(self, clean_dist=True, clean_arch=True):
+        if clean_dist and self.ctype != 'deb':
+            self.dist = ALL_DIST
+        if clean_arch:
+            self.arch = ALL_ARCH
+
 
 class VersionModule:
     '''
@@ -288,10 +294,7 @@ class VersionModule:
 
     def clean_info(self, clean_dist=True, clean_arch=True):
         for component in self.components:
-            if clean_dist and component.ctype != 'deb':
-                component.dist = ALL_DIST
-            if clean_arch:
-                component.arch = ALL_ARCH
+            component.clean_info(clean_dist=clean_dist, clean_arch=clean_arch)
 
     def clone(self, ctypes=None, exclude_ctypes=None):
         components = []
