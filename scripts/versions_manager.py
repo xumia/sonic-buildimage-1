@@ -102,9 +102,9 @@ class Component:
     def check_inheritable(self, component):
         if self.ctype != component.ctype:
             return False
-        if self.dist != component.dist and component.dist == ALL_DIST:
+        if self.dist != component.dist and component.dist != ALL_DIST:
             return False
-        if self.arch != component.arch and component.arch == ALL_ARCH:
+        if self.arch != component.arch and component.arch != ALL_ARCH:
             return False
         return True
 
@@ -159,30 +159,83 @@ class VersionModule:
                     component.merge(merge_component.versions, True)
                     merged = True
             if not merged:
-                self.components.append(merge_component)
+                tmp_component = merge_component.clone()
+                tmp_component.clean_info(clean_dist=for_all_dist, clean_arch=for_all_arch)
+                self.components.append(tmp_component)
+        self.adjust()
 
+    def get_config_module(self, default_module, dist, arch):
+        module = default_module.clone()
+        module.overwrite(self)
+        config_components = []
+        ctype_components = module._get_components_per_ctypes()
+        default_ctype_components = default_module._get_components_per_ctypes()
+        for ctype in default_ctype_components:
+            if ctype not in ctype_components:
+                ctype_components[ctype] = []
+        for components in ctype_components.values():
+            config_component = self._get_config_for_ctype(components, dist, arch)
+            config_components.append(config_component)
+        config_module = VersionModule(self.name, config_components)
+        return config_module
 
-    # Inherit the package versions from the default setting
-    def inherit(self, default_module):
-        # Inherit from the detail one to the generic one
-        # Prefer to inherit versions from versions-deb-buster, better than versions-deb
-        components = sorted(default_module.components, key = lambda x : x.get_order_keys(), reverse=True)
-        for merge_component in components:
-            merged = False
-            for component in self.components:
-                if component.check_inheritable(merge_component):
-                    component.merge(merge_component.versions, False)
-                    merged = True
-            if not merged:
-                self.components.append(merge_component)
+    def _get_config_for_ctype(self, components, dist, arch):
+        result = Component({}, components[0].ctype, dist, arch)
+        for component in sorted(components, key = lambda x : x.get_order_keys()):
+            if result.check_inheritable(component):
+                result.merge(component.versions, True)
+        return result
 
     def subtract(self, default_module):
-        for component in self.components:
-            for default_component in default_module.components:
-                if component.ctype != default_component.ctype:
-                    continue
-                component.subtract(default_component.versions)
+        module = self.clone()
+        ctype_components = module._get_components_per_ctypes()
+        for ctype in ctype_components:
+            components = ctype_components[ctype]
+            components = sorted(components, key = lambda x : x.get_order_keys())
+            for i in range(0, len(components)):
+                component = components[i]
+                base_module = VersionModule(self.name, components[0:i])
+                config_module = base_module.get_config_module(default_module, component.dist, component.arch)
+                config_components = config_module._get_components_by_ctype(ctype)
+                config_component = config_components[0]
+                component.subtract(config_component.versions)
 
+    def adjust(self):
+        result_components = []
+        ctype_components = self._get_components_per_ctypes()
+        for components in ctype_components.values():
+            result_components += self._adjust_components_for_ctype(components)
+        self.components = result_components
+
+    def _get_components_by_ctype(self, ctype):
+        components = []
+        for component in self.components:
+            if component.ctype == ctype:
+                components.append(component)
+        return components
+
+    def _adjust_components_for_ctype(self, components):
+        components = sorted(components, key = lambda x : x.get_order_keys())
+        result = []
+        for i in range(0, len(components)):
+            component = components[i]
+            inheritable_component = Component({}, component.ctype)
+            for j in range(0, i):
+                base_component = components[j]
+                if component.check_inheritable(base_component):
+                    inheritable_component.merge(base_component.versions, True)
+            component.subtract(inheritable_component.versions)
+            if len(component.versions) > 0:
+                result.append(component)
+        return result
+
+    def _get_components_per_ctypes(self):
+        result = {}
+        for component in self.components:
+            components = result.get(component.ctype, [])
+            components.append(component)
+            result[component.ctype] = components
+        return result
 
     def load(self, image_path, filter_ctype=None, filter_dist=None, filter_arch=None):
         version_file_pattern = os.path.join(image_path, VERSION_PREFIX) + '*'
@@ -231,7 +284,7 @@ class VersionModule:
 
     def clean_info(self, clean_dist=True, clean_arch=True):
         for component in self.components:
-            if clean_dist:
+            if clean_dist and component.ctype != 'deb':
                 component.dist = ALL_DIST
             if clean_arch:
                 component.arch = ALL_ARCH
@@ -327,17 +380,6 @@ class VersionBuild:
             module.load(image_path)
             modules[module.name] = module
 
-    def load_by_module_name(self, module_name, filter_ctype=None, filter_dist=None, filter_arch=None):
-        module_path = self.get_module_path_by_name(module_name)
-        module = VersionModule()
-        module.load(module_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
-        default_module_path = self.get_module_path_by_name(DEFAULT_MODULE)
-        default_module = VersionModule()
-        default_module.load(default_module_path, filter_ctype=filter_ctype, filter_dist=filter_dist, filter_arch=filter_arch)
-        module.inherit(default_module)
-        return module
-        
-
     def overwrite(self, build, for_all_dist=False, for_all_arch=False):
         default_module = self.modules[DEFAULT_MODULE]
         for target_module in build.modules.values():
@@ -364,13 +406,34 @@ class VersionBuild:
                 continue
             if module.name == 'host-base-image':
                 continue
+            if module.name == 'build-sonic-slave-buster':
+                import pdb; pdb.set_trace()
             module.subtract(default_module)
+
+    def subtract_build(self, build):
+        default_module = build.modules.get(DEFAULT_MODULE, None)
+        self.subtract_default_module(default_module)
+        for module in self.module.values():
+            source_module = build.modules.get(module.name, None)
+            if source_module:
+                pass
+                
+
+    def subtract_default_module(self, default_module):
+        for module in self.modules.values():
+            if module.name == DEFAULT_MODULE:
+                continue
+            if module.name == 'host-base-image':
+                continue
+            module.subtract(default_module)
+        
 
     def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False):
         if rebuild:
             self.load_from_target()
             default_module = self.get_default_module()
             self._clean_component_info()
+            import pdb; pdb.set_trace()
             self.subtract(default_module)
             self.modules[DEFAULT_MODULE] = default_module
             self.dump()
@@ -598,8 +661,9 @@ class VersionManagerCommands:
         default_module_path = VersionModule.get_module_path_by_name(args.source_path, DEFAULT_MODULE)
         default_module = VersionModule()
         default_module.load(default_module_path, filter_dist=args.distribution, filter_arch=args.architecture)
-        module.inherit(default_module)
-        module.dump(args.target_path, config=True, priority=args.priority)
+        config = module.get_config_module(default_module, args.distribution, args.architecture)
+        config.clean_info()
+        config.dump(args.target_path, config=True, priority=args.priority)
 
 if __name__ == "__main__":
     VersionManagerCommands()
