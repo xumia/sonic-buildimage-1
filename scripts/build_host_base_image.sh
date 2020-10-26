@@ -80,6 +80,7 @@ touch $DEBOOTSTRAP_BASE
 (cd $BASEIMAGE_TARBALLPATH && tar -zcf $BASEIMAGE_TARBALL .)
 
 sudo debootstrap --verbose --variant=minbase --arch $CONFIGURED_ARCH --unpack-tarball=$BASEIMAGE_TARBALL $IMAGE_DISTRO $FILESYSTEM_ROOT
+RET=$?
 if [ $RET -ne 0 ]; then
     exit $RET
 fi
