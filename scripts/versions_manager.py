@@ -564,7 +564,8 @@ class VersionManagerCommands:
         usage = 'version_manager.py <command> [<args>]\n\n'
         usage = usage + 'The most commonly used commands are:\n'
         usage = usage + '   freeze     Freeze the version files\n'
-        usage = usage + '   generate   Generate the version files'
+        usage = usage + '   generate   Generate the version files\n'
+        usage = usage + '   merge      Merge the version files'
         parser = argparse.ArgumentParser(description='Version manager', usage=usage)
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
