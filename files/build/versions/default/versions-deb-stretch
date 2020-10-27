@@ -143,6 +143,7 @@ libpam-systemd==232-25+deb9u12
 libpcap0.8==1.8.1-3
 libpcre16-3==2:8.39-3
 libperl5.24==5.24.1-3+deb9u7
+libpgm-5.2-0==5.2.122~dfsg-2
 libpopt0==1.16-10+b2
 libprocps6==2:3.3.12-3+deb9u1
 libprotobuf-dev==3.0.0-9
@@ -175,6 +176,7 @@ libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
 libseccomp2==2.3.1-2.1+deb9u1
 libsigsegv2==2.10-5
+libsodium18==1.0.11-2
 libsqlite3-0==3.16.2-5+deb9u2
 libssh2-1==1.7.0-1+deb9u1
 libssl-dev==1.1.0l-1~deb9u1
@@ -204,6 +206,7 @@ libxml2==2.9.4+dfsg1-2.2+deb9u3
 libxmuu1==2:1.1.2-2
 libxslt1.1==1.1.29-2.1+deb9u2
 libyaml-0-2==0.1.7-2
+libzmq5==4.2.1-4+deb9u2
 linux-libc-dev==4.9.228-1
 logrotate==3.11.0-0.1
 lsof==4.89+dfsg-0.1

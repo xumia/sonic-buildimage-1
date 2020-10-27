@@ -13,7 +13,7 @@ http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.
 http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118-2+deb10u1.dsc==b83432bce17ce82303c8eb3bc263b2f8
 http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118.orig.tar.xz==12f0a53ac0579cb01404de3bc62224c3
 https://bootstrap.pypa.io/get-pip.py==7036ca015e814fc2619fdb0b73f2ed19
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:0323cbe1ef467af36aa6784f2315c5ee36e89e34==a099fa489637d4b067e07795c585ce87
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:0323cbe1ef467af36aa6784f2315c5ee36e89e34==d4c9ada6bef1f0c820c96ad79de71f15
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/78a3df2/phy/phy-credo_1.0_amd64.deb==8c23751610adb1d3ea97536864d33902
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6

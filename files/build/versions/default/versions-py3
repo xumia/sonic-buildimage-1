@@ -1,7 +1,7 @@
 asyncsnmp==2.1.0
 hiredis==1.1.0
 natsort==6.2.1
-psutil==5.7.2
+psutil==5.7.3
 python-arptable==0.0.2
 PyYAML==5.3.1
 redis==3.5.3
