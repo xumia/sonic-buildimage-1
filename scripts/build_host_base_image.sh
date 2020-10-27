@@ -16,7 +16,7 @@ mkdir -p $TARGET_BASEIMAGE_PATH
 
 generate_version_file()
 {
-    sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb
+    sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb-${IMAGE_DISTRO}-${CONFIGURED_ARCH}
 }
 
 if [ "$SONIC_ENABLE_VERSION_CONTROL" != "y" ]; then
