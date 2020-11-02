@@ -5,14 +5,14 @@ import glob
 import os
 import sys
 
-
-DEFAULT_MODULE = 'default'
-DEFAULT_VERSION_PATH = 'files/build/versions'
-VERSION_DEB_PREFERENCE = '01-versions-deb'
-VERSION_PREFIX="versions-"
 ALL_DIST = 'all'
 ALL_ARCH = 'all'
+DEFAULT_MODULE = 'default'
+DEFAULT_VERSION_PATH = 'files/build/versions'
+VERSION_PREFIX="versions-"
+VERSION_DEB_PREFERENCE = '01-versions-deb'
 DEFAULT_OVERWRITE_COMPONENTS=['deb', 'py2', 'py3']
+SLAVE_INDIVIDULE_VERSION = False
 
 
 class Component:
@@ -170,6 +170,8 @@ class VersionModule:
         self.adjust()
 
     def get_config_module(self, default_module, dist, arch):
+        if self.is_individule_version():
+            return self
         module = default_module.clone()
         module.overwrite(self)
         config_components = []
@@ -277,13 +279,6 @@ class VersionModule:
 
     def load_from_target(self, image_path):
         self.load(image_path)
-        arch = self._get_arch()
-        dist = self._get_dist(image_path)
-        for component in self.components:
-            if arch:
-                component.arch = arch
-            if dist:
-                component.dist = dist
 
     def dump(self, module_path, config=False, priority=999):
         version_file_pattern = os.path.join(module_path, VERSION_PREFIX + '*')
@@ -291,6 +286,15 @@ class VersionModule:
             os.remove(filename)
         for component in self.components:
             component.dump_to_path(module_path, config, priority)
+
+    def filter(self, ctypes=[]):
+        if 'all' in ctypes:
+            return self
+        components = []
+        for component in self.components:
+            if component.ctype in ctypes:
+                components.append(component)
+        self.components = components
 
     def clean_info(self, clean_dist=True, clean_arch=True):
         for component in self.components:
@@ -306,6 +310,13 @@ class VersionModule:
             components.append(component.clone())
         return VersionModule(self.name, components)
 
+    def is_slave_module(self):
+        return self.name.startswith('sonic-slave-')
+
+    # Do not inherit the version from the default module
+    def is_individule_version(self):
+        return self.is_slave_module() and SLAVE_INDIVIDULE_VERSION
+
     @classmethod
     def get_module_path_by_name(cls, source_path, module_name):
         common_modules = ['default', 'host-image', 'host-base-image']
@@ -314,35 +325,6 @@ class VersionModule:
         if module_name.startswith('build-sonic-slave-'):
             return os.path.join(source_path, 'files/build/versions/build', module_name)
         return os.path.join(source_path, 'files/build/versions/dockers', module_name)
-
-    def _get_dist(self, image_path):
-        dist = ''
-        os_release = os.path.join(image_path, 'os-release')
-        if not os.path.exists(os_release):
-            return dist
-        with open(os_release, 'r') as f:
-            lines=f.readlines()
-            for line in lines:
-                line = line.strip()
-                items = line.split('=')
-                if len(items) != 2:
-                    continue
-                if items[0] == 'VERSION_CODENAME':
-                    dist = items[1].strip()
-                if not dist and 'jessie' in line:
-                    dist = 'jessie'
-        return dist
-
-    def _get_arch(self):
-        arch = ''
-        arch_path = '.arch'
-        if not os.path.exists(arch_path):
-            return arch
-        with open(arch_path, 'r') as f:
-            lines=f.readlines()
-            if len(lines) > 0:
-                arch = lines[0].strip()
-        return arch
 
 class VersionBuild:
     '''
@@ -408,11 +390,14 @@ class VersionBuild:
                 continue
             if module.name == 'host-base-image':
                 continue
+            if module.is_individule_version():
+                continue
             module.subtract(default_module)
 
-    def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False):
+    def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False, ctypes=['all']):
         if rebuild:
             self.load_from_target()
+            self.filter(ctypes=ctypes)
             default_module = self.get_default_module()
             self._clean_component_info()
             self.subtract(default_module)
@@ -423,11 +408,21 @@ class VersionBuild:
         default_module = self.modules.get(DEFAULT_MODULE, None)
         target_build = VersionBuild(self.target_path, self.source_path)
         target_build.load_from_target()
+        target_build.filter(ctypes=ctypes)
         if not default_module:
             raise Exception("The default versions does not exist")
+        for module in target_build.modules.values():
+            if module.is_individule_version():
+                continue
+            tmp_module = module.clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)
+            default_module.overwrite(tmp_module, for_all_dist=True, for_all_arch=True)
         target_build.subtract(default_module)
         self.overwrite(target_build, for_all_dist=for_all_dist, for_all_arch=for_all_arch)
         self.dump()
+
+    def filter(self, ctypes=[]):
+        for module in self.modules.values():
+            module.filter(ctypes=ctypes)
 
     def get_default_module(self):
         if DEFAULT_MODULE in self.modules:
@@ -579,9 +574,13 @@ class VersionManagerCommands:
         parser.add_argument('-r', '--rebuild', action='store_true', help='rebuild all versions')
         parser.add_argument('-d', '--for_all_dist', action='store_true', help='apply the versions for all distributions')
         parser.add_argument('-a', '--for_all_arch', action='store_true', help='apply the versions for all architectures')
+        parser.add_argument('-c', '--ctypes', default='all', help='component types to freeze')
         args = parser.parse_args(sys.argv[2:])
+        ctypes = args.ctypes.split(',')
+        if len(ctypes) == 0:
+            ctypes = ['all']
         build = VersionBuild(target_path=args.target_path, source_path=args.source_path)
-        build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch)
+        build.freeze(rebuild=args.rebuild, for_all_dist=args.for_all_dist, for_all_arch=args.for_all_arch, ctypes=ctypes)
 
     def merge(self):
         parser = argparse.ArgumentParser(description = 'Merge the version files')

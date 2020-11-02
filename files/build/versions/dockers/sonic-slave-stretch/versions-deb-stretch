@@ -283,7 +283,6 @@ libbsf-java==1:2.4.0-5
 libbsh-java==2.0b4-18
 libbz2-dev==1.0.6-8.1
 libc-ares-dev==1.12.0-1+deb9u1
-libc-ares2==1.12.0-1+deb9u1
 libc-l10n==2.24-11+deb9u4
 libc6-dbg==2.24-11+deb9u4
 libc6-dev-i386==2.24-11+deb9u4
@@ -431,7 +430,6 @@ libglu1-mesa==9.0.0-2.1
 libglu1-mesa-dev==9.0.0-2.1
 libgmp-dev==2:6.1.2+dfsg-1
 libgmpxx4ldbl==2:6.1.2+dfsg-1
-libgoogle-perftools4==2.5-2.2
 libgpgme11==1.8.0-3+b2
 libgraphite2-3==1.3.10-1
 libgs9==9.26a~dfsg-0+deb9u7
@@ -539,6 +537,8 @@ libjxr0==1.1-6+b1
 libjzlib-java==1.1.3-1
 libkpathsea6==2016.20160513.41080.dfsg-2+deb9u1
 liblcms2-2==2.8-4+deb9u1
+libldap-2.4-2==2.4.44+dfsg-5+deb9u4
+libldap-common==2.4.44+dfsg-5+deb9u4
 libldap2-dev==2.4.44+dfsg-5+deb9u4
 liblist-compare-perl==0.53-1
 liblist-moreutils-perl==0.416-1+b1
@@ -648,8 +648,6 @@ libparse-debianchangelog-perl==1.2.0-12
 libpath-iterator-rule-perl==1.009-1
 libpath-tiny-perl==0.100-1
 libpathplan4==2.38.0-17
-libpcap-dev==1.8.1-3
-libpcap0.8-dev==1.8.1-3
 libpci-dev==1:3.5.2-1
 libpci3==1:3.5.2-1
 libpciaccess0==0.13.4-1+b2
@@ -769,7 +767,7 @@ libslang2-dev==2.3.1-5
 libslf4j-java==1.7.22-1
 libsm-dev==2:1.2.2-1+b3
 libsm6==2:1.2.2-1+b3
-libsndfile1==1.0.27-3
+libsndfile1==1.0.27-3+deb9u1
 libsnmp-base==5.7.3+dfsg-1.7+deb9u3
 libsnmp-dev==5.7.3+dfsg-1.7+deb9u3
 libsnmp30==5.7.3+dfsg-1.7+deb9u3
@@ -798,7 +796,6 @@ libsynctex1==2016.20160513.41080.dfsg-2+deb9u1
 libsys-hostname-long-perl==1.5-1
 libsystemd-dev==232-25+deb9u12
 libtask-weaken-perl==1.04-1
-libtcmalloc-minimal4==2.5-2.2
 libtexlua52==2016.20160513.41080.dfsg-2+deb9u1
 libtexluajit2==2016.20160513.41080.dfsg-2+deb9u1
 libtext-charwidth-perl==0.04-7+b5
@@ -822,13 +819,8 @@ libtry-tiny-perl==0.28-1
 libtxc-dxtn-s2tc==1.0+git20151227-2
 libudev-dev==232-25+deb9u12
 libunicode-utf8-perl==0.60-1+b3
-libunwind-dev==1.1-4.1
-libunwind8==1.1-4.1
-libunwind8-dev==1.1-4.1
 liburi-perl==1.71-1
 libusb-0.1-4==2:0.1.12-30
-libusb-1.0-0==2:1.0.21-1
-libusb-1.0-0-dev==2:1.0.21-1
 libusb-1.0-doc==2:1.0.21-1
 libusb-dev==2:0.1.12-30
 libusbredirparser1==0.7.1-1
@@ -968,11 +960,11 @@ libzmq3-dev==4.2.1-4+deb9u2
 libzzip-0-13==0.13.62-3.2~deb9u1
 licensecheck==3.0.29-1
 lintian==2.5.50.4
-linux-compiler-gcc-6-x86==4.9.228-1
-linux-headers-4.9.0-13-amd64==4.9.228-1
-linux-headers-4.9.0-13-common==4.9.228-1
-linux-headers-amd64==4.9+80+deb9u11
-linux-kbuild-4.9==4.9.228-1
+linux-compiler-gcc-6-x86==4.9.240-2
+linux-headers-4.9.0-14-amd64==4.9.240-2
+linux-headers-4.9.0-14-common==4.9.240-2
+linux-headers-amd64==4.9+80+deb9u12
+linux-kbuild-4.9==4.9.240-2
 linuxdoc-tools==0.9.72-4
 llvm-3.8==1:3.8.1-24
 llvm-3.8-dev==1:3.8.1-24

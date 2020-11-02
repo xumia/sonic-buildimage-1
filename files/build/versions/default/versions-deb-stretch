@@ -2,6 +2,8 @@ arping==2.14-1+b1
 autoconf==2.69-10
 automake==1:1.15-6
 autotools-dev==20161112.1
+bfnplatform==1.0.0
+bfnsdk==1.0.0
 binutils==2.28-5
 bridge-utils==1.5-13+deb9u1
 build-essential==12.3
@@ -38,6 +40,8 @@ gnupg-agent==2.1.18-8~deb9u4
 gnupg-l10n==2.1.18-8~deb9u4
 guile-2.0-libs==2.0.13+1-4
 hping3==3.a2.ds2-7
+innovium-sai==0.11.1
+innovium-sai-headers==0.11.1
 jq==1.5+dfsg-1.3
 kmod==23-2
 krb5-locales==1.15-1+deb9u1
@@ -54,6 +58,7 @@ libbabeltrace-ctf1==1.5.1-1
 libbabeltrace1==1.5.1-1
 libboost-atomic1.62.0==1.62.0+dfsg-4
 libbsd0==0.8.3-1
+libc-ares2==1.12.0-1+deb9u1
 libc-dev-bin==2.24-11+deb9u4
 libc6-dev==2.24-11+deb9u4
 libcc1-0==6.3.0-18+deb9u1
@@ -62,6 +67,7 @@ libcilkrts5==6.3.0-18+deb9u1
 libcryptsetup4==2:1.7.3-4
 libcurl3==7.52.1-5+deb9u12
 libcurl3-gnutls==7.52.1-5+deb9u12
+libcurl4-gnutls-dev==7.52.1-5+deb9u12
 libdaemon0==0.14-6
 libdbus-1-3==1.10.32-0+deb9u1
 libdevmapper1.02.1==2:1.02.137-2
@@ -87,6 +93,7 @@ libglib2.0-data==2.50.3-2+deb9u2
 libgmp10==2:6.1.2+dfsg-1
 libgnutls30==3.5.8-5+deb9u5
 libgomp1==6.3.0-18+deb9u1
+libgoogle-perftools4==2.5-2.2
 libgpm2==1.20.4-6.2+b1
 libgsasl7==1.8.0-8+b2
 libgssapi-krb5-2==1.15-1+deb9u1
@@ -108,8 +115,8 @@ libkrb5-3==1.15-1+deb9u1
 libkrb5support0==1.15-1+deb9u1
 libksba8==1.3.5-2
 libkyotocabinet16v5==1.2.76-4.2+b1
-libldap-2.4-2==2.4.44+dfsg-5+deb9u4
-libldap-common==2.4.44+dfsg-5+deb9u4
+libldap-2.4-2==2.4.44+dfsg-5+deb9u5
+libldap-common==2.4.44+dfsg-5+deb9u5
 liblocale-gettext-perl==1.07-3+b1
 liblogging-stdlog0==1.0.5-2+b2
 liblsan0==6.3.0-18+deb9u1
@@ -140,7 +147,9 @@ libonig4==6.1.3-2
 libopts25==1:5.18.12-3
 libp11-kit0==0.23.3-2
 libpam-systemd==232-25+deb9u12
+libpcap-dev==1.8.1-3
 libpcap0.8==1.8.1-3
+libpcap0.8-dev==1.8.1-3
 libpcre16-3==2:8.39-3
 libperl5.24==5.24.1-3+deb9u7
 libpgm-5.2-0==5.2.122~dfsg-2
@@ -166,9 +175,11 @@ libqt5network5==5.7.1+dfsg-3+deb9u3
 libquadmath0==6.3.0-18+deb9u1
 libreadline7==7.0-3
 librtmp1==2.4+20151223.gitfa8646d.1-1+b1
+libsai==1.6.3-1
 libsaibcm==4.2.1.3
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
+libsainps==1.5.0
 libsairedis==1.0.0
 libsairedis-dbg==1.0.0
 libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u1
@@ -189,10 +200,16 @@ libswsscommon-dbg==1.0.0
 libtacacs+1==4.0.4.27a-3
 libtasn1-6==4.10-1.1+deb9u1
 libtcl8.6==8.6.6+dfsg-1+b1
+libtcmalloc-minimal4==2.5-2.2
 libthrift-0.11.0==0.11.0-4
 libtsan0==6.3.0-18+deb9u1
 libubsan0==6.3.0-18+deb9u1
 libunistring0==0.9.6+really0.9.3-0.1
+libunwind-dev==1.1-4.1
+libunwind8==1.1-4.1
+libunwind8-dev==1.1-4.1
+libusb-1.0-0==2:1.0.21-1
+libusb-1.0-0-dev==2:1.0.21-1
 libutempter0==1.1.6-3
 libuv1==1.9.1-3
 libwrap0==7.6.q-26
@@ -207,7 +224,7 @@ libxmuu1==2:1.1.2-2
 libxslt1.1==1.1.29-2.1+deb9u2
 libyaml-0-2==0.1.7-2
 libzmq5==4.2.1-4+deb9u2
-linux-libc-dev==4.9.228-1
+linux-libc-dev==4.9.240-2
 logrotate==3.11.0-0.1
 lsof==4.89+dfsg-0.1
 lua-bitop==1.0.2-4
@@ -281,6 +298,7 @@ tcpdump==4.9.3-1~deb9u1
 telnet==0.17-41
 tmux==2.3-4
 traceroute==1:2.1.0-2
+tzdata==2020d-0+deb9u1
 ucf==3.0036
 unzip==6.0-21+deb9u2
 vim==2:8.0.0197-4+deb9u3

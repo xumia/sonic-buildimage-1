@@ -19,7 +19,6 @@ automake==1:1.16.1-4
 automake1.11==1:1.11.6-5
 autopoint==0.19.8.1-9
 autotools-dev==20180224.1
-bash-completion==1:2.8-6
 bc==1.07.1-2+b1
 bind9-host==1:9.11.5.P4+dfsg-5.1+deb10u2
 binfmt-support==2.2.0-2
@@ -33,7 +32,6 @@ bsd-mailx==8.1.2-0.20180807cvs-1
 bsdmainutils==11.1.2+b1
 build-essential==12.6
 byacc==20140715-1+b1
-bzip2==1.0.6-9.2~deb10u1
 bzip2-doc==1.0.6-9.2~deb10u1
 ca-certificates==20200601~deb10u1
 ca-certificates-java==20190405
@@ -77,11 +75,9 @@ dh-strip-nondeterminism==1.1.2-1
 dh-systemd==12.1.1
 dictionaries-common==1.28.1
 diffstat==1.62-1
-dirmngr==2.2.12-1+deb10u1
 distro-info-data==0.41+deb10u2
 dkms==2.6.1-4
 dmeventd==2:1.02.155-3
-dmsetup==2:1.02.155-3
 dnsutils==1:9.11.5.P4+dfsg-5.1+deb10u2
 docker-ce==5:18.09.5~3-0~debian-buster
 docker-ce-cli==5:18.09.5~3-0~debian-buster
@@ -90,7 +86,6 @@ docutils-doc==0.14+dfsg-4
 dosfstools==4.1-2
 doxygen==1.8.13-10
 dpatch==2.0.38+nmu1
-dpkg-dev==1.19.7
 dput==1.0.3
 dvipng==1.15-1.1
 dwz==0.12-3
@@ -127,7 +122,6 @@ gem2deb==0.43
 gem2deb-test-runner==0.43
 geoip-database==20181108-1
 gettext==0.19.8.1-9
-gettext-base==0.19.8.1-9
 gfortran==4:8.3.0-1
 gfortran-8==8.3.0-6
 ghostscript==9.27~dfsg-2+deb10u4
@@ -139,17 +133,8 @@ git-man==1:2.20.1-2+deb10u3
 glib-networking==2.58.0-2+deb10u2
 glib-networking-common==2.58.0-2+deb10u2
 glib-networking-services==2.58.0-2+deb10u2
-gnupg==2.2.12-1+deb10u1
-gnupg-l10n==2.2.12-1+deb10u1
-gnupg-utils==2.2.12-1+deb10u1
 gnupg2==2.2.12-1+deb10u1
 googletest==1.8.1-3
-gpg==2.2.12-1+deb10u1
-gpg-agent==2.2.12-1+deb10u1
-gpg-wks-client==2.2.12-1+deb10u1
-gpg-wks-server==2.2.12-1+deb10u1
-gpgconf==2.2.12-1+deb10u1
-gpgsm==2.2.12-1+deb10u1
 graphviz==2.40.1-6
 groff==1.22.4-3
 groff-base==1.22.4-3
@@ -218,7 +203,6 @@ libasound2==1.1.8-1
 libasound2-data==1.1.8-1
 libaspell15==0.60.7~20110707-6
 libass9==1:0.14.0-2
-libassuan0==2.5.2-1
 libasync-mergepoint-perl==0.04-2
 libasyncns0==0.8-6
 libatinject-jsr330-api-java==1.0+ds1-5
@@ -438,7 +422,6 @@ libde265-0==1.0.3-1+b1
 libdevel-callchecker-perl==0.008-1
 libdevel-globaldestruction-perl==0.14-1
 libdevmapper-event1.02.1==2:1.02.155-3
-libdevmapper1.02.1==2:1.02.155-3
 libdigest-bubblebabble-perl==0.02-2
 libdigest-hmac-perl==1.03+dfsg-2
 libdistro-info-perl==0.21
@@ -446,7 +429,6 @@ libdjvulibre-text==3.5.27.1-10
 libdjvulibre21==3.5.27.1-10
 libdns1104==1:9.11.5.P4+dfsg-5.1+deb10u2
 libdom4j-java==2.1.1-2
-libdouble-conversion1==3.1.0-3
 libdoxia-core-java==1.7-2
 libdoxia-java==1.7-2
 libdoxia-sitetools-java==1.7.5-1
@@ -664,7 +646,6 @@ libjsp-api-java==2.3.4-2+deb10u1
 libjsr305-java==0.1~+svn49-11
 libjtidy-java==7+svn20110807-5
 libjudy-dev==1.0.5-5
-libjudydebian1==1.0.5-5
 libjxr-tools==1.1-6+b1
 libjxr0==1.1-6+b1
 libkadm5clnt-mit11==1.17-3
@@ -672,10 +653,9 @@ libkadm5srv-mit11==1.17-3
 libkdb5-9==1.17-3
 libkpathsea6==2018.20181218.49446-1
 libkrb5-dev==1.17-3
-libksba8==1.3.5-2
 liblab-gamut1==2.40.1-6
 liblcms2-2==2.9-3
-libldap2-dev==2.4.47+dfsg-3+deb10u2
+libldap2-dev==2.4.47+dfsg-3+deb10u3
 liblilv-0-0==0.24.2~dfsg0-2
 liblist-compare-perl==0.53-1
 liblist-moreutils-perl==0.416-1+b4
@@ -769,7 +749,6 @@ libnl-3-dev==3.4.0-1
 libnl-route-3-200==3.4.0-1
 libnl-route-3-dev==3.4.0-1
 libnorm-dev==1.5.8+dfsg2-1
-libnpth0==1.6-1
 libnspr4==2:4.20-1
 libnss-systemd==241-7~deb10u4
 libnss3==2:3.42.1-1+deb10u3
@@ -819,7 +798,6 @@ libpcap0.8-dev==1.8.1-6
 libpci-dev==1:3.5.2-1
 libpciaccess0==0.14-1
 libpcre16-3==2:8.39-12
-libpcre2-16-0==10.32-5
 libpcre2-8-0==10.32-5
 libpcre3-dev==2:8.39-12
 libpcre32-3==2:8.39-12
@@ -898,10 +876,7 @@ libqt4-test==4:4.8.7+dfsg-18+deb10u1
 libqt4-xml==4:4.8.7+dfsg-18+deb10u1
 libqt4-xmlpatterns==4:4.8.7+dfsg-18+deb10u1
 libqt5concurrent5==5.11.3+dfsg1-1+deb10u4
-libqt5core5a==5.11.3+dfsg1-1+deb10u4
-libqt5dbus5==5.11.3+dfsg1-1+deb10u4
 libqt5gui5==5.11.3+dfsg1-1+deb10u4
-libqt5network5==5.11.3+dfsg1-1+deb10u4
 libqt5opengl5==5.11.3+dfsg1-1+deb10u4
 libqt5opengl5-dev==5.11.3+dfsg1-1+deb10u4
 libqt5printsupport5==5.11.3+dfsg1-1+deb10u4
@@ -1254,8 +1229,6 @@ openjdk-11-jre-headless==11.0.9+11-1~deb10u1
 openmpi-bin==3.1.3-11
 openmpi-common==3.1.3-11
 opensp==1.5.2-13+b1
-openssh-server==1:7.9p1-10+deb10u2
-openssh-sftp-server==1:7.9p1-10+deb10u2
 ovmf==0~20181115.85588389-3+deb10u1
 packagekit==1.1.12-5
 packagekit-tools==1.1.12-5
@@ -1304,7 +1277,6 @@ phpunit-recursion-context==3.0.0-2
 phpunit-resource-operations==2.0.1-1
 phpunit-version==2.0.1-1
 pigz==2.4-1
-pinentry-curses==1.1.0-2
 pkg-config==0.29-6
 pkg-php-tools==1.37
 po-debconf==1.0.21
@@ -1314,7 +1286,6 @@ preview-latex-style==11.91-2
 pristine-tar==1.46
 procmail==3.22-26
 protobuf-compiler==3.6.1.3-2
-psmisc==23.2-1
 psutils==1.17.dfsg-4
 publicsuffix==20190415.1030-1
 pylint==1.9.4-1
@@ -1594,6 +1565,5 @@ xsltproc==1.1.32-2.2~deb10u1
 xterm==344-1
 xtrans-dev==1.3.5-1
 xvfb==2:1.20.4-1+deb10u1
-xz-utils==5.2.4-1
 zip==3.0-11+b1
 zlib1g-dev==1:1.2.11.dfsg-1

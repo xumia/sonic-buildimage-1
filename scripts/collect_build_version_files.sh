@@ -18,11 +18,10 @@ LOG_VERSION_PATH=$VERSION_BUILD_PATH/log-${TIMESTAMP}
 
 sudo chmod -R a+rw $BUILDINFO_PATH
 collect_version_files $LOG_VERSION_PATH
-[ -d $BUILD_VERSION_PATH ] && cp -rf $BUILD_VERSION_PATH/* $LOG_VERSION_PATH/
+([ -d $BUILD_VERSION_PATH ] && [ ! -z "$(ls $BUILD_VERSION_PATH/)" ]) && cp -rf $BUILD_VERSION_PATH/* $LOG_VERSION_PATH/
 mkdir -p $VERSION_SLAVE_PATH
 
 scripts/versions_manager.py merge -t $VERSION_SLAVE_PATH -b $LOG_VERSION_PATH -e $POST_VERSION_PATH
-cp /etc/os-release $VERSION_SLAVE_PATH/
 
 rm -rf $BUILD_VERSION_PATH/*
 

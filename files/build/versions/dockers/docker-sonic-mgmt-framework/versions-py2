@@ -1,7 +1,9 @@
+certifi==2017.4.17
 enum34==1.1.10
 Flask==1.1.2
 futures==3.3.0
-grpcio==1.33.1
+grpcio==1.33.2
 grpcio-tools==1.20.0
 protobuf==3.13.0
 six==1.11.0
+urllib3==1.21.1

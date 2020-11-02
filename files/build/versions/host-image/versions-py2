@@ -5,15 +5,11 @@ azure-storage==0.36.0
 backports.ssl-match-hostname==3.7.0.1
 certifi==2020.6.20
 cffi==1.14.3
-Click==7.0
 docker==4.1.0
 enum34==1.1.10
 futures==3.3.0
-jsondiff==1.2.0
 lxml==4.3.2
-M2Crypto==0.31.0
 pathtools==0.1.2
-platform-arista==1.0
 psutil==5.7.3
 python-apt==1.8.4.1
 python-dateutil==2.8.1
@@ -27,8 +23,6 @@ sonic-utilities==1.2
 sonic-yang-mgmt==1.0
 swsssdk==2.0.1
 system-health==1.0
-tabulate==0.8.2
 urllib3==1.25.11
 watchdog==0.10.2
 websocket-client==0.57.0
-xmltodict==0.12.0

@@ -14,7 +14,6 @@ BUILDINFO_VERSION_DEB=${BUILDINFO_VERSION_PATH}/${VERSION_DEB_PREFERENCE}
 OVERRIDE_VERSION_PATH=files/build/versions/host-image
 DIFF_VERSIONS_PATH=$BUILDINFO_PATH/diff-versions
 
-
 # Copy build info scripts
 mkdir -p $BUILDINFO_PATH
 cp -rf files/build/scripts ${BUILDINFO_PATH}/
@@ -29,7 +28,7 @@ cp $BUILDINFO_PATH/trusted.gpg.d/* "${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/"
 # Generate version lock files
 scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -m "$OVERRIDE_VERSION_PATH" -d "$DISTRO" -a "$ARCH"
 
-if [ "$SONIC_ENABLE_VERSION_CONTROL" != "y" ] && [ -f $BUILDINFO_VERSION_DEB ]; then
+if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ]; then
     cp -f $BUILDINFO_VERSION_DEB ${FILESYSTEM_ROOT}/etc/apt/preferences.d/
 fi
 

@@ -4,11 +4,14 @@
 
 [ -z "$PIP_COMPONENT" ] && PIP_COMPONENT=py2
 
+ENABLE_VERSION_CONTROL=n
 if [ "$PIP_COMPONENT" == "py2" ]; then
+    [ "$ENABLE_VERSION_CONTROL_PY2" == "y" ] && ENABLE_VERSION_CONTROL=y
     PIP_COMMAND=/usr/local/bin/pip
     [ ! -f $PIP_COMMAND ] && PIP_COMMAND=/usr/bin/pip
 else
     PIP_COMMAND=/usr/bin/pip3
+    [ "$ENABLE_VERSION_CONTROL_PY3" == "y" ] && ENABLE_VERSION_CONTROL=y
 fi
 
 VERSION_FILE="$BUILDINFO_PATH/versions/versions-${PIP_COMPONENT}"
@@ -35,7 +38,7 @@ do
     fi
 done
 
-if [ "$SONIC_ENABLE_VERSION_CONTROL" == "y" ] && [ "$FOUND" == "false" ] && [ "$INSTALL" == "true" ]; then
+if [ "$FOUND" == "false" ] && [ "$INSTALL" == "true" ]; then
     paras+=("-c")
     paras+=("${VERSION_CONFIG_FILE}")
 fi
