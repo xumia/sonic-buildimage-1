@@ -1,0 +1,57 @@
+#!/bin/bash
+  
+. /usr/local/share/buildinfo/config/buildinfo.config
+
+
+if [ -z "$PIP_COMMAND" ]; then
+    [ -x /usr/bin/pip ] && PIP_COMMAND=/usr/bin/pip
+    [ -x /usr/local/bin/pip ] && PIP_COMMAND=/usr/local/bin/pip 
+fi
+
+if [ ! -x "$PIP_COMMAND" ]; then
+    echo "The command pip not found" 1>&2
+    exit 1
+fi
+
+if [ -z "$PIP_COMPONENT" ]; then
+    PIP_COMPONENT=py2
+    if $PIP_COMMAND --version | grep -q "python 3"; then
+        PIP_COMPONENT=py3
+    fi
+fi
+
+ENABLE_VERSION_CONTROL=ENABLE_VERSION_CONTROL_PY2
+[ "$PIP_COMPONENT" == "py3" ] && ENABLE_VERSION_CONTROL=ENABLE_VERSION_CONTROL_PY3
+VERSION_FILE="$BUILDINFO_PATH/versions/versions-${PIP_COMPONENT}"
+
+if [ "$ENABLE_VERSION_CONTROL" != "y" ]; then
+    $PIP_COMMAND "$@"
+    exit $?
+fi
+
+paras=("$@")
+FOUND=false
+INSTALL=false
+VERSION_CONFIG_FILE="${VERSION_FILE}.config"
+cp -f $VERSION_FILE $VERSION_CONFIG_FILE
+for para in "${paras[@]}"
+do
+    ([ "$para" == "-c" ] || [ "$para" == "--constraint" ]) && FOUND=true
+    [ "$para" == "install" ] && INSTALL=true
+    if [[ "$para" == *.whl ]]; then
+        package_name=$(echo $para | cut -d- -f1 | tr _ .)
+        sed "/^${package_name}==/d" -i $VERSION_CONFIG_FILE
+    fi
+done
+
+if [ "$FOUND" == "false" ] && [ "$INSTALL" == "true" ]; then
+    paras+=("-c")
+    paras+=("${VERSION_CONFIG_FILE}")
+fi
+
+
+if [ ! -x "$PIP_COMMAND" ] && [ " $1" == "freeze" ]; then
+    exit 1
+fi
+
+$PIP_COMMAND ${paras[@]}
