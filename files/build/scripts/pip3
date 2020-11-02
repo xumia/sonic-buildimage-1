@@ -1,0 +1,13 @@
+#!/bin/bash
+
+PARENT_PATH=$(dirname $0)
+
+PIP_COMMAND=/usr/bin/pip3
+[ -x /usr/local/bin/pip3 ] && PIP_COMMAND=/usr/local/bin/pip3
+
+if [ ! -x "$PIP_COMMAND" ]; then
+    echo "The command pip3 not found" 1>&2
+    exit 1
+fi
+
+PIP_COMPONENT=py2 PIP_COMMAND="$PIP_COMMAND" ${PARENT_PATH}/pip $@
