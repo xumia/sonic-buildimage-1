@@ -291,6 +291,12 @@ define SAVE_INTO_CACHE
 		1>>$($(1)_DST_PATH)/$(1).log
 	sudo chmod 777 $($(1)_CACHE_DIR)/$(MOD_CACHE_FILE)
 
+	[ -f $(2).smdep ] && touch $(2).smdep
+	sleep 1
+	[ -f $(2).dep ] && touch $(2).dep
+	sleep 1
+	[ -f $(2) ] && touch $(2)
+
 	echo "File $($(1)_CACHE_DIR)/$(MOD_CACHE_FILE) saved in cache " >> $($(1)_DST_PATH)/$(1).log
 	echo "[ CACHE::SAVED ] $($(1)_CACHE_DIR)/$(MOD_CACHE_FILE)" >> $($(1)_DST_PATH)/$(1).log
 
