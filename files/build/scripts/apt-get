@@ -3,7 +3,7 @@
 INSTALL=
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
-VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-deb"
+VERSION_FILE="/usr/local/share/buildinfo/versions/versions-deb"
 if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
     for para in $@
     do
@@ -13,17 +13,11 @@ if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
         if [ ! -z "$INSTALL" ]; then
             if [[ "$para" == *=* ]]; then
                 continue
-                package=$(echo "$para" | cut -d= -f1)
-                version=$(echo "$para" | cut -d= -f2)
-                if grep "^${package}=" $VERSION_FILE; then
-                    if ! grep "^${package}==${version}$" $VERSION_FILE; then
-                        EXPECTED_VERSION=$(grep "^${package}=" $VERSION_FILE | cut -d= -f3)
-                         echo "${package}=${version}, expected version is ${EXPECTED_VERSION}"
-                        exit 1
-                    fi
-                fi
+            elif [[ "$para" == *=* ]]; then
+                continue
             else
-                if ! grep "^${package}=" $VERSION_FILE; then
+                package=$para
+                if ! grep -q "^${package}=" $VERSION_FILE; then
                     echo "The version of the package ${package} is not specified."
                     exit 1
                 fi

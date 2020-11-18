@@ -4,7 +4,6 @@
 COMPONENT=web
 VERSION_FILE=$VERSION_PATH/versions-web
 BUILD_VERSION_FILE=$BUILD_VERSION_PATH/versions-web
-ENABLE_VERSION_CONTROL=$(check_version_control "$COMPONENT")
 
 [ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/wget
 PARAS=("$@")
@@ -73,10 +72,10 @@ process()
         fi
 
         real_version=$(get_version "$package_url")
-        if [ "$ENABLE_VERSION_CONTROL" == "y" ] && [ "$version" != "$real_version" ]; then
+        if [ "$ENABLE_VERSION_CONTROL_WEB" == "y" ] && [ "$version" != "$real_version" ]; then
             return 1
         fi
-    elif [ "$ENABLE_VERSION_CONTROL" == "y" ]; then
+    elif [ "$ENABLE_VERSION_CONTROL_WEB" == "y" ]; then
         return 1
     fi
 
@@ -85,7 +84,7 @@ process()
     echo "$package_url==$real_version" >> ${BUILD_VERSION_FILE}
 
     # If the version is mismatched, exit the wget/curl
-    if [ "$ENABLE_VERSION_CONTROL" == "y" ] && [ "$version" != "$real_version" ]; then
+    if [ "$ENABLE_VERSION_CONTROL_WEB" == "y" ] && [ "$version" != "$real_version" ]; then
         return 1
     fi
 

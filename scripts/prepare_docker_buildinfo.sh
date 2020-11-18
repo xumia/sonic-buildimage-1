@@ -6,6 +6,7 @@ ARCH=$3
 DOCKERFILE_TARGE=$4
 DISTRO=$5
 
+[ -z "$BUILD_SLAVE" ] && BUILD_SLAVE=n
 [ -z "$DOCKERFILE_TARGE" ] && DOCKERFILE_TARGE=$DOCKERFILE
 DOCKERFILE_PATH=$(dirname "$DOCKERFILE_TARGE")
 BUILDINFO_PATH="${DOCKERFILE_PATH}/buildinfo"
@@ -27,11 +28,6 @@ ENV OLDPATH=$PATH
 ENV PATH="/usr/local/share/buildinfo/scripts:$PATH"
 RUN pre_run_buildinfo'
 
-DOCKERFILE_POST_SCRIPT="RUN post_run_buildinfo"
-[ "$BUILD_SLAVE" != "y" ] && DOCKERFILE_POST_SCRIPT="$DOCKERFILE_POST_SCRIPT
-ENV PATH=\$OLDPATH"
-
-
 # Add the auto-generate code if it is not added in the target Dockerfile
 if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKERFILE_TARGE; then
     # Insert the docker build script before the RUN command
@@ -41,6 +37,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKE
 
     # Append the docker build script at the end of the docker file
     echo "RUN post_run_buildinfo" >> $TEMP_FILE
+    [ -z "$BUILD_SLAVE" ] && BUILD_SLAVE=n
     [ "$BUILD_SLAVE" != "y" ] && echo "ENV PATH=\$OLDPATH" >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
