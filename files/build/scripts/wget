@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/local/share/buildinfo/config/buildinfo.config
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 COMPONENT=web
 VERSION_FILE=$VERSION_PATH/versions-web
 BUILD_VERSION_FILE=$BUILD_VERSION_PATH/versions-web
