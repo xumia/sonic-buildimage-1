@@ -9,7 +9,7 @@ http_proxy=$4
 TARGET=$TARGET_PATH
 [ -z "$TARGET" ] && TARGET=target
 
-. /usr/local/share/buildinfo/config/buildinfo.config
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
 TARGET_BASEIMAGE_PATH=$TARGET/versions/host-base-image
 mkdir -p $TARGET_BASEIMAGE_PATH

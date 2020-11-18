@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/local/share/buildinfo/config/buildinfo.config
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
 [ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
 

@@ -5,7 +5,7 @@ BLDENV=$2
 TARGET_PATH=$3
 
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-. /usr/local/share/buildinfo/config/buildinfo.config
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
 [ -z "$BLDENV" ] && BLDENV=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
 [ -z "$BLDENV" ] && exit $RET
