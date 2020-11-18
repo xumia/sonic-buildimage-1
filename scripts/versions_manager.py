@@ -84,6 +84,8 @@ class Component:
             os.makedirs(file_path)
         filename = self.get_filename()
         if config and self.ctype == 'deb':
+            none_config_file_path = os.path.join(file_path, filename)
+            self.dump_to_file(none_config_file_path, False, priority)
             filename = VERSION_DEB_PREFERENCE 
         file_path = os.path.join(file_path, filename)
         self.dump_to_file(file_path, config, priority)
@@ -135,9 +137,10 @@ class Component:
             arch = ''
         return (self.ctype, dist, arch)
 
-    def clean_info(self, clean_dist=True, clean_arch=True):
-        if clean_dist and self.ctype != 'deb':
-            self.dist = ALL_DIST
+    def clean_info(self, clean_dist=True, clean_arch=True, force=False):
+        if clean_dist:
+            if force or self.ctype != 'deb':
+                self.dist = ALL_DIST
         if clean_arch:
             self.arch = ALL_ARCH
 
@@ -296,9 +299,9 @@ class VersionModule:
                 components.append(component)
         self.components = components
 
-    def clean_info(self, clean_dist=True, clean_arch=True):
+    def clean_info(self, clean_dist=True, clean_arch=True, force=False):
         for component in self.components:
-            component.clean_info(clean_dist=clean_dist, clean_arch=clean_arch)
+            component.clean_info(clean_dist=clean_dist, clean_arch=clean_arch, force=force)
 
     def clone(self, ctypes=None, exclude_ctypes=None):
         components = []
@@ -633,7 +636,7 @@ class VersionManagerCommands:
         default_module = VersionModule()
         default_module.load(default_module_path, filter_dist=args.distribution, filter_arch=args.architecture)
         config = module.get_config_module(default_module, args.distribution, args.architecture)
-        config.clean_info()
+        config.clean_info(force=True)
         config.dump(args.target_path, config=True, priority=args.priority)
 
 if __name__ == "__main__":

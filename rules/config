@@ -169,13 +169,13 @@ PACKAGE_URL_PREFIX ?= https://packages.trafficmanager.net/public/packages
 # TRUSTED_GPG_URLS - the trusted gpgs, separated by comma
 TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,https://packages.microsoft.com/keys/microsoft.asc
 
-# SONIC_VERSION_CONTROL_COMPONENTS - Valid values: none|all|components..., the components consist of one or multiple: deb,py2,py3,web,git,dck, seperated by comma
+# SONIC_VERSION_CONTROL_COMPONENTS - Valid values: none|all|components..., the components consist of one or multiple: deb,py2,py3,url,git,docker, seperated by comma
 #   none  : disable the version control
 #   all   : enable the version control for all components
 #   deb   : debian packages
 #   py2   : python2 packages
 #   py3   : python3 pakcages
-#   web   : web packages, downloaded by wget, curl
+#   url   : web packages, downloaded by wget, curl
 #   git   : git repositories, donloaded by git clone
-#   dck   : docker base images
+#   docker: docker base images
 SONIC_VERSION_CONTROL_COMPONENTS ?= none
