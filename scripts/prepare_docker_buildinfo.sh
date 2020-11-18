@@ -10,10 +10,7 @@ DISTRO=$5
 DOCKERFILE_PATH=$(dirname "$DOCKERFILE_TARGE")
 BUILDINFO_PATH="${DOCKERFILE_PATH}/buildinfo"
 BUILDINFO_VERSION_PATH="${BUILDINFO_PATH}/versions"
-BUILDINFO_CONFIG=$BUILDINFO_PATH/scripts/buildinfo.config
 
-AUTO_GENERATE_CODE_TEXT="Begin Auto-Generated Code"
-DOCKERFILE_TEMPLATE="files/build/templates/dockerfile_auto_generate.j2"
 [ -d $BUILDINFO_PATH ] && rm -rf $BUILDINFO_PATH
 mkdir -p $BUILDINFO_VERSION_PATH
 
@@ -24,18 +21,27 @@ if [ -z "$DISTRO" ]; then
     [ -z "$DISTRO" ] && DISTRO=jessie
 fi
 
+DOCKERFILE_PRE_SCRIPT='# Auto-Generated for buildinfo 
+COPY ["buildinfo", "/usr/local/share/buildinfo"]
+ENV OLDPATH=$PATH
+ENV PATH="/usr/local/share/buildinfo/scripts:$PATH"
+RUN pre_run_buildinfo'
+
+DOCKERFILE_POST_SCRIPT="RUN post_run_buildinfo"
+[ "$BUILD_SLAVE" != "y" ] && DOCKERFILE_POST_SCRIPT="$DOCKERFILE_POST_SCRIPT
+ENV PATH=\$OLDPATH"
+
+
 # Add the auto-generate code if it is not added in the target Dockerfile
-if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "$AUTO_GENERATE_CODE_TEXT" $DOCKERFILE_TARGE; then
+if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKERFILE_TARGE; then
     # Insert the docker build script before the RUN command
     LINE_NUMBER=$(grep -Fn -m 1 'RUN' $DOCKERFILE | cut -d: -f1)
-    DOCKERFILE_BEFORE_RUN_SCRIPT=$(generate_code="before_run" j2 $DOCKERFILE_TEMPLATE)
     TEMP_FILE=$(mktemp)
-    awk -v text="${DOCKERFILE_BEFORE_RUN_SCRIPT}" -v linenumber=$LINE_NUMBER 'NR==linenumber{print text}1' $DOCKERFILE > $TEMP_FILE
+    awk -v text="${DOCKERFILE_PRE_SCRIPT}" -v linenumber=$LINE_NUMBER 'NR==linenumber{print text}1' $DOCKERFILE > $TEMP_FILE
 
     # Append the docker build script at the end of the docker file
-    SET_ENV_PATH=y
-    [ "$BUILD_SLAVE" == "y" ] && SET_ENV_PATH=n
-    generate_code="after_run" set_env_path=$SET_ENV_PATH j2 $DOCKERFILE_TEMPLATE >> $TEMP_FILE
+    echo "RUN post_run_buildinfo" >> $TEMP_FILE
+    [ "$BUILD_SLAVE" != "y" ] && echo "ENV PATH=\$OLDPATH" >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
     rm -f $TEMP_FILE

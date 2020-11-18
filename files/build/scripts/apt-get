@@ -1,35 +1,38 @@
 #!/bin/bash
 
 INSTALL=
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
 VERSION_FILE="/usr/local/share/buildinfo/base-versions/versions-deb"
-for para in $@
-do
-    if [[ "$para" != -* ]]; then
-        continue
-    fi
-    if [ ! -z "$INSTALL" ]; then
-        if [[ "$para" == *=* ]]; then
+if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
+    for para in $@
+    do
+        if [[ "$para" != -* ]]; then
             continue
-            package=$(echo "$para" | cut -d= -f1)
-            version=$(echo "$para" | cut -d= -f2)
-            if grep "^${package}=" $VERSION_FILE; then
-                if ! grep "^${package}==${version}$" $VERSION_FILE; then
-                    EXPECTED_VERSION=$(grep "^${package}=" $VERSION_FILE | cut -d= -f3)
-                    echo "${package}=${version}, expected version is ${EXPECTED_VERSION}"
+        fi
+        if [ ! -z "$INSTALL" ]; then
+            if [[ "$para" == *=* ]]; then
+                continue
+                package=$(echo "$para" | cut -d= -f1)
+                version=$(echo "$para" | cut -d= -f2)
+                if grep "^${package}=" $VERSION_FILE; then
+                    if ! grep "^${package}==${version}$" $VERSION_FILE; then
+                        EXPECTED_VERSION=$(grep "^${package}=" $VERSION_FILE | cut -d= -f3)
+                         echo "${package}=${version}, expected version is ${EXPECTED_VERSION}"
+                        exit 1
+                    fi
+                fi
+            else
+                if ! grep "^${package}=" $VERSION_FILE; then
+                    echo "The version of the package ${package} is not specified."
                     exit 1
                 fi
             fi
-        else
-            if ! grep "^${package}=" $VERSION_FILE; then
-                echo "The version of the package ${package} is not specified."
-                exit 1
-            fi
+        elif [[ "$para" == "install"  ]]; then
+            INSTALL=y
         fi
-    elif [[ "$para" == "install"  ]]; then
-        INSTALL=y
-    fi
-done
+    done
+fi
 
 
 /usr/bin/apt-get $@

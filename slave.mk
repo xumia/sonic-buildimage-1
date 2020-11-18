@@ -100,6 +100,14 @@ list :
 include $(RULES_PATH)/config
 -include $(RULES_PATH)/config.user
 
+
+###############################################################################
+## Version control relatived exports
+###############################################################################
+export PACKAGE_URL_PREFIX
+export TRUSTED_GPG_URLS
+export SONIC_VERSION_CONTROL_COMPONENTS
+
 ifeq ($(SONIC_ENABLE_PFCWD_ON_START),y)
 ENABLE_PFCWD_ON_START = y
 endif
