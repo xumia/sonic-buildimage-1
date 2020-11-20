@@ -35,5 +35,6 @@ ifeq ($(NOSTRETCH), 0)
 endif
 	BLDENV=buster make -f Makefile.work $@
 
+# Freeze the versions, see more detail options: scripts/versions_manager.py freeze -h
 freeze:
 	@scripts/versions_manager.py freeze $(OPTIONS)
