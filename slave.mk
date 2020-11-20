@@ -102,7 +102,7 @@ include $(RULES_PATH)/config
 
 
 ###############################################################################
-## Version control relatived exports
+## Version control related exports
 ###############################################################################
 export PACKAGE_URL_PREFIX
 export TRUSTED_GPG_URLS

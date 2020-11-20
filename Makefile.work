@@ -249,12 +249,12 @@ endif
 	    $(DOCKER_BUILD) ; }
 ifeq "$(KEEP_SLAVE_ON)" "yes"
     ifdef SOURCE_FOLDER
-		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@;  scripts/collect_build_version_files.sh $$?; /bin/bash"
+		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@;  scripts/collect_build_version_files.sh \$$?; /bin/bash"
     else
-		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh $$?; /bin/bash"
+		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?; /bin/bash"
     endif
 else
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh $$?"
+	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
 endif
 
 sonic-slave-base-build :
