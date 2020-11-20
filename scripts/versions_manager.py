@@ -611,9 +611,6 @@ class VersionManagerCommands:
         module.dump(args.target_path)
 
     def generate(self):
-        script_path = os.path.dirname(sys.argv[0])
-        root_path = os.path.dirname(script_path)
-
         parser = argparse.ArgumentParser(description = 'Generate the version files')
         parser.add_argument('-t', '--target_path', required=True, help='target path to generate the version lock files')
         group = parser.add_mutually_exclusive_group(required=True)

@@ -42,7 +42,6 @@ RUN echo "deb [arch=arm64] http://deb.debian.org/debian buster main contrib non-
         echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian buster-updates main contrib non-free" >> /etc/apt/sources.list
 {%- endif %}
 
-
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
