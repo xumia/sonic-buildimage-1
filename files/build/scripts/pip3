@@ -1,6 +1,8 @@
 #!/bin/bash
 
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
+
+VERSION_FILE="$BUILDINFO_PATH/versions/versions-py3"
 REAL_COMMAND=/usr/bin/pip3
 [ -x /usr/local/bin/pip3 ] && REAL_COMMAND=/usr/local/bin/pip3
 
@@ -9,5 +11,4 @@ if [ ! -x "$REAL_COMMAND" ]; then
     exit 1
 fi
 
-ENABLE_VERSION_CONTROL_PY=$ENABLE_VERSION_CONTROL_PY2 REAL_COMMAND=$REAL_COMMAND run_pip_command "$@"
-
+PIP_VERSION_FILE=$VERSION_FILE ENABLE_VERSION_CONTROL_PY=$ENABLE_VERSION_CONTROL_PY2 REAL_COMMAND=$REAL_COMMAND run_pip_command "$@"
