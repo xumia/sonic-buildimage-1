@@ -48,7 +48,7 @@ fi
 cp -rf files/build/buildinfo/* $BUILDINFO_PATH
 
 # Copy the docker build info scirpts
-cp -rf files/build/scripts "${BUILDINFO_PATH}/"
+cp -r files/build/scripts "${BUILDINFO_PATH}/"
 
 # Build the slave running config
 if [ "$BUILD_SLAVE" == "y" ]; then
