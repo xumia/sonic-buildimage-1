@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'sonic'
+  vmImage: sonic
 
 steps:
 - script: echo Hello, world!
