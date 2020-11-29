@@ -52,7 +52,8 @@ steps:
     fi
   displayName: 'Run init script'
 - bash: |
-    echo test
+    echo $(whoami)
+    scripts/mirror/aptly.sh
   displayName: 'Run blobfuse'
 - task: AzureKeyVault@1
   inputs:
