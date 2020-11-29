@@ -12,7 +12,6 @@ steps:
 - bash: |
     echo 'Try to init disk'
     [ ! -d /data ] && sudo mkdir -p /data
-
     # Init data disk
     if [ ! -e /dev/sdc1 ]; then
       echo 'Run parted disk /dev/sdc'
