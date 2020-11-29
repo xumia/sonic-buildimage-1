@@ -36,6 +36,12 @@ steps:
       sudo mount -a
     fi
   displayName: 'Run init script'
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
+    KeyVaultName: 'sonic-kv'
+    SecretsFilter: '*'
+    RunAsPreJob: true
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
