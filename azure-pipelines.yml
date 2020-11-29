@@ -53,8 +53,10 @@ steps:
     fi
   displayName: 'Run init script'
 - bash: |
-    scripts/mirror/aptly.sh /blobfuse-web /blobfuse-aptly
-  displayName: 'Run aptly'
+    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster-update 'non-free,contrib,main'
+    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster-backports 'non-free,contrib,main'
+    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster 'non-free,contrib,main'
+  displayName: 'Update and publish debian mirrors by aptly'
 - task: AzureKeyVault@1
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
