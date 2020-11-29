@@ -21,13 +21,11 @@ steps:
       sudo mkfs.ext4 /dev/sdc1
       sudo partprobe /dev/sdc1
     fi
-
     # Mount data disk
     if ! grep data /etc/fstab; then
       echo "/dev/sdc1 /data ext4 defaults 0 0" >> /etc/fstab
       mount -a
     fi
-
     # Mount nfs
     [ ! -d /nfs ] && sudo mkdir -p /nfs
     if ! grep jenkins-vol-1 /etc/fstab; then
