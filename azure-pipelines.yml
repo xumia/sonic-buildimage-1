@@ -30,7 +30,7 @@ steps:
     [ ! -d /nfs ] && sudo mkdir -p /nfs
     if ! grep jenkins-vol-1 /etc/fstab; then
       echo 'Run Install nfs-common'
-      sudo apt-get install nfs-common
+      sudo apt-get install -y nfs-common
       echo 'Run add jenkins-vol-1 to /etc/fstab'
       sudo sh -c 'echo "10.0.5.4:/jenkins-vol-1 /nfs nfs sec=sys,vers=4.1 0 0" >> /etc/fstab'
       echo 'Run mount all'
