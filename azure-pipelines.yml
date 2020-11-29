@@ -45,10 +45,11 @@ steps:
     # Mount storage containers for debian mirrors
     if ! mount | grep -q /blobfuse-web; then
       sudo mkdir -p /blobfuse-web /blobfuse-aptly
+      sudo chmod a+rx /blobfuse-web /blobfuse-aptly
       export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
       export AZURE_STORAGE_SAS_TOKEN="$(sonicstoragepublic-SasToken)"
-      sudo -E blobfuse /blobfuse-web --container-name='$web' --tmp-path=/data/blobfuse-web
-      sudo -E blobfuse /blobfuse-aptly --container-name='aptly' --tmp-path=/data/blobfuse-aptly
+      sudo -E blobfuse /blobfuse-web --container-name='$web' --tmp-path=/data/blobfuse-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      sudo -E blobfuse /blobfuse-aptly --container-name='aptly' --tmp-path=/data/blobfuse-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
   displayName: 'Run init script'
 - bash: |
