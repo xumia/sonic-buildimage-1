@@ -11,23 +11,23 @@ pool: sonic-mirror-build
 steps:
 - bash: |
     echo 'Try to init disk'
-    mkdir -p /data/
+    [ ! -d /data ] && sudo mkdir -p /data
 
     # Init data disk
     if [ ! -e /dev/sdc1 ]; then
       echo 'Run parted disk /dev/sdc'
-      parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 90%
-      mkfs.ext4 /dev/sdc1
-      partprobe /dev/sdc1
+      sudo parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 90%
+      sudo mkfs.ext4 /dev/sdc1
+      sudo partprobe /dev/sdc1
     fi
 
     # Mount nfs
-    mkdir -p /nfs
+    [ ! -d /nfs ] && sudo mkdir -p /nfs
     if ! grep jenkins-vol-1 /etc/fstab; then
       echo 'Run Install nfs-common and mount jenkins-vol-1'
-      apt-get install nfs-common
-      echo "10.0.5.4:/jenkins-vol-1 /nfs nfs sec=sys,vers=4.1 0 0" >> /etc/fstab
-      mount -a
+      sudo apt-get install nfs-common
+      sudo echo "10.0.5.4:/jenkins-vol-1 /nfs nfs sec=sys,vers=4.1 0 0" >> /etc/fstab
+      sudo mount -a
     fi
   displayName: 'Run init script'
 
