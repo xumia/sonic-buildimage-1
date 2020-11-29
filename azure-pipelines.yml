@@ -53,8 +53,7 @@ steps:
     fi
   displayName: 'Run init script'
 - bash: |
-    echo $(whoami)
-    scripts/mirror/aptly.sh
+    scripts/mirror/aptly.sh /blobfuse-web /blobfuse-aptly
   displayName: 'Run blobfuse'
 - task: AzureKeyVault@1
   inputs:
