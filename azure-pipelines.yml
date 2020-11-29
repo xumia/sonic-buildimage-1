@@ -35,15 +35,20 @@ steps:
       echo 'Run mount all'
       sudo mount -a
     fi
-    # Mount blobfuse
-    if ! mount | grep -q /blobfuse; then
+    # Install blobfuse
+    ! dpkg -s blobfuse 1>/dev/null 2>&1 && sudo apt-get install -y blobfuse
+    if ! mount | grep -q /blobfuse-sonicstoragepublic-web; then
       sudo mkdir mkdir -p /blobfuse-sonicstoragepublic-web
       sudo apt-get install -y blobfuse
       export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
       export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
-      sudo -E blobfuse /blobfuse-sonicstoragepublic --container-name=$(StorageAccountContainerWeb) --tmp-path=/data/blobfusetmp
+      sudo -E blobfuse /blobfuse-sonicstoragepublic-web --container-name=$(StorageAccountContainerWeb) --tmp-path=/data/blobfusetmp
     fi
   displayName: 'Run init script'
+- bash: |
+    export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
+    export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
+  displayName: 'Run blobfuse'
 - task: AzureKeyVault@1
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
