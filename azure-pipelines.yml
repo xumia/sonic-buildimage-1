@@ -21,19 +21,27 @@ steps:
       sudo partprobe /dev/sdc1
     fi
     # Mount data disk
-    if ! grep -q data /etc/fstab; then
+    if ! mount | grep -q /dev/sdc1; then
       sudo sh -c 'echo "/dev/sdc1 /data ext4 defaults 0 0" >> /etc/fstab'
       sudo mount -a
     fi
     # Mount nfs
     [ ! -d /nfs ] && sudo mkdir -p /nfs
-    if ! grep -q jenkins-vol-1 /etc/fstab; then
+    if ! mount | grep -q jenkins-vol-1; then
       echo 'Run Install nfs-common'
       sudo apt-get install -y nfs-common
       echo 'Run add jenkins-vol-1 to /etc/fstab'
       sudo sh -c 'echo "10.0.5.4:/jenkins-vol-1 /nfs nfs sec=sys,vers=4.1 0 0" >> /etc/fstab'
       echo 'Run mount all'
       sudo mount -a
+    fi
+    # Mount blobfuse
+    if ! mount | grep -q /blobfuse; then
+      sudo mkdir mkdir -p /blobfuse-sonicstoragepublic-web
+      sudo apt-get install -y blobfuse
+      export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
+      export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
+      sudo -E blobfuse /blobfuse-sonicstoragepublic --container-name=$(StorageAccountContainerWeb) --tmp-path=/data/blobfusetmp
     fi
   displayName: 'Run init script'
 - task: AzureKeyVault@1
