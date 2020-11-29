@@ -54,7 +54,7 @@ steps:
   displayName: 'Run init script'
 - bash: |
     scripts/mirror/aptly.sh /blobfuse-web /blobfuse-aptly
-  displayName: 'Run blobfuse'
+  displayName: 'Run aptly'
 - task: AzureKeyVault@1
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
