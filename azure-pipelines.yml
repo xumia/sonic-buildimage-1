@@ -21,13 +21,13 @@ steps:
       sudo partprobe /dev/sdc1
     fi
     # Mount data disk
-    if ! grep data /etc/fstab; then
+    if ! grep -q data /etc/fstab; then
       sudo sh -c 'echo "/dev/sdc1 /data ext4 defaults 0 0" >> /etc/fstab'
       sudo mount -a
     fi
     # Mount nfs
     [ ! -d /nfs ] && sudo mkdir -p /nfs
-    if ! grep jenkins-vol-1 /etc/fstab; then
+    if ! grep -q jenkins-vol-1 /etc/fstab; then
       echo 'Run Install nfs-common'
       sudo apt-get install -y nfs-common
       echo 'Run add jenkins-vol-1 to /etc/fstab'
