@@ -43,8 +43,7 @@ steps:
       sudo apt-get install -y blobfuse
     fi
     if ! mount | grep -q /blobfuse-sonicstoragepublic-web; then
-      sudo mkdir mkdir -p /blobfuse-sonicstoragepublic-web
-      sudo apt-get install -y blobfuse
+      sudo mkdir -p /blobfuse-sonicstoragepublic-web
       export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
       export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
       sudo -E blobfuse /blobfuse-sonicstoragepublic-web --container-name=$(StorageAccountContainerWeb) --tmp-path=/data/blobfusetmp
