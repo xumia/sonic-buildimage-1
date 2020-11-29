@@ -16,7 +16,7 @@ steps:
     # Init data disk
     if [ ! -e /dev/sdc1 ]; then
       echo 'Run parted disk /dev/sdc'
-      sudo parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 90%
+      sudo parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 100%
       sudo partprobe /dev/sdc1
       sudo mkfs.ext4 /dev/sdc1
       sudo partprobe /dev/sdc1
