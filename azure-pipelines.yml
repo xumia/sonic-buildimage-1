@@ -53,7 +53,7 @@ steps:
   displayName: 'Run init script'
 - bash: |
     export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
-    export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
+    export AZURE_STORAGE_SAS_TOKEN="$(sonicstoragepublic-SasToken)"
   displayName: 'Run blobfuse'
 - task: AzureKeyVault@1
   inputs:
