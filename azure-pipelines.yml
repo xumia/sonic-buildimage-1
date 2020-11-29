@@ -9,10 +9,30 @@ trigger:
 pool: sonic-mirror-build
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- bash: |
+    echo 'Try to init disk'
+    mkdir -p /data/
+
+    # Init data disk
+    if [ ! -e /dev/sdc1 ]; then
+      echo 'Run parted disk /dev/sdc'
+      parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 90%
+      mkfs.ext4 /dev/sdc1
+      partprobe /dev/sdc1
+    fi
+
+    # Mount nfs
+    mkdir -p /nfs
+    if ! grep jenkins-vol-1 /etc/fstab; then
+      echo 'Run Install nfs-common and mount jenkins-vol-1'
+      apt-get install nfs-common
+      echo "10.0.5.4:/jenkins-vol-1 /nfs nfs sec=sys,vers=4.1 0 0" >> /etc/fstab
+      mount -a
+    fi
+  displayName: 'Run init script'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
+
