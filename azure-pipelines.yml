@@ -49,7 +49,7 @@ steps:
       echo $AZURE_STORAGE_ACCOUNT
       echo AZURE_STORAGE_SAS_TOKEN="$(sonicstoragepublic-SasToken)"
       echo ContainerWeb='$web'
-      sudo -E blobfuse /blobfuse-sonicstoragepublic-web --container-name="$(StorageAccountContainerWeb)" --tmp-path=/data/blobfusetmp
+      sudo -E blobfuse /blobfuse-sonicstoragepublic-web --container-name='$web' --tmp-path=/data/blobfusetmp
     fi
   displayName: 'Run init script'
 - bash: |
