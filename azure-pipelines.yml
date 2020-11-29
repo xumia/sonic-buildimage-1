@@ -53,9 +53,7 @@ steps:
     fi
   displayName: 'Run init script'
 - bash: |
-    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster-update 'non-free,contrib,main'
-    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster-backports 'non-free,contrib,main'
-    scripts/mirror/aptly.sh 'http://deb.debian.org/debian' buster 'non-free,contrib,main'
+    scripts/mirror/aptly.sh 'buster'
   displayName: 'Update and publish debian mirrors by aptly'
 - task: AzureKeyVault@1
   inputs:
