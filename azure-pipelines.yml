@@ -43,23 +43,23 @@ steps:
       sudo apt-get install -y blobfuse
     fi
     # Mount storage containers for debian mirrors
-    if ! mount | grep -q /blobfuse-web; then
-      sudo mkdir -p /blobfuse-web /blobfuse-aptly
-      sudo chmod a+rx /blobfuse-web /blobfuse-aptly
+    if ! mount | grep -q /blobfuse-$(StorageAccount)-web; then
+      sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
+      sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
-      export AZURE_STORAGE_SAS_TOKEN="$(sonicstoragepublic-SasToken)"
-      sudo -E blobfuse /blobfuse-web --container-name='$web' --tmp-path=/data/blobfuse-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-      sudo -E blobfuse /blobfuse-aptly --container-name='aptly' --tmp-path=/data/blobfuse-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      export AZURE_STORAGE_SAS_TOKEN="$($(StorageAccount)-SasToken)"
+      sudo -E blobfuse /blobfuse-$(StorageAccount)-web --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      sudo -E blobfuse /blobfuse-$(StorageAccount)-aptly --container-name='aptly' --tmp-path=/data/blobfuse-$(StorageAccount)-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
   displayName: 'Run init script'
 - bash: |
-    scripts/mirror/aptly.sh 'buster'
+    #scripts/mirror/aptly.sh $(StorageAccount) 'buster'
   displayName: 'Update and publish debian mirrors by aptly'
 - task: AzureKeyVault@1
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
     KeyVaultName: 'sonic-kv'
-    SecretsFilter: 'sonicstoragepublic-SasToken'
+    SecretsFilter: "$(StorageAccount)-SasToken"
     RunAsPreJob: true
 
 - script: |
