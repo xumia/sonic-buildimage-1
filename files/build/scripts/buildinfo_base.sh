@@ -22,6 +22,13 @@ log_err()
     echo "$1" 1>&2
 }
 
+get_command()
+{
+    local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##')
+    local command=$(PATH=$path which $1)
+    echo $command
+}
+
 check_version_control()
 {
     if [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,all,* ]] || [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,$1,* ]]; then
