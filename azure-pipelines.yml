@@ -56,7 +56,7 @@ steps:
     fi
   displayName: 'Run init script'
 - bash: |
-    #scripts/mirror/aptly.sh $(StorageAccount) 'buster'
+    #scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)"
   displayName: 'Update and publish debian mirrors by aptly'
 
 - script: |
