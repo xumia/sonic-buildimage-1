@@ -47,7 +47,8 @@ steps:
       sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
-      export AZURE_STORAGE_SAS_TOKEN="$($(StorageAccountSasToken))"
+      #export AZURE_STORAGE_SAS_TOKEN="$($(StorageAccountSasToken))"
+      export AZURE_STORAGE_SAS_TOKEN=$[ variables[variables['StorageAccountSasToken']] ]
       echo "AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT"
       echo "AZURE_STORAGE_SAS_TOKEN=$AZURE_STORAGE_SAS_TOKEN"
       sudo -E blobfuse /blobfuse-$(StorageAccount)-web --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
