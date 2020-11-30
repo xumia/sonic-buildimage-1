@@ -46,7 +46,7 @@ steps:
     if ! mount | grep -q /blobfuse-$(StorageAccount)-web; then
       sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
-      export AZURE_STORAGE_ACCOUNT=$(StorageAccount)
+      export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
       export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
       echo "AZURE_STORAGE_ACCOUNT=$(AZURE_STORAGE_ACCOUNT)"
       echo "AZURE_STORAGE_SAS_TOKEN=$(StorageAccountSasToken)"
