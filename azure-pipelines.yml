@@ -47,11 +47,12 @@ steps:
       sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
-      #workaround
-      if $(StorageAccount) -eq "sonicstoragepublic"; then
+      if [ "$(StorageAccount)" == "sonicstoragepublic" ]; then
         export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
-      elif $(StorageAccount) -eq "packagestest1"; then
+      elif [ "$(StorageAccount)" -eq "packagestest1" ]; then
         export AZURE_STORAGE_SAS_TOKEN=$(packagestest1-SasToken)
+      elif [ ! -z "$(StorageAccountSasToken)" ]; then
+        export AZURE_STORAGE_SAS_TOKEN=$(StorageAccountSasToken)
       else
         echo "please set saskey for $(StorageAccount)" 1>&2
         exit 1
@@ -70,7 +71,7 @@ steps:
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
     KeyVaultName: 'sonic-kv'
-    SecretsFilter: "$(StorageAccountSasToken)"
+    SecretsFilter: "$(StorageAccountSasTokenName)"
     RunAsPreJob: true
 
 - script: |
