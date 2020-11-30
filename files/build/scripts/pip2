@@ -3,8 +3,7 @@
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
 VERSION_FILE="$BUILDINFO_PATH/versions/versions-py2"
-REAL_COMMAND=/usr/bin/pip2
-[ -x /usr/local/bin/pip2 ] && REAL_COMMAND=/usr/local/bin/pip2
+REAL_COMMAND=$(get_command pip2)
 
 if [ ! -x "$REAL_COMMAND" ]; then
     echo "The command pip2 not found" 1>&2
