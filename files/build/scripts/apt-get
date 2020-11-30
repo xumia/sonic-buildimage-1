@@ -3,6 +3,12 @@
 INSTALL=
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
+REAL_COMMAND=$(get_command apt-get)
+if [ -z "$REAL_COMMAND" ]; then
+    echo "The command apt-get does not exist." 1>&2
+    exit 1
+fi
+
 VERSION_FILE="/usr/local/share/buildinfo/versions/versions-deb"
 if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
     for para in $@
@@ -29,4 +35,4 @@ if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
 fi
 
 
-/usr/bin/apt-get "$@"
+$REAL_COMMAND "$@"
