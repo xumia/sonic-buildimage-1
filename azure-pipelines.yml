@@ -47,15 +47,21 @@ steps:
       sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
       export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
-      #export AZURE_STORAGE_SAS_TOKEN="$($(StorageAccountSasToken))"
-      export AZURE_STORAGE_SAS_TOKEN=$MY_MAPPED_ENV_VAR
+      #workaround
+      if $(StorageAccount) -eq "sonicstoragepublic"; then
+        export AZURE_STORAGE_SAS_TOKEN=$(sonicstoragepublic-SasToken)
+      elif $(StorageAccount) -eq "packagestest1"; then
+        export AZURE_STORAGE_SAS_TOKEN=$(packagestest1-SasToken)
+      else
+        echo "please set saskey for $(StorageAccount)" 1>&2
+        exit 1
+      fi
+      
       echo "AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT"
       echo "AZURE_STORAGE_SAS_TOKEN=$AZURE_STORAGE_SAS_TOKEN"
       sudo -E blobfuse /blobfuse-$(StorageAccount)-web --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
       sudo -E blobfuse /blobfuse-$(StorageAccount)-aptly --container-name='aptly' --tmp-path=/data/blobfuse-$(StorageAccount)-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
-  env:
-    MY_MAPPED_ENV_VAR: $[ variables['StorageAccountSasToken'] ]
   displayName: 'Run init script'
 - bash: |
     #scripts/mirror/aptly.sh $(StorageAccount) 'buster'
