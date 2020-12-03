@@ -91,6 +91,7 @@ endif
 
 SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
+
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER)
 
@@ -251,30 +252,20 @@ else
 endif
 
 sonic-slave-base-build :
-	$(DOCKER_BASE_BUILD)
-
-sonic-slave-build :
-	$(DOCKER_BASE_BUILD)
-	$(DOCKER_BUILD)
-
-sonic-slave-bash :
 	@$(OVERLAY_MODULE_CHECK)
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; }
+
+sonic-slave-build : sonic-slave-base-build
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
+
+sonic-slave-bash : sonic-slave-build
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
 
-sonic-slave-run :
-	@$(OVERLAY_MODULE_CHECK)
-	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
-	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	    $(DOCKER_BASE_BUILD) ; }
-	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
-	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
-	    $(DOCKER_BUILD) ; }
+sonic-slave-run : sonic-slave-build
 	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_RUN_CMDS)"
 
 showtag:
