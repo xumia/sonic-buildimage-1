@@ -4,7 +4,7 @@ logfile_backups=2
 nodaemon=true
 
 [eventlistener:dependent-startup]
-command=python -m supervisord_dependent_startup
+command=python3 -m supervisord_dependent_startup
 autostart=true
 autorestart=unexpected
 startretries=0
@@ -79,7 +79,11 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_xcvrd %}
 [program:xcvrd]
+{% if delay_xcvrd %}
+command=bash -c "sleep 30 && /usr/local/bin/xcvrd"
+{% else %}
 command=/usr/local/bin/xcvrd
+{% endif %}
 priority=6
 autostart=false
 autorestart=false

@@ -46,6 +46,7 @@ else
     sed -i "s/up/down/g" /tmp/ports.json
     sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json -j /tmp/qos.json -j /tmp/ports.json --print-data > /etc/sonic/config_db.json
 fi
+sonic-cfggen -t /usr/share/sonic/templates/copp_cfg.j2 > /etc/sonic/copp_cfg.json
 
 mkdir -p /etc/swss/config.d/
 
@@ -75,7 +76,6 @@ supervisorctl start redis-server
 start_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.start_chassis_db -y $chassisdb_cfg_file`
 if [[ "$HOSTNAME" == *"supervisor"* ]] || [ "$start_chassis_db" == "1" ]; then
    supervisorctl start redis-chassis
-   python /usr/bin/chassis_db.py
 fi
 
 conn_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.connect_to_chassis_db -y $chassisdb_cfg_file`
@@ -85,6 +85,11 @@ if [ "$start_chassis_db" != "1" ] && [ "$conn_chassis_db" != "1" ]; then
    cp $db_cfg_file_tmp $db_cfg_file
 fi
 
+if [ "$conn_chassis_db" == "1" ]; then
+   if [ -f /usr/share/sonic/virtual_chassis/coreportindexmap.ini ]; then
+      cp /usr/share/sonic/virtual_chassis/coreportindexmap.ini /usr/share/sonic/hwsku/
+   fi
+fi
 
 /usr/bin/configdb-load.sh
 
@@ -93,6 +98,8 @@ supervisorctl start syncd
 supervisorctl start portsyncd
 
 supervisorctl start orchagent
+
+supervisorctl start coppmgrd
 
 supervisorctl start neighsyncd
 

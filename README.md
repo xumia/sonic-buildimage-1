@@ -14,10 +14,6 @@
 [![P4](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon?subject=P4)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
 [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all)
 
-*202006 builds*:
-
-[![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-202006/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-202006/)
-
 *201911 builds*:
 
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/)
@@ -154,6 +150,7 @@ The SONiC installer contains all docker images needed. SONiC uses one image for 
 - PLATFORM=cavium
 - PLATFORM=centec
 - PLATFORM=nephos
+- PLATFORM=innovium
 - PLATFORM=p4
 - PLATFORM=vs
 
@@ -204,6 +201,7 @@ This may take a while, but it is a one-time action, so please be patient.
   - docker-syncd-cavm.gz: docker image for the daemon to sync database and Cavium switch ASIC (gzip tar archive)
   - docker-syncd-mlnx.gz: docker image for the daemon to sync database and Mellanox switch ASIC (gzip tar archive)
   - docker-syncd-nephos.gz: docker image for the daemon to sync database and Nephos switch ASIC (gzip tar archive)
+  - docker-syncd-invm.gz: docker image for the daemon to sync database and Innovium switch ASIC (gzip tar archive)
   - docker-sonic-p4.gz: docker image for all-in-one for p4 software switch (gzip tar archive)
   - docker-sonic-vs.gz: docker image for all-in-one for software virtual switch (gzip tar archive)
   - docker-sonic-mgmt.gz: docker image for [managing, configuring and monitoring SONiC](https://github.com/Azure/sonic-mgmt) (gzip tar archive)

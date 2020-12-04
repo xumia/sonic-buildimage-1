@@ -267,7 +267,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     vim                     \
     tcpdump                 \
     dbus                    \
-    ntp                     \
     ntpstat                 \
     openssh-server          \
     python                  \
@@ -441,6 +440,7 @@ if [ -f files/image_config/ntp/ntp ]; then
 fi
 
 if [ -f files/image_config/ntp/ntp-systemd-wrapper ]; then
+    sudo mkdir -p $FILESYSTEM_ROOT/usr/lib/ntp/
     sudo cp ./files/image_config/ntp/ntp-systemd-wrapper $FILESYSTEM_ROOT/usr/lib/ntp/
 fi
 
