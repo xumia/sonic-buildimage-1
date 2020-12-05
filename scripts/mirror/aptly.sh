@@ -33,9 +33,9 @@ prepare_workspace()
     local remote_pool_dir="$remote_dist_dir/pool"
     local latest_db=$(ls -Ar $BLOBFUSE_DB_DIR/db-*.gz | head -n 1)
 
-    mkdir -p $WORK_DIR
     mkdir -p $BLOBFUSE_POOL_DIR
     mkdir -p $PUBLISH_DIR
+    echo "pwd=$(pwd)"
     cp ../config/aptly-debian.conf $APTLY_CONFIG
     ln -s "$remote_pool_dir" pool
     ln -s $PUBLISH_DIR publish
@@ -66,45 +66,7 @@ update_repo()
     
 }
 
-mkdir -p $WORK_DIR
-cd $WORK_DIR
 prepare_workspace
 #save_workspace
 
-
-publish()
-{
-}
-
-download_db()
-{
-}
-
-upload_db()
-{
-}
-
-create_mirror()
-{
-}
-
-update_mirror()
-{
-}
-
-create_repo()
-{
-}
-
-update_repo()
-{
-}
-
-create_publish()
-{
-}
-
-update_publish()
-{
-}
 
