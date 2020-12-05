@@ -64,6 +64,7 @@ platform/broadcom/sonic-platform-modules-dell/z9264f/sonic_platform/ipmihelper.p
 
 # buildinfo
 files/build/buildinfo
+files/build/tmp
 dockers/**/buildinfo
 platform/**/buildinfo
 sonic-slave*/**/buildinfo

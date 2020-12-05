@@ -37,4 +37,4 @@ endif
 
 # Freeze the versions, see more detail options: scripts/versions_manager.py freeze -h
 freeze:
-	@scripts/versions_manager.py freeze $(OPTIONS)
+	@scripts/versions_manager.py freeze $(FREEZE_VERSION_OPTIONS)

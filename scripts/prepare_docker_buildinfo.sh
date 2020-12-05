@@ -24,8 +24,7 @@ fi
 
 DOCKERFILE_PRE_SCRIPT='# Auto-Generated for buildinfo 
 COPY ["buildinfo", "/usr/local/share/buildinfo"]
-ENV OLDPATH=$PATH
-ENV PATH="/usr/local/share/buildinfo/scripts:$PATH"
+RUN dpkg -i /usr/local/share/buildinfo/sonic-build-tools_1.0_all.deb
 RUN pre_run_buildinfo'
 
 # Add the auto-generate code if it is not added in the target Dockerfile
@@ -37,8 +36,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKE
 
     # Append the docker build script at the end of the docker file
     echo "RUN post_run_buildinfo" >> $TEMP_FILE
-    [ -z "$BUILD_SLAVE" ] && BUILD_SLAVE=n
-    [ "$BUILD_SLAVE" != "y" ] && echo "ENV PATH=\$OLDPATH" >> $TEMP_FILE
+    [ "$BUILD_SLAVE" != "y" ] && echo "RUN set_build_hooks -d" >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
     rm -f $TEMP_FILE
@@ -46,9 +44,6 @@ fi
 
 # Copy the build info config
 cp -rf files/build/buildinfo/* $BUILDINFO_PATH
-
-# Copy the docker build info scirpts
-cp -r files/build/scripts "${BUILDINFO_PATH}/"
 
 # Build the slave running config
 if [ "$BUILD_SLAVE" == "y" ]; then
