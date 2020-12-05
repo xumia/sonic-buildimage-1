@@ -32,4 +32,5 @@ if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ]; then
     cp -f $BUILDINFO_VERSION_DEB ${FILESYSTEM_ROOT}/etc/apt/preferences.d/
 fi
 
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg -i /usr/local/share/buildinfo/sonic-build-tools_1.0_all.deb"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "pre_run_buildinfo"

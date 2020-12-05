@@ -183,8 +183,7 @@ DOCKER_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 		    --build-arg http_proxy=$(http_proxy) \
 		    --build-arg https_proxy=$(https_proxy) \
-		    $(SLAVE_DIR); \
-		    scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target
+		    $(SLAVE_DIR)
 
 DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
@@ -247,9 +246,12 @@ endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
 
+	@pushd files/build; make all; popd
+	@cp files/build/buildinfo/sonic-build-tools* $(SLAVE_BASE_IMAGE)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	    $(DOCKER_BASE_BUILD) ; }
+	    $(DOCKER_BASE_BUILD) ; \
+	    scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
@@ -263,11 +265,16 @@ else
 	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
 endif
 
-sonic-slave-base-build :
+sonic-build-tools:
+	@pushd files/build; make all; popd
+	@cp files/build/buildinfo/sonic-build-tools* $(SLAVE_BASE_IMAGE)/buildinfo
+
+sonic-slave-base-build : sonic-build-tools
 	@$(OVERLAY_MODULE_CHECK)
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	    $(DOCKER_BASE_BUILD) ; }
+	    $(DOCKER_BASE_BUILD) ; \
+	    scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
 
 sonic-slave-build : sonic-slave-base-build
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \

@@ -24,7 +24,7 @@ log_err()
 
 get_command()
 {
-    local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##')
+    local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##' | sed "s#/usr/sbin:##")
     local command=$(PATH=$path which $1)
     echo $command
 }
