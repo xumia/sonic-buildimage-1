@@ -36,10 +36,9 @@ prepare_workspace()
     mkdir -p $WORK_DIR
     mkdir -p $BLOBFUSE_POOL_DIR
     mkdir -p $PUBLISH_DIR
-    cp config/aptly-debian.conf $APTLY_CONFIG
-    ln -s "$remote_pool_dir" "$WORK_DIR/pool"
-    ln -s $BLOBFUSE_POOL_DIR $WORK_DIR/pool
-    ln -s $PUBLISH_DIR $WORK_DIR/publish
+    cp ../config/aptly-debian.conf $APTLY_CONFIG
+    ln -s "$remote_pool_dir" pool
+    ln -s $PUBLISH_DIR publish
     if [ -z "$latest_db" ]; then
         return
     fi
