@@ -51,6 +51,7 @@ steps:
       sudo -E blobfuse /blobfuse-$(StorageAccount)-web --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
       sudo -E blobfuse /blobfuse-$(StorageAccount)-aptly --container-name='aptly' --tmp-path=/data/blobfuse-$(StorageAccount)-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
+    [ -z "$(which aptly)" ] && sudo apt-get install -y aptly
   displayName: 'Run init script'
 - bash: |
     scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)"
