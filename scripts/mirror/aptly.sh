@@ -109,6 +109,5 @@ update_repo()
 
 prepare_workspace
 aptly -config $APTLY_CONFIG mirror
+update_repo debian "$DEBIAN_MIRROR_URL" buster-updates "amd64,arm64,armhf" "contrib,non-free"
 #save_workspace
-
-
