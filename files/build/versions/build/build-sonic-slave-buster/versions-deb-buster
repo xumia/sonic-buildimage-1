@@ -21,12 +21,16 @@ libharfbuzz-dev==2.3.1-1
 libharfbuzz-gobject0==2.3.1-1
 libhiredis-dev==0.14.0-3~bpo9+1
 libhiredis0.14==0.14.0-3~bpo9+1
+libnl-3-200==3.5.0-1
+libnl-3-dev==3.5.0-1
 libnl-cli-3-200==3.5.0-1
 libnl-cli-3-dev==3.5.0-1
 libnl-genl-3-200==3.5.0-1
 libnl-genl-3-dev==3.5.0-1
 libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
+libnl-route-3-200==3.5.0-1
+libnl-route-3-dev==3.5.0-1
 libpango1.0-dev==1.42.4-8~deb10u1
 libpangoxft-1.0-0==1.42.4-8~deb10u1
 libpixman-1-dev==0.36.0-1
@@ -35,6 +39,9 @@ libsaimetadata-dev==1.0.0
 libsairedis==1.0.0
 libsairedis-dev==1.0.0
 libsaivs==1.0.0
+libsnmp-base==5.7.3+dfsg-5
+libsnmp-dev==5.7.3+dfsg-5
+libsnmp30==5.7.3+dfsg-5
 libswsscommon==1.0.0
 libswsscommon-dev==1.0.0
 libtac-dev==1.4.1-1
