@@ -14,9 +14,12 @@ gbp==0.6.22
 gcovr==3.2
 html5lib==0.999
 ipaddr==2.1.11
+j2cli==0.3.10
+Jinja2==2.11.2
 logilab-common==0.62.0
 lxml==3.4.0
 M2Crypto==0.36.0
+MarkupSafe==1.1.1
 mockredispy==2.9.3
 ndg-httpsclient==0.3.2
 netaddr==0.7.12
@@ -28,6 +31,8 @@ Pillow==2.6.1
 ply==3.4
 ptyprocess==0.6.0
 py==1.4.25
+pyang==2.4.0
+pyangbind==0.6.0
 pyasn1==0.1.7
 pyasn1-modules==0.0.5
 pycparser==2.10
@@ -61,5 +66,6 @@ Twisted-News==14.0.2
 Twisted-Runner==14.0.2
 Twisted-Web==14.0.2
 Twisted-Words==14.0.2
+typing==3.7.4.3
 urllib3==1.9.1
 zope.interface==4.1.1

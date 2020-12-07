@@ -31,7 +31,9 @@ blt-dev==2.5.3+dfsg-3
 bsdmainutils==9.0.12+nmu1
 build-essential==12.3
 byacc==20140715-1+b1
+bzip2==1.0.6-8.1
 bzip2-doc==1.0.6-8.1
+ca-certificates==20200601~deb9u1
 ca-certificates-java==20170929~deb9u3
 cdbs==0.4.150
 cgmanager==0.41-2
@@ -52,6 +54,7 @@ cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
 cppcheck==1.76.1-1
 cron==3.0pl1-128+deb9u1
+curl==7.52.1-5+deb9u12
 dbus==1.10.32-0+deb9u1
 dconf-gsettings-backend==0.26.0-2+b1
 dconf-service==0.26.0-2+b1
@@ -87,6 +90,7 @@ docutils-doc==0.13.1+dfsg-2
 dosfstools==4.1-1
 doxygen==1.8.13-4+b1
 dpatch==2.0.38+nmu1~bpo9+1
+dpkg-dev==1.18.25
 dput==0.12.1
 dwz==0.12-1+b1
 eatmydata==105-5
@@ -157,6 +161,7 @@ imagemagick-6-common==8:6.9.7.4+dfsg-11+deb9u10
 imagemagick-6.q16==8:6.9.7.4+dfsg-11+deb9u10
 install-info==6.3.0.dfsg.1-1+b2
 intltool-debian==0.35.0+20060710.4
+iproute2==4.20.0-2~bpo9+1
 iptables==1.6.0+snapshot20161117-6
 iptables-dev==1.6.0+snapshot20161117-6
 ipxe-qemu==1.0.0+git-20161027.b991c67-1
@@ -168,7 +173,9 @@ javascript-common==11
 junit==3.8.2-8
 junit4==4.12-4+deb9u1
 kernel-wedge==2.96
+kmod==23-2
 krb5-locales==1.15-1+deb9u2
+less==481-2.1
 lib32asan3==6.3.0-18+deb9u1
 lib32atomic1==6.3.0-18+deb9u1
 lib32cilkrts5==6.3.0-18+deb9u1
@@ -325,8 +332,10 @@ libbsh-java==2.0b4-18
 libbz2-dev==1.0.6-8.1
 libc-ares-dev==1.12.0-1+deb9u1
 libc-ares2==1.12.0-1+deb9u1
+libc-dev-bin==2.24-11+deb9u4
 libc-l10n==2.24-11+deb9u4
 libc6-dbg==2.24-11+deb9u4
+libc6-dev==2.24-11+deb9u4
 libc6-dev-i386==2.24-11+deb9u4
 libc6-dev-x32==2.24-11+deb9u4
 libc6-i386==2.24-11+deb9u4
@@ -337,6 +346,7 @@ libcairo-gobject2==1.14.8-1
 libcairo2==1.14.8-1
 libcap-dev==1:2.25-1
 libcap-ng-dev==0.7.7-3+b1
+libcap2-bin==1:2.25-1
 libcarp-clan-perl==6.06-1
 libcc1-0==6.3.0-18+deb9u1
 libcdi-api-java==1.0-2
@@ -379,15 +389,18 @@ libcryptsetup4==2:1.7.3-4
 libcups2==2.2.1-8+deb9u6
 libcupsfilters1==1.11.6-3+deb9u1
 libcupsimage2==2.2.1-8+deb9u6
+libcurl3==7.52.1-5+deb9u12
 libcurl3-gnutls==7.52.1-5+deb9u12
 libcurl3-nss==7.52.1-5+deb9u12
 libcurl4-nss-dev==7.52.1-5+deb9u12
 libdaemon-dev==0.14-6
+libdaemon0==0.14-6
 libdata-optlist-perl==0.110-1
 libdatrie1==0.2.10-4+b1
 libdb-dev==5.3.1
 libdb5.3-dev==5.3.28-12+deb9u1
 libdbi1==0.9.0-4+deb9u2
+libdbus-1-3==1.10.32-0+deb9u1
 libdbus-1-dev==1.10.32-0+deb9u1
 libdbus-glib-1-2==0.108-2
 libdconf1==0.26.0-2+b1
@@ -425,6 +438,7 @@ libemail-valid-perl==1.202-1
 libencode-locale-perl==1.05-1
 libepoxy0==1.3.1-2
 liberror-perl==0.17024-1
+libestr0==0.1.10-2
 libevdev2==1.5.6+dfsg-1
 libevent-2.0-5==2.0.21-stable-3
 libevent-core-2.0-5==2.0.21-stable-3
@@ -432,6 +446,7 @@ libevent-dev==2.0.21-stable-3
 libevent-extra-2.0-5==2.0.21-stable-3
 libevent-openssl-2.0-5==2.0.21-stable-3
 libevent-pthreads-2.0-5==2.0.21-stable-3
+libexpat1==2.2.0-2+deb9u3
 libexpat1-dev==2.2.0-2+deb9u3
 libexplain-dev==1.4.D001-6
 libexplain51==1.4.D001-6
@@ -442,6 +457,7 @@ libfastjson4==0.99.4-1
 libfcgi-perl==0.78-2
 libfdt1==1.4.2-1
 libffi-dev==3.2.1-6
+libffi6==3.2.1-6
 libfftw3-double3==3.3.5-3
 libfile-basedir-perl==0.07-1
 libfile-chdir-perl==0.1008-1
@@ -470,6 +486,7 @@ libgc1c2==1:7.4.2-8
 libgcc-6-dev==6.3.0-18+deb9u1
 libgd3==2.2.4-2+deb9u5
 libgdbm-dev==1.8.3-14
+libgdbm3==1.8.3-14
 libgdk-pixbuf2.0-0==2.36.5-2+deb9u2
 libgdk-pixbuf2.0-common==2.36.5-2+deb9u2
 libgeoip1==1.6.9-4
@@ -491,7 +508,9 @@ libglib2.0-dev==2.50.3-2+deb9u2
 libglu1-mesa==9.0.0-2.1
 libglu1-mesa-dev==9.0.0-2.1
 libgmp-dev==2:6.1.2+dfsg-1
+libgmp10==2:6.1.2+dfsg-1
 libgmpxx4ldbl==2:6.1.2+dfsg-1
+libgnutls30==3.5.8-5+deb9u5
 libgomp1==6.3.0-18+deb9u1
 libgoogle-perftools4==2.5-2.2
 libgpgme11==1.8.0-3+b2
@@ -500,6 +519,7 @@ libgraphite2-3==1.3.10-1
 libgs9==9.26a~dfsg-0+deb9u7
 libgs9-common==9.26a~dfsg-0+deb9u7
 libgsasl7==1.8.0-8+b2
+libgssapi-krb5-2==1.15-1+deb9u2
 libgstreamer1.0-0==1.10.4-1
 libgtest-dev==1.8.0-6
 libgtk-3-0==3.22.11-1
@@ -518,6 +538,7 @@ libgvpr2==2.38.0-17
 libhamcrest-java==1.3-6
 libharfbuzz-icu0==1.4.2-1
 libharfbuzz0b==1.4.2-1
+libhogweed4==3.3-1+b2
 libhtml-form-perl==6.03-1
 libhtml-format-perl==2.12-1
 libhtml-parser-perl==3.72-3
@@ -573,6 +594,7 @@ libisorelax-java==20041111-9
 libitext1-java==1.4-6
 libitm1==6.3.0-18+deb9u1
 libjansson-dev==2.9-1
+libjansson4==2.9-1
 libjaxen-java==1.1.6-1+deb9u1
 libjaxp1.3-java==1.3.05-2
 libjbig0==2.1-3.1+b2
@@ -608,7 +630,12 @@ libjudydebian1==1.0.5-5
 libjxr-tools==1.1-6+b1
 libjxr0==1.1-6+b1
 libjzlib-java==1.1.3-1
+libk5crypto3==1.15-1+deb9u2
+libkeyutils1==1.5.9-9
+libkmod2==23-2
 libkpathsea6==2016.20160513.41080.dfsg-2+deb9u1
+libkrb5-3==1.15-1+deb9u2
+libkrb5support0==1.15-1+deb9u2
 libksba8==1.3.5-2
 libkyotocabinet16v5==1.2.76-4.2+b1
 liblcms2-2==2.8-4+deb9u1
@@ -681,6 +708,7 @@ libmtdev1==1.1.5-1+b1
 libnamespace-clean-perl==0.27-1
 libnanomsg-dev==0.8~beta+dfsg-1+b1
 libnanomsg4==0.8~beta+dfsg-1+b1
+libncurses5==6.0+20161126-1+deb9u2
 libncurses5-dev==6.0+20161126-1+deb9u2
 libncursesw5-dev==6.0+20161126-1+deb9u2
 libnet-dbus-perl==1.1.0-4+b1
@@ -699,6 +727,7 @@ libnfnetlink-dev==1.0.1-3
 libnfnetlink0==1.0.1-3
 libnftnl-dev==1.0.7-1
 libnftnl4==1.0.7-1
+libnghttp2-14==1.18.1-1+deb9u1
 libnih-dbus1==1.0.3-8
 libnih1==1.0.3-8
 libnl-3-200==3.2.27-2
@@ -724,6 +753,7 @@ liboro-java==2.0.8a-12
 libosp5==1.5.2-13+b1
 libossp-uuid-perl==1.6.2-1.5+b4
 libossp-uuid16==1.6.2-1.5+b4
+libp11-kit0==0.23.3-2
 libpackage-stash-perl==0.37-1
 libpackage-stash-xs-perl==0.28-3+b1
 libpackagekit-glib2-18==1.1.5-2+deb9u2
@@ -754,7 +784,9 @@ libpcre32-3==2:8.39-3
 libpcrecpp0v5==2:8.39-3
 libpcsclite1==1.8.20-1
 libperl-dev==5.24.1-3+deb9u7
+libperl5.24==5.24.1-3+deb9u7
 libperlio-gzip-perl==0.19-1+b2
+libpgm-5.2-0==5.2.122~dfsg-2
 libpipeline1==1.4.1-2
 libpixman-1-0==0.34.0-1
 libplexus-ant-factory-java==1.0~alpha2.1-3
@@ -790,18 +822,24 @@ libpolkit-gobject-1-0==0.105-18+deb9u1
 libpoppler64==0.48.0-2+deb9u4
 libpopt0==1.16-10+b2
 libpotrace0==1.13-3
+libprocps6==2:3.3.12-3+deb9u1
 libprotobuf-dev==3.0.0-9
 libprotobuf-lite10==3.0.0-9
 libprotobuf10==3.0.0-9
 libprotoc10==3.0.0-9
 libproxy1v5==0.4.14-2+deb9u2
+libpsl5==0.17.0-3
 libpsm-infinipath1==3.3+19.g67c0807.open-3
 libptexenc1==2016.20160513.41080.dfsg-2+deb9u1
 libpthread-stubs0-dev==0.3-4
 libpulse0==10.0-1+deb9u1
 libpython-all-dev==2.7.13-2
 libpython-dev==2.7.13-2
+libpython-stdlib==2.7.13-2
+libpython2.7==2.7.13-2+deb9u4
 libpython2.7-dev==2.7.13-2+deb9u4
+libpython2.7-minimal==2.7.13-2+deb9u4
+libpython2.7-stdlib==2.7.13-2+deb9u4
 libpython3-all-dbg==3.5.3-1
 libpython3-all-dev==3.5.3-1
 libpython3-dbg==3.5.3-1
@@ -853,6 +891,7 @@ libquadmath0==6.3.0-18+deb9u1
 librdmacm1==1.1.0-2
 libreadline-dev==7.0-3
 libreadline5==5.2+dfsg-3+b1
+libreadline7==7.0-3
 libregexp-assemble-perl==0.36-1
 librelaxng-datatype-java==1.0+ds1-3
 librest-0.7-0==0.8.0-2
@@ -863,8 +902,11 @@ librrd-dev==1.6.0-1+b2
 librrd8==1.6.0-1+b2
 librsvg2-2==2.40.21-0+deb9u1
 librsvg2-common==2.40.21-0+deb9u1
+librtmp1==2.4+20151223.gitfa8646d.1-1+b1
 libruby2.3==2.3.3-1+deb9u9
+libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u1
+libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsaxon-java==1:6.5.5-10
 libscalar-list-utils-perl==1:1.47-1
 libsdl1.2debian==1.2.15+dfsg1-4
@@ -888,6 +930,7 @@ libsnmp-dev==5.7.3+dfsg-1.7+deb9u3
 libsnmp30==5.7.3+dfsg-1.7+deb9u3
 libsoap-lite-perl==1.20-1
 libsocket6-perl==0.27-1+b1
+libsodium18==1.0.11-2
 libsort-key-perl==1.33-1+b3
 libsort-versions-perl==1.62-1
 libsoup-gnome2.4-1==2.56.0-2+deb9u2
@@ -895,7 +938,10 @@ libsoup2.4-1==2.56.0-2+deb9u2
 libspice-server1==0.12.8-2.1+deb9u4
 libsqlite3-0==3.16.2-5+deb9u2
 libsqlite3-dev==3.16.2-5+deb9u2
+libssh2-1==1.7.0-1+deb9u1
 libssl-dev==1.1.0l-1~deb9u1
+libssl1.0.2==1.0.2u-1~deb9u2
+libssl1.1==1.1.0l-1~deb9u1
 libstax-java==1.2.0-3
 libstdc++-6-dev==6.3.0-18+deb9u1
 libstrictures-perl==2.000003-1
@@ -914,6 +960,7 @@ libsynctex1==2016.20160513.41080.dfsg-2+deb9u1
 libsys-hostname-long-perl==1.5-1
 libsystemd-dev==232-25+deb9u12
 libtask-weaken-perl==1.04-1
+libtasn1-6==4.10-1.1+deb9u1
 libtcl8.6==8.6.6+dfsg-1+b1
 libtcmalloc-minimal4==2.5-2.2
 libtexlua52==2016.20160513.41080.dfsg-2+deb9u1
@@ -941,6 +988,7 @@ libtxc-dxtn-s2tc==1.0+git20151227-2
 libubsan0==6.3.0-18+deb9u1
 libudev-dev==232-25+deb9u12
 libunicode-utf8-perl==0.60-1+b3
+libunistring0==0.9.6+really0.9.3-0.1
 libunwind-dev==1.1-4.1
 libunwind8==1.1-4.1
 libunwind8-dev==1.1-4.1
@@ -972,6 +1020,7 @@ libwebp6==0.5.2-1
 libwebpdemux2==0.5.2-1
 libwebpmux2==0.5.2-1
 libwmf0.2-7==0.2.8.4-10.6
+libwrap0==7.6.q-26
 libwrap0-dev==7.6.q-26
 libwww-perl==6.15-1
 libwww-robotrules-perl==6.01-1
@@ -1095,6 +1144,7 @@ libyaml-dev==0.1.7-2
 libyaml-libyaml-perl==0.63-2
 libyaml-tiny-perl==1.70-1
 libzmq3-dev==4.2.1-4+deb9u3
+libzmq5==4.2.1-4+deb9u3
 libzzip-0-13==0.13.62-3.2~deb9u1
 licensecheck==3.0.29-1
 lintian==2.5.50.4
@@ -1115,6 +1165,7 @@ lsb-release==9.20161125
 lsof==4.89+dfsg-0.1
 lua-bitop==1.0.2-4
 lua-bitop-dev==1.0.2-4
+lua-cjson==2.1.0+dfsg-2
 lua-cjson-dev==2.1.0+dfsg-2
 lvm2==2.02.168-2
 lynx==2.8.9dev11-1
@@ -1131,11 +1182,13 @@ maven-debian-helper==2.1.3
 maven-repo-helper==1.9.2
 mesa-common-dev==13.0.6-1+b2
 mesa-utils==8.3.0-3
+mime-support==3.60
 module-assistant==0.11.9
 mpi-default-bin==1.8
 mpi-default-dev==1.8
 mysql-common==5.8+1.0.2
 ncurses-term==6.0+20161126-1+deb9u2
+net-tools==1.60+git20161116.90da8a0-1
 netbase==5.4
 netpbm==2:10.0-15.3+b2
 ocl-icd-libopencl1==2.2.11-1
@@ -1149,12 +1202,15 @@ opensp==1.5.2-13+b1
 openssh-client==1:7.4p1-10+deb9u7
 openssh-server==1:7.4p1-10+deb9u7
 openssh-sftp-server==1:7.4p1-10+deb9u7
+openssl==1.1.0l-1~deb9u1
 packagekit==1.1.5-2+deb9u2
 packagekit-tools==1.1.5-2+deb9u2
 patch==2.7.5-1+deb9u2
 patchutils==0.3.4-2
 pbuilder==0.228.7
 pbzip2==1.1.9-1+b1
+perl==5.24.1-3+deb9u7
+perl-modules-5.24==5.24.1-3+deb9u7
 perl-openssl-defaults==3
 php-cli==1:7.0+49
 php-codecoverage==4.0.0+dfsg-1
@@ -1198,6 +1254,7 @@ poppler-data==0.4.7-8
 preview-latex-style==11.90-1
 pristine-tar==1.38
 procmail==3.22-25+deb9u1
+procps==2:3.3.12-3+deb9u1
 prosper==1.00.4+cvs.2007.05.01-4.1
 protobuf-compiler==3.0.0-9
 ps2eps==1.68+binaryfree-2
@@ -1205,6 +1262,7 @@ psmisc==22.21-2.1+b2
 psutils==1.17.dfsg-4
 publicsuffix==20190415.1030-0+deb9u1
 pylint==1.6.5-1
+python==2.7.13-2
 python-alabaster==0.7.8-1
 python-all==2.7.13-2
 python-all-dev==2.7.13-2
@@ -1247,11 +1305,14 @@ python-lazy-object-proxy==1.2.2-1
 python-lxml==3.7.1-1+deb9u1
 python-m2crypto==0.24.0-1.1
 python-markupsafe==0.23-3
+python-minimal==2.7.13-2
 python-nose2==0.6.5-2
 python-openssl==16.2.0-1
 python-pam==0.4.2-13.2
 python-parse==1.6.6-0.1
 python-pil==4.0.0-4+deb9u2
+python-pip-whl==9.0.1-2+deb9u2
+python-pkg-resources==33.1.1-1
 python-py==1.4.32-3
 python-pyasn1==0.1.9-2
 python-pyasn1-modules==0.0.7-0.1
@@ -1263,6 +1324,7 @@ python-roman==2.0.0-2
 python-secretstorage==2.3.1-2
 python-serial==3.2.1-1
 python-service-identity==16.0.0-2
+python-setuptools==33.1.1-1
 python-six==1.10.0-3
 python-sphinx==1.4.9-2
 python-sphinx-rtd-theme==0.1.9-1
@@ -1278,7 +1340,9 @@ python-wheel==0.29.0-2
 python-wrapt==1.9.0-2
 python-xdg==0.25-4
 python-zope.interface==4.3.2-1
+python2.7==2.7.13-2+deb9u4
 python2.7-dev==2.7.13-2+deb9u4
+python2.7-minimal==2.7.13-2+deb9u4
 python3==3.5.3-1
 python3-alabaster==0.7.8-1
 python3-all==3.5.3-1
@@ -1340,6 +1404,7 @@ qtcore4-l10n==4:4.8.7+dfsg-11+deb9u1
 qttranslations5-l10n==5.7.1~20161021-1
 quilt==0.65-2~bpo9+1
 rake==10.5.0-2+deb9u1
+readline-common==7.0-3
 rename==0.20-4
 rhino==1.7.7.1-1
 rrdtool==1.6.0-1+b2
@@ -1413,6 +1478,7 @@ unattended-upgrades==0.93.1+nmu1
 unzip==6.0-21+deb9u2
 velocity==1.7-5
 vim==2:8.0.0197-4+deb9u3
+vim-common==2:8.0.0197-4+deb9u3
 vim-runtime==2:8.0.0197-4+deb9u3
 wdiff==1.2.2-2
 wget==1.18-5+deb9u3
@@ -1449,4 +1515,7 @@ xsltproc==1.1.29-2.1+deb9u2
 xterm==327-2
 xtrans-dev==1.3.5-1
 xvfb==2:1.19.2-1+deb9u6
+xxd==2:8.0.0197-4+deb9u3
+xz-utils==5.2.2-1.2+b1
 zip==3.0-11+b1
+zlib1g-dev==1:1.2.8.dfsg-5
