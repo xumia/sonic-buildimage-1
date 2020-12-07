@@ -407,9 +407,6 @@ class VersionBuild:
         for module in self.modules.values():
             if module.name == DEFAULT_MODULE:
                 continue
-            if module.name == 'docker-fpm-frr':
-                import pdb; pdb.set_trace()
-                pass
             if module.name == 'host-base-image':
                 continue
             if module.is_individule_version():
