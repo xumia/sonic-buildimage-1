@@ -175,10 +175,13 @@ class VersionModule:
     def get_config_module(self, default_module, dist, arch):
         if self.is_individule_version():
             return self
-        exclude_ctypes = None
+        module = default_module
         if not self.is_aggregatable_module(self.name):
-            exclude_ctypes = DEFAULT_OVERWRITE_COMPONENTS
-        module = default_module.clone(exclude_ctypes=exclude_ctypes)
+            module = default_module.clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)
+        return self._get_config_module(module, dist, arch)
+
+    def _get_config_module(self, default_module, dist, arch):
+        module = default_module.clone()
         default_ctype_components = module._get_components_per_ctypes()
         module.overwrite(self)
         config_components = []
@@ -209,7 +212,7 @@ class VersionModule:
             for i in range(0, len(components)):
                 component = components[i]
                 base_module = VersionModule(self.name, components[0:i])
-                config_module = base_module.get_config_module(default_module, component.dist, component.arch)
+                config_module = base_module._get_config_module(default_module, component.dist, component.arch)
                 config_components = config_module._get_components_by_ctype(ctype)
                 if len(config_components) > 0:
                     config_component = config_components[0]
