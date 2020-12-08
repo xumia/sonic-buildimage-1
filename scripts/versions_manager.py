@@ -287,14 +287,15 @@ class VersionModule:
             components.append(component)
 
     def load_from_target(self, image_path):
-        post_versions = os.path.join(image_path, 'post_versions')
+        post_versions = os.path.join(image_path, 'post-versions')
         if os.path.exists(post_versions):
             self.load(post_versions)
-            pre_versions = os.path.join(image_path, 'pre_versions')
+            self.name = os.path.basename(image_path)
+            pre_versions = os.path.join(image_path, 'pre-versions')
             if os.path.exists(pre_versions):
                 pre_module = VersionModule()
                 pre_module.load(pre_versions)
-                self.subtrct(pre_module)
+                self.subtract(pre_module)
         else:
             self.load(image_path)
 
