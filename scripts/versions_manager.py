@@ -287,7 +287,16 @@ class VersionModule:
             components.append(component)
 
     def load_from_target(self, image_path):
-        self.load(image_path)
+        post_versions = os.path.join(image_path, 'post_versions')
+        if os.path.exists(post_versions):
+            self.load(post_versions)
+            pre_versions = os.path.join(image_path, 'pre_versions')
+            if os.path.exists(pre_versions):
+                pre_module = VersionModule()
+                pre_module.load(pre_versions)
+                self.subtrct(pre_module)
+        else:
+            self.load(image_path)
 
     def dump(self, module_path, config=False, priority=999):
         version_file_pattern = os.path.join(module_path, VERSION_PREFIX + '*')

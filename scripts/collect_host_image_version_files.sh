@@ -8,4 +8,5 @@ mkdir -p $VERSIONS_PATH
 
 sudo LANG=C chroot $FILESYSTEM_ROOT post_run_buildinfo
 
-cp $FILESYSTEM_ROOT/usr/local/share/buildinfo/diff-versions/* $VERSIONS_PATH/
+cp -r $FILESYSTEM_ROOT/usr/local/share/buildinfo/pre-versions $VERSIONS_PATH/
+cp -r $FILESYSTEM_ROOT/usr/local/share/buildinfo/post-versions $VERSIONS_PATH/
