@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDINFO_PATH=files/build
+BUILDINFO_PATH=src/sonic-build-hooks
 
 TRUSTED_GPG_PATH=$BUILDINFO_PATH/buildinfo/trusted.gpg.d
 BUILDINFO_CONFIG=$BUILDINFO_PATH/buildinfo/config/buildinfo.config

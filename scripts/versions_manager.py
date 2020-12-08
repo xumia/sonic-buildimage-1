@@ -175,11 +175,17 @@ class VersionModule:
     def get_config_module(self, default_module, dist, arch):
         if self.is_individule_version():
             return self
+        module = default_module
+        if not self.is_aggregatable_module(self.name):
+            module = default_module.clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)
+        return self._get_config_module(module, dist, arch)
+
+    def _get_config_module(self, default_module, dist, arch):
         module = default_module.clone()
+        default_ctype_components = module._get_components_per_ctypes()
         module.overwrite(self)
         config_components = []
         ctype_components = module._get_components_per_ctypes()
-        default_ctype_components = default_module._get_components_per_ctypes()
         for ctype in default_ctype_components:
             if ctype not in ctype_components:
                 ctype_components[ctype] = []
@@ -206,7 +212,7 @@ class VersionModule:
             for i in range(0, len(components)):
                 component = components[i]
                 base_module = VersionModule(self.name, components[0:i])
-                config_module = base_module.get_config_module(default_module, component.dist, component.arch)
+                config_module = base_module._get_config_module(default_module, component.dist, component.arch)
                 config_components = config_module._get_components_by_ctype(ctype)
                 if len(config_components) > 0:
                     config_component = config_components[0]
@@ -321,6 +327,18 @@ class VersionModule:
         return self.is_slave_module() and SLAVE_INDIVIDULE_VERSION
 
     @classmethod
+    def is_aggregatable_module(cls, module_name):
+        if module_name.startswith('sonic-slave-'):
+            return False
+        if module_name.startswith('build-sonic-slave-'):
+            return False
+        if module_name == DEFAULT_MODULE:
+            return False
+        if module_name == 'host-image' or module_name == 'host-base-image':
+            return False
+        return True
+
+    @classmethod
     def get_module_path_by_name(cls, source_path, module_name):
         common_modules = ['default', 'host-image', 'host-base-image']
         if module_name in common_modules:
@@ -388,6 +406,7 @@ class VersionBuild:
             module.dump(module_path)
 
     def subtract(self, default_module):
+        none_aggregatable_module = default_module.clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)
         for module in self.modules.values():
             if module.name == DEFAULT_MODULE:
                 continue
@@ -395,7 +414,10 @@ class VersionBuild:
                 continue
             if module.is_individule_version():
                 continue
-            module.subtract(default_module)
+            tmp_module = default_module
+            if not module.is_aggregatable_module(module.name):
+                tmp_module = none_aggregatable_module
+            module.subtract(tmp_module)
 
     def freeze(self, rebuild=False, for_all_dist=False, for_all_arch=False, ctypes=['all']):
         if rebuild:
@@ -447,16 +469,10 @@ class VersionBuild:
                 components.append(component)
         return VersionModule(DEFAULT_MODULE, components)
 
-    def get_docker_version_modules(self):
+    def get_aggregatable_modules(self):
         modules = {}
         for module_name in self.modules:
-            if module_name.startswith('sonic-slave-'):
-                continue
-            if module_name.startswith('build-sonic-slave-'):
-                continue
-            if module_name == DEFAULT_MODULE:
-                continue
-            if module_name == 'host-image' or module_name == 'host-base-image':
+            if not VersionModule.is_aggregatable_module(module_name):
                 continue
             module = self.modules[module_name]
             modules[module_name] = module
@@ -522,7 +538,7 @@ class VersionBuild:
 
     def _get_versions(self, ctype, dist=None, arch=None):
         versions = {}
-        modules = self.get_docker_version_modules()
+        modules = self.get_aggregatable_modules()
         for module_name in self.modules:
             if module_name not in modules:
                 temp_module = self.modules[module_name].clone(exclude_ctypes=DEFAULT_OVERWRITE_COMPONENTS)

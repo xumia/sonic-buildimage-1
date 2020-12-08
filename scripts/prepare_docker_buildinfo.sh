@@ -24,8 +24,8 @@ fi
 
 DOCKERFILE_PRE_SCRIPT='# Auto-Generated for buildinfo 
 COPY ["buildinfo", "/usr/local/share/buildinfo"]
-RUN dpkg -i /usr/local/share/buildinfo/sonic-build-tools_1.0_all.deb
-RUN apt-mark hold sonic-build-tools
+RUN dpkg -i /usr/local/share/buildinfo/sonic-build-hooks_1.0_all.deb
+RUN apt-mark hold sonic-build-hooks
 RUN pre_run_buildinfo'
 
 # Add the auto-generate code if it is not added in the target Dockerfile
@@ -44,7 +44,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKE
 fi
 
 # Copy the build info config
-cp -rf files/build/buildinfo/* $BUILDINFO_PATH
+cp -rf src/sonic-build-hooks/buildinfo/* $BUILDINFO_PATH
 
 # Build the slave running config
 if [ "$BUILD_SLAVE" == "y" ]; then

@@ -16,7 +16,7 @@ DIFF_VERSIONS_PATH=$BUILDINFO_PATH/diff-versions
 mkdir -p $BUILDINFO_PATH
 
 # Copy the build info config
-cp -rf files/build/buildinfo/* $BUILDINFO_PATH/
+cp -rf src/sonic-build-hooks/buildinfo/* $BUILDINFO_PATH/
 
 # Install the config files
 cp $BUILDINFO_PATH/trusted.gpg.d/* "${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/"
@@ -28,6 +28,6 @@ if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
     cp -f $BUILDINFO_VERSION_DEB ${FILESYSTEM_ROOT}/etc/apt/preferences.d/
 fi
 
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg -i /usr/local/share/buildinfo/sonic-build-tools_1.0_all.deb"
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "apt-mark hold sonic-build-tools"
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg -i /usr/local/share/buildinfo/sonic-build-hooks_1.0_all.deb"
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "apt-mark hold sonic-build-hooks"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "pre_run_buildinfo"
