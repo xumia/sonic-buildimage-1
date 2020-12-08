@@ -1,13 +1,13 @@
-SONIC_BUILD_TOOLS = sonic-build-tools
-SONIC_BUILD_TOOLS_VERSION = 1.0
-SONIC_BUILD_TOOLS_PACKAGE = $(SONIC_BUILD_TOOLS)_$(SONIC_BUILD_TOOLS_VERSION)_all.deb
+SONIC_BUILD_HOOKS = sonic-build-hooks
+SONIC_BUILD_HOOKS_VERSION = 1.0
+SONIC_BUILD_HOOKS_PACKAGE = $(SONIC_BUILD_HOOKS)_$(SONIC_BUILD_HOOKS_VERSION)_all.deb
 
 BUILDINFO_DIR = buildinfo
 TMP_DIR = tmp
 SYMBOL_LINKS_SRC_DIR = ../../usr/local/share/buildinfo/scripts
 SYMBOL_LINKS = set_build_hooks post_run_buildinfo pre_run_buildinfo collect_version_files
-SONIC_BUILD_TOOLS_TARGET = $(BUILDINFO_DIR)/$(SONIC_BUILD_TOOLS_PACKAGE)
-BUILD_ROOT_DIR = $(TMP_DIR)/$(SONIC_BUILD_TOOLS)
+SONIC_BUILD_HOOKS_TARGET = $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS_PACKAGE)
+BUILD_ROOT_DIR = $(TMP_DIR)/$(SONIC_BUILD_HOOKS)
 DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/local/share/buildinfo
 SYMBOL_LINK_PATH = $(BUILD_ROOT_DIR)/usr/sbin
@@ -18,20 +18,20 @@ DPKGTOOL = $(shell which dpkg-deb)
 
 # If the depk-deb not installed, use the docker container to make the debian package
 ifeq ($(shell which dpkg-deb),)
-BUILD_COMMAND=docker run --rm -v $(shell pwd):/build debian bash -c "cd build; dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_TOOLS) $(SONIC_BUILD_TOOLS_TARGET)"
+BUILD_COMMAND=docker run --rm -v $(shell pwd):/build debian bash -c "cd build; dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_HOOKS) $(SONIC_BUILD_HOOKS_TARGET)"
 else
-BUILD_COMMAND=dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_TOOLS) $(SONIC_BUILD_TOOLS_TARGET)
+BUILD_COMMAND=dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_HOOKS) $(SONIC_BUILD_HOOKS_TARGET)
 endif
 
 DEPENDS := $(shell find scripts hooks debian -type f)
-$(SONIC_BUILD_TOOLS_TARGET): $(DEPENDS)
-	@rm -rf $(BUILDINFO_DIR)/$(SONIC_BUILD_TOOLS) $(TMP_DIR)
+$(SONIC_BUILD_HOOKS_TARGET): $(DEPENDS)
+	@rm -rf $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS) $(TMP_DIR)
 	@mkdir -p $(DEBIAN_DIR) $(SCRIPTS_PATH) $(HOOKS_PATH) $(SYMBOL_LINK_PATH)
 	@cp debian/* $(DEBIAN_DIR)/
 	@cp scripts/* $(SCRIPTS_PATH)/
 	@cp hooks/* $(HOOKS_PATH)/
 	@for f in $(SYMBOL_LINKS); do ln -s $(SYMBOL_LINKS_SRC_DIR)/$$f $(SYMBOL_LINK_PATH)/$$f; done
 	@$(BUILD_COMMAND)
-	@sudo chmod a+rw $(SONIC_BUILD_TOOLS_TARGET)
+	@sudo chmod a+rw $(SONIC_BUILD_HOOKS_TARGET)
 
-all: $(SONIC_BUILD_TOOLS_TARGET)
+all: $(SONIC_BUILD_HOOKS_TARGET)

@@ -246,8 +246,8 @@ endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
 
-	@pushd files/build; make all; popd
-	@cp files/build/buildinfo/sonic-build-tools* $(SLAVE_BASE_IMAGE)/buildinfo
+	@pushd src/sonic-build-hooks; make all; popd
+	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; \
@@ -265,11 +265,11 @@ else
 	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
 endif
 
-sonic-build-tools:
-	@pushd files/build; make all; popd
-	@cp files/build/buildinfo/sonic-build-tools* $(SLAVE_BASE_IMAGE)/buildinfo
+sonic-build-hooks:
+	@pushd src/sonic-build-hooks; make all; popd
+	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
 
-sonic-slave-base-build : sonic-build-tools
+sonic-slave-base-build : sonic-build-hooks
 	@$(OVERLAY_MODULE_CHECK)
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
