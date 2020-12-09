@@ -30,3 +30,5 @@ do
         ([ -e $TARGET_PATH/$f ] && ls -l $TARGET_PATH/$f | grep -q $HOOK_PATH) && rm -f $TARGET_PATH/$f
     fi
 done
+
+exit 0
