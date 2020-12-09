@@ -18,9 +18,6 @@ mkdir -p $BUILDINFO_PATH
 # Copy the build info config
 cp -rf src/sonic-build-hooks/buildinfo/* $BUILDINFO_PATH/
 
-# Install the config files
-cp $BUILDINFO_PATH/trusted.gpg.d/* "${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/"
-
 # Generate version lock files
 scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -m "$OVERRIDE_VERSION_PATH" -d "$DISTRO" -a "$ARCH"
 

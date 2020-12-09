@@ -4,19 +4,8 @@
 
 [ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
 
+# Collect the version files
 collect_version_files $POST_VERSION_PATH
-chmod -R a+rw $BUILDINFO_PATH
 
-for file in $POST_VERSION_PATH/versions-*
-do
-    filename=$(basename $file)
-    init_file=$PRE_VERSION_PATH/$filename
-    diff_file=$DIFF_VERSION_PATH/$filename
-    cat $file | sort > $diff_file
-    if [ -f $init_file ]; then
-        cat $file $init_file $init_file | sort | LC_ALL=C uniq -u > $diff_file
-    fi
-done
-
-[ -d $BUILD_VERSION_PATH ] && [ ! -z "$(ls -A $BUILD_VERSION_PATH)" ] && cp -rf $BUILD_VERSION_PATH/* $DIFF_VERSION_PATH/
-rm -rf $BUILD_VERSION_PATH/*
+# Disable the build hooks
+set_build_hooks -d

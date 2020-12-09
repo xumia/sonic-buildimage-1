@@ -20,7 +20,6 @@ if docker container inspect $DOCKER_IMAGE > /dev/null 2>&1; then
 fi
 docker create --name $DOCKER_CONTAINER --entrypoint /bin/bash $DOCKER_IMAGE
 docker cp -L $DOCKER_CONTAINER:/etc/os-release $TARGET_VERSIONS_PATH/  > /dev/null 2>&1
-docker cp -L $DOCKER_CONTAINER:/usr/local/share/buildinfo/diff-versions $TARGET_VERSIONS_PATH/  > /dev/null 2>&1
-mv $TARGET_VERSIONS_PATH/diff-versions/* $TARGET_VERSIONS_PATH/
-rm -rf $TARGET_VERSIONS_PATH/diff-versions
+docker cp -L $DOCKER_CONTAINER:/usr/local/share/buildinfo/pre-versions $TARGET_VERSIONS_PATH/  > /dev/null 2>&1
+docker cp -L $DOCKER_CONTAINER:/usr/local/share/buildinfo/post-versions $TARGET_VERSIONS_PATH/  > /dev/null 2>&1
 docker container rm $DOCKER_CONTAINER  > /dev/null 2>&1
