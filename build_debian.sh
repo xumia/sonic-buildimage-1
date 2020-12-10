@@ -573,7 +573,6 @@ sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
 scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
-sudo LANG=C chroot $FILESYSTEM_ROOT set_build_hooks -d
 
 ## Compress docker files
 pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd
