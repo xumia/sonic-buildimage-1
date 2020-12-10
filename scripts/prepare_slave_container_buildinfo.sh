@@ -7,7 +7,7 @@ BUILD_VERSIONS_PATH=$SLAVE_DIR/buildinfo/build/versions
 VERSION_DEB_PREFERENCE=$BUILD_VERSIONS_PATH/01-versions-deb
 
 # Enable the build hooks
-set_build_hooks
+symlink_build_hooks
 
 cp -rf $SLAVE_DIR/buildinfo/* /usr/local/share/buildinfo/
 

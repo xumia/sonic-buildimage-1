@@ -26,5 +26,4 @@ if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ]; then
 fi
 
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg -i /usr/local/share/buildinfo/sonic-build-hooks_1.0_all.deb"
-sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "apt-mark hold sonic-build-hooks"
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "pre_run_buildinfo"

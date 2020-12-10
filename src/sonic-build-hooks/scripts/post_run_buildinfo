@@ -7,5 +7,8 @@
 # Collect the version files
 collect_version_files $POST_VERSION_PATH
 
+[ -d $BUILD_VERSION_PATH ] && [ ! -z "$(ls -A $BUILD_VERSION_PATH)" ] && cp -rf $BUILD_VERSION_PATH/* $POST_VERSION_PATH
+rm -rf $BUILD_VERSION_PATH/*
+
 # Disable the build hooks
-set_build_hooks -d
+symlink_build_hooks -d
