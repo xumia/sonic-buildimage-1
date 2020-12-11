@@ -137,9 +137,9 @@ update_repo()
 
     SAVE_WORKSPACE=y
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
-        aptly --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
+        aptly -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
-    aptly --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE -config $APTLY_CONFIG publish update -skip-cleanup $dist filesystem:debian:
+    aptly -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -config $APTLY_CONFIG publish update -skip-cleanup $dist filesystem:debian:
 
     # Update the gpg public key
 }
