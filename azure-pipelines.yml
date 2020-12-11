@@ -57,6 +57,7 @@ steps:
     fi
     echo 'Install aptly'
     [ -z "$(which aptly)" ] && sudo apt-get install -y aptly
+    echo 'Init is complete'
   displayName: 'Run init script'
 - bash: |
     scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)"
