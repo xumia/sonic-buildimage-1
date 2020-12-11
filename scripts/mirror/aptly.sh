@@ -8,8 +8,8 @@ APTLY_DIR="/blobfuse-${STORAGE_ACCOUNT}-aptly"
 WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
 PUBLISH_DIR=$WEB_DIR/debian
 
-DEBIAN_MIRROR_URL="http://deb.debian.org/debian"
-DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
+DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
+DEBINA_SECURITY_MIRROR_URL="https://security.debian.org/debian-security"
 
 if [ -z "$DISTRIBUTE" ]; then
    echo "DIST is empty" 1>&2
@@ -28,7 +28,7 @@ APTLY_CONFIG=aptly-debian.conf
 
 create_or_update_database()
 {
-
+    echo y
 }
 
 prepare_workspace()
@@ -83,9 +83,9 @@ update_repo()
         local repo="repo-${name}-${distname}-${component}"
         local logfile="${mirror}.log"
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
-            aptly -config $APTLY_CONFIG -architectures="$archs" mirror create -with-sources $mirror http://deb.debian.org/debian $dist $component
+            aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror http://deb.debian.org/debian $dist $component
         fi
-        aptly -config $APTLY_CONFIG mirror update | tee $logfile
+        aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if grep -q "Download queue: 0 items" $logfile; then
             continue
         fi
@@ -101,13 +101,12 @@ update_repo()
         return
     fi
 
-    if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian:; then
+    if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
         aptly -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
     aptly -config $APTLY_CONFIG publish update -skip-cleanup $dist filesystem:debian:
 }
 
 prepare_workspace
-aptly -config $APTLY_CONFIG mirror
-update_repo debian "$DEBIAN_MIRROR_URL" buster-updates "amd64,arm64,armhf" "contrib,non-free"
+update_repo debian "$DEBIAN_MIRROR_URL" buster-updates "amd64,arm64,armhf" "contrib,non-free,main"
 #save_workspace
