@@ -119,6 +119,7 @@ update_repo()
             aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror $url $dist $component
             SAVE_WORKSPACE=y
         fi
+        repos="$repos $repo"
         aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if grep -q "Download queue: 0 items" $logfile; then
             continue
@@ -128,7 +129,6 @@ update_repo()
             aptly -config $APTLY_CONFIG repo create $repo
         fi
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
-        repos="$repos $repo"
     done
 
     if [ "$need_to_publish" != "y" ];then
@@ -136,6 +136,7 @@ update_repo()
     fi
 
     SAVE_WORKSPACE=y
+    echo "Publish repos: $repos"
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
         aptly -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
