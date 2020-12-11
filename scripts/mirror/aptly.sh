@@ -40,6 +40,7 @@ prepare_workspace()
 
     mkdir -p $BLOBFUSE_POOL_DIR
     mkdir -p $PUBLISH_DIR
+    echo "pwd=$(pwd)"
     cp ../config/aptly-debian.conf $APTLY_CONFIG
     ln -s "$remote_pool_dir" pool
     ln -s $PUBLISH_DIR publish
