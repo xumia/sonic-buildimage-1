@@ -60,7 +60,7 @@ steps:
     echo 'Init is complete'
   displayName: 'Run init script'
 - bash: |
-    echo "$(sonic-gpg-enc-private-key)" > "encryped_private_gpg.key"
+    echo "$(sonic-gpg-enc-private-key)" > "encryped_private_key.gpg"
     scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
   displayName: 'Update and publish debian mirrors by aptly'
 - task: AzureKeyVault@1
