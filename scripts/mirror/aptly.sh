@@ -110,6 +110,7 @@ update_repo()
     # Create the aptly mirrors if it does not exist
     local repos=
     local need_to_publish=n
+    [ "$CREATE_DB" == "y" ] && need_to_publish=y
     for component in $(echo $components | tr ',' ' '); do
         local mirror="mirror-${name}-${distname}-${component}"
         local repo="repo-${name}-${distname}-${component}"
