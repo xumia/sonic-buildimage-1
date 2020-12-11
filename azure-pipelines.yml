@@ -70,7 +70,7 @@ steps:
     mkdir work
     echo "$(sonic-gpg-enc-private-key)" > "work/encryped_private_key.gpg"
     pushd work
-    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
+    ../scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
     popd work
   displayName: 'Update and publish debian mirrors by aptly'
 - script: |
