@@ -27,6 +27,8 @@ mkdir -p $WORK_DIR
 cd $WORK_DIR
 APTLY_CONFIG=aptly-debian.conf
 
+SAVE_WORKSPACE=n
+
 create_or_update_database()
 {
     echo y
@@ -67,6 +69,9 @@ save_workspace()
 
     mkdir -p "$remote_db_dir"
 
+    if [ "$SAVE_WORKSPACE" == "n" ]; then
+        return
+    fi
     tar -czvf "$package" db
     echo "Saving workspace to $package is complete"
 }
@@ -89,6 +94,7 @@ update_repo()
         local logfile="${mirror}.log"
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
             aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror $url $dist $component
+            SAVE_WORKSPACE=y
         fi
         aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if grep -q "Download queue: 0 items" $logfile; then
@@ -106,6 +112,7 @@ update_repo()
         return
     fi
 
+    SAVE_WORKSPACE=y
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
         aptly -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
