@@ -138,6 +138,7 @@ update_repo()
     SAVE_WORKSPACE=y
     echo "Publish repos: $repos"
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
+        echo aptly -config $APTLY_CONFIG publish repo -passphrase="***" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
         aptly -config $APTLY_CONFIG publish repo -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist filesystem:debian:
