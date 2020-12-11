@@ -9,6 +9,12 @@ trigger:
 pool: sonic-mirror-build
 
 steps:
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
+    KeyVaultName: 'sonic-kv'
+    SecretsFilter: 'sonic-gpg-passphrase,sonic-gpg-enc-private-key'
+    RunAsPreJob: true
 - bash: |
     echo 'Try to init disk'
     [ ! -d /data ] && sudo mkdir -p /data
@@ -60,14 +66,9 @@ steps:
     echo 'Init is complete'
   displayName: 'Run init script'
 - bash: |
-    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)"
+    echo "$(sonic-gpg-enc-private-key)" > "encryped_private_key.gpg"
+    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
   displayName: 'Update and publish debian mirrors by aptly'
-- task: AzureKeyVault@1
-  inputs:
-    azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
-    KeyVaultName: 'sonic-kv'
-    SecretsFilter: 'sonic-gpg-passphrase,sonic-gpg-enc-private-key'
-    RunAsPreJob: true
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
