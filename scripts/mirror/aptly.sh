@@ -44,8 +44,9 @@ export GNUPGHOME=gnupg
 rm -rf $GNUPGHOME
 GPG_FILE=$GNUPGHOME/mykey.gpg
 mkdir $GNUPGHOME
-chmod 600 $GNUPGHOME
 echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
+chmod 600 $GNUPGHOME/*
+chmod 700 $GNUPGHOME
 
 create_or_update_database()
 {
