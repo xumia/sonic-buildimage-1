@@ -66,12 +66,8 @@ steps:
     echo 'Init is complete'
   displayName: 'Run init script'
 - bash: |
-    rm -rf work
-    mkdir work
-    echo "$(sonic-gpg-enc-private-key)" > "work/encryped_private_key.gpg"
-    pushd work
-    ../scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
-    popd work
+    echo "$(sonic-gpg-enc-private-key)" > "encryped_private_key.gpg"
+    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
   displayName: 'Update and publish debian mirrors by aptly'
 - script: |
     echo Add other tasks to build, test, and deploy your project.
