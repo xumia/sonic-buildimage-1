@@ -121,13 +121,12 @@ update_repo()
         fi
         repos="$repos $repo"
         aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
-        if grep -q "Download queue: 0 items" $logfile; then
+        if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
+            aptly -config $APTLY_CONFIG repo create $repo
+        elif grep -q "Download queue: 0 items" $logfile; then
             continue
         fi
         need_to_publish=y
-        if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
-            aptly -config $APTLY_CONFIG repo create $repo
-        fi
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
     done
 
