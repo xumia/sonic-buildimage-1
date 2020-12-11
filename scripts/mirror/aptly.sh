@@ -21,7 +21,7 @@ BLOBFUSE_METTRIC_DIR=$APTLY_DIR/metric
 BLOBFUSE_WORK_DIR=$APTLY_DIR/$DISTRIBUTE
 BLOBFUSE_POOL_DIR=$BLOBFUSE_WORK_DIR/pool
 BLOBFUSE_DB_DIR=$BLOBFUSE_WORK_DIR/db
-ENCRIPTED_KEY_GPG=$(abspath ./encrypted_private_key.gpg)
+ENCRIPTED_KEY_GPG=$(realpath ./encrypted_private_key.gpg)
 if [ ! -f "$ENCRIPTED_KEY_GPG" ]; then
     echo "The encripted key gpg file $ENCRIPTED_KEY_GPG does not exist." 1>&2
     exit 1
