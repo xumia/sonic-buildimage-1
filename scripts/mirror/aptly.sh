@@ -4,6 +4,7 @@
 STORAGE_ACCOUNT=$1
 DISTRIBUTE=$2
 CREATE_DB=$3
+PASSPHRASE="$4"
 APTLY_DIR="/blobfuse-${STORAGE_ACCOUNT}-aptly"
 WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
 PUBLISH_DIR=$WEB_DIR/debian
@@ -20,14 +21,31 @@ BLOBFUSE_METTRIC_DIR=$APTLY_DIR/metric
 BLOBFUSE_WORK_DIR=$APTLY_DIR/$DISTRIBUTE
 BLOBFUSE_POOL_DIR=$BLOBFUSE_WORK_DIR/pool
 BLOBFUSE_DB_DIR=$BLOBFUSE_WORK_DIR/db
+ENCRIPTED_KEY_GPG=$(abspath ./encrypted_private_key.gpg)
+if [ ! -f "$ENCRIPTED_KEY_GPG" ]; then
+    echo "The encripted key gpg file $ENCRIPTED_KEY_GPG does not exist." 1>&2
+    exit 1
+fi
+
+if [ -z "$PASSPHRASE" ]; then
+    echo "The passphrase is not set." 1>&2
+    exit 1
+fi
 
 WORK_DIR=work
 rm -rf $WORK_DIR
 mkdir -p $WORK_DIR
 cd $WORK_DIR
 APTLY_CONFIG=aptly-debian.conf
-
 SAVE_WORKSPACE=n
+
+
+export GNUPGHOME=gnupg
+rm -rf $GNUPGHOME
+GPG_FILE=$GNUPGHOME/mykey.gpg
+mkdir $GNUPGHOME
+chmod 600 $GNUPGHOME
+echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
 
 create_or_update_database()
 {
@@ -47,6 +65,9 @@ prepare_workspace()
     cp ../config/aptly-debian.conf $APTLY_CONFIG
     ln -s "$remote_pool_dir" pool
     ln -s $PUBLISH_DIR publish
+
+    # Import gpg key
+    gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
 
     if [ "$CREATE_DB" == "y" ]; then
         return
@@ -117,6 +138,8 @@ update_repo()
         aptly -config $APTLY_CONFIG publish repo -distribution=$dist -architectures=$archs -component=$componets $repos filesystem:debian:
     fi
     aptly -config $APTLY_CONFIG publish update -skip-cleanup $dist filesystem:debian:
+
+    # Update the gpg public key
 }
 
 prepare_workspace
