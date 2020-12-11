@@ -60,7 +60,7 @@ steps:
     echo 'Init is complete'
   displayName: 'Run init script'
 - bash: |
-    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)"
+    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)"
   displayName: 'Update and publish debian mirrors by aptly'
 - task: AzureKeyVault@1
   inputs:
