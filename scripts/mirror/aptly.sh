@@ -55,7 +55,7 @@ prepare_workspace()
         exit 1
     fi
 
-    tar -xzvf "$latest_db" -C "$WORK_DIR"
+    tar -xzvf "$latest_db" -C .
 }
 
 save_workspace()
