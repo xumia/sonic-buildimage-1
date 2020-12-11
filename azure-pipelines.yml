@@ -56,7 +56,12 @@ steps:
 - bash: |
     scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)"
   displayName: 'Update and publish debian mirrors by aptly'
-
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
+    KeyVaultName: 'sonic-kv'
+    SecretsFilter: 'sonic-gpg-passphrase,sonic-gpg-enc-private-key'
+    RunAsPreJob: true
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
