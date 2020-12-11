@@ -59,11 +59,14 @@ prepare_workspace()
 save_workspace()
 {
     local remote_aptly_dir="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-    local remote_dist_dir="$remote_work_dir/$DISTRIBUTE"
+    local remote_dist_dir="$remote_aptly_dir/$DISTRIBUTE"
     local remote_db_dir="$remote_dist_dir/db"
     local package="$remote_db_dir/db-$(date +%Y%m%d%H%M%S).tar.gz"
 
+    mkdir -p "$remote_db_dir"
+
     tar -czvf "$package" db
+    echo "Saving workspace to $package is complete"
 }
 
 update_repo()
@@ -83,7 +86,7 @@ update_repo()
         local repo="repo-${name}-${distname}-${component}"
         local logfile="${mirror}.log"
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
-            aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror http://deb.debian.org/debian $dist $component
+            aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror $url $dist $component
         fi
         aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if grep -q "Download queue: 0 items" $logfile; then
@@ -109,4 +112,4 @@ update_repo()
 
 prepare_workspace
 update_repo debian "$DEBIAN_MIRROR_URL" buster-updates "amd64,arm64,armhf" "contrib,non-free,main"
-#save_workspace
+save_workspace
