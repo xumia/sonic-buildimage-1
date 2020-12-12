@@ -10,17 +10,30 @@ pipeline {
                           userRemoteConfigs: [[url: 'https://github.com/Azure/sonic-utilities',
                                                refspec: '+refs/pull/*:refs/remotes/origin/pr/*']]])
                 }
-                copyArtifacts(projectName: 'sonic-swss-common-build', filter: '**/*.deb', target: 'swss-common', flatten: true)
-                copyArtifacts(projectName: '../vs/sonic-swss-build', filter: '**/*.deb', target: 'swss', flatten: true)
-                copyArtifacts(projectName: '../vs/sonic-sairedis-build', filter: '**/*.deb', target: 'sairedis', flatten: true)
-                copyArtifacts(projectName: '../vs/buildimage-vs-all', filter: '**/*', target: 'buildimage', flatten: false)
+
+                script {
+                    if (env.ghprbTargetBranch == '201911') {
+                        copyArtifacts(projectName: 'vs/buildimage-vs-201911', filter: '**/*', target: 'buildimage', flatten: false)
+                    } else {
+                        copyArtifacts(projectName: 'common/sonic-swss-common-build', filter: '**/*.deb', target: 'swss-common', flatten: true)
+                        copyArtifacts(projectName: 'vs/sonic-swss-build', filter: '**/*.deb', target: 'swss', flatten: true)
+                        copyArtifacts(projectName: 'vs/sonic-sairedis-build', filter: '**/*.deb', target: 'sairedis', flatten: true)
+                        copyArtifacts(projectName: 'vs/buildimage-vs-all', filter: '**/*', target: 'buildimage', flatten: false)
+                    }
+                }
             }
         }
 
         stage('Build') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'sonicdev-cr', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWD')]) {
-                    sh './scripts/common/sonic-utilities-build/build.sh'
+                    script {
+                        if (env.ghprbTargetBranch == '201911') {
+                            sh './scripts/common/sonic-utilities-build/build_201911.sh'
+                        } else {
+                            sh './scripts/common/sonic-utilities-build/build.sh'
+                        }
+                    }
                 }
             }
         }
@@ -36,7 +49,12 @@ pipeline {
         stage('Test') {
             steps {
                 wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
-                    sh './scripts/common/sonic-utilities-build/test.sh'
+                    script {
+                        /* We will only run SwSS tests against master branch PRs */
+                        if (env.ghprbTargetBranch == 'master') {
+                            sh './scripts/common/sonic-utilities-build/test.sh'
+                        }
+                    }
                 }
             }
         }
@@ -45,9 +63,34 @@ pipeline {
 
         always {
             junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'sonic-swss-tests/tests/tr.xml')
+
+            script {
+                /* 201911 branch does not generate Pytest coverage report */
+                if (env.ghprbTargetBranch != '201911') {
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'sonic-utilities/htmlcov',
+                        reportFiles: 'index.html',
+                        reportName: 'RCov Report'
+                    ])
+
+                    publishCoverage(adapters: [
+                        coberturaAdapter('sonic-utilities/coverage.xml')
+                    ])
+                }
+            }
         }
+
         success {
-            archiveArtifacts(artifacts: 'sonic-utilities/deb_dist/python-sonic-utilities_1.2-1_all.deb,wheels/sonic_config_engine-1.0-py2-none-any.whl,wheels/swsssdk-2.0.1-py2-none-any.whl, sonic-swss-tests/tests/log/**')
+            script {
+                if (env.ghprbTargetBranch == '201911') {
+                    archiveArtifacts(artifacts: 'sonic-utilities/deb_dist/python-sonic-utilities_1.2-1_all.deb,wheels/sonic_config_engine-1.0-py2-none-any.whl,wheels/swsssdk-2.0.1-py2-none-any.whl,wheels/sonic_py_common-1.0-py2-none-any.whl,wheels/sonic_py_common-1.0-py3-none-any.whl, sonic-swss-tests/tests/log/**')
+                } else {
+                    archiveArtifacts(artifacts: 'sonic-utilities/dist/sonic_utilities-1.2-py2-none-any.whl,wheels/sonic_config_engine-1.0-py2-none-any.whl,wheels/swsssdk-2.0.1-py2-none-any.whl,wheels/sonic_py_common-1.0-py2-none-any.whl,wheels/sonic_py_common-1.0-py3-none-any.whl, sonic-swss-tests/tests/log/**')
+                }
+            }
         }
 
         cleanup {

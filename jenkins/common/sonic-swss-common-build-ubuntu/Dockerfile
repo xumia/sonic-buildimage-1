@@ -9,6 +9,8 @@ RUN apt-get install -y sudo
 RUN apt-get install -y redis-server redis-tools
 RUN apt-get install -y python-pip
 
+RUN apt-get install -y python3 python3-dev
+
 RUN pip install pytest
 
 RUN apt-get install cmake libgtest-dev

@@ -1,0 +1,34 @@
+pipeline {
+    agent { node { label 'sonic-slave-buster' } }
+
+    stages {
+        stage('Prepare') {
+            steps {
+                dir('sonic-mgmt-common') {
+                    checkout([$class: 'GitSCM',
+                          branches: [[name: '${sha1}']],
+                          userRemoteConfigs: [[url: 'http://github.com/Azure/sonic-mgmt-common',
+                                               refspec: '+refs/pull/*:refs/remotes/origin/pr/*']]])
+                }
+                copyArtifacts(projectName: 'vs/buildimage-vs-image', filter: '**/*.deb', target: 'buildimage', flatten: false)
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './scripts/common/sonic-mgmt-common-build/build.sh'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh './scripts/common/sonic-mgmt-common-build/test.sh'
+            }
+        }
+    }
+    post {
+        success {
+            archiveArtifacts(artifacts: 'target/*.deb')
+        }
+    }
+}

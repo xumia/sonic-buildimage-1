@@ -3,7 +3,10 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '10'))
+    }
 
+    environment {
+        SONIC_TEAM_WEBHOOK = credentials('public-jenkins-builder')
     }
 
     triggers {
@@ -23,13 +26,11 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh '''
-#!/bin/bash -ex
+                sh '''#!/bin/bash -ex
 
 cd sonic-swss-common
 
-./autogen.sh
-fakeroot debian/rules binary
+dpkg-buildpackage -us -uc -b
 
 cd ../
 
@@ -40,6 +41,7 @@ cp *.deb target/
         }
 
     }
+
     post {
 
         success {
@@ -47,9 +49,11 @@ cp *.deb target/
         }
         fixed {
             slackSend(color:'#00FF00', message: "Build job back to normal: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
         regression {
             slackSend(color:'#FF0000', message: "Build job Regression: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
     }
 }

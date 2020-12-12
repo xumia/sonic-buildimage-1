@@ -1,32 +1,38 @@
 pipeline {
     agent { node { label 'jenkins-workers-slow' } }
 
+    environment {
+        SONIC_TEAM_WEBHOOK = credentials('public-jenkins-builder')
+    }
+
     stages {
         stage('Prepare') {
             steps {
                 step([$class: 'WsCleanup'])
-                checkout([$class: 'GitSCM', 
-                          branches: [[name: 'refs/heads/master']], 
+                checkout([$class: 'GitSCM',
+                          branches: [[name: 'refs/heads/master']],
                           extensions: [[$class: 'SubmoduleOption',
                                         disableSubmodules: false,
                                         parentCredentials: false,
                                         recursiveSubmodules: true,
                                         reference: '',
-                                        trackingSubmodules: false]],
+                                        trackingSubmodules: false],
+                                       [$class: 'LocalBranch',
+                                        localBranch: "**"]],
                           userRemoteConfigs: [[url: 'http://github.com/Azure/sonic-buildimage']]])
             }
         }
 
         stage('Build') {
             steps {
-                sh '''
-#!/bin/bash -xe
+                sh '''#!/bin/bash -xe
 
 git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
 
+CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=wcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
 make configure PLATFORM=mellanox
-make SONIC_CONFIG_BUILD_JOBS=1 ENABLE_SYNCD_RPC=y all
-make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-mellanox.bin
+make SONIC_CONFIG_BUILD_JOBS=1 ENABLE_SYNCD_RPC=y $CACHE_OPTIONS all
+make SONIC_CONFIG_BUILD_JOBS=1 ENABLE_SYNCD_RPC=y $CACHE_OPTIONS target/sonic-mellanox.bin
 '''
             }
         }
@@ -39,9 +45,11 @@ make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-mellanox.bin
         }
         fixed {
             slackSend(color:'#00FF00', message: "Build job back to normal: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
         regression {
             slackSend(color:'#FF0000', message: "Build job Regression: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
     }
 }

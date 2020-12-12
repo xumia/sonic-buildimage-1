@@ -1,6 +1,10 @@
 pipeline {
     agent { node { label 'jenkins-vstest-workers' } }
 
+    environment {
+        SONIC_TEAM_WEBHOOK = credentials('public-jenkins-builder')
+    }
+
     triggers {
         cron('H H/4 * * *')
     }
@@ -13,10 +17,9 @@ pipeline {
                               branches: [[name: '*/master']],
                               userRemoteConfigs: [[url: 'https://github.com/Azure/sonic-swss']]])
                 }
-                copyArtifacts(projectName: 'sonic-sairedis-build', filter: '**/*.deb', target: 'sairedis', flatten: true)
+                copyArtifacts(projectName: 'vs/sonic-sairedis-build', filter: '**/*.deb', target: 'sairedis', flatten: true)
                 copyArtifacts(projectName: 'common/sonic-swss-common-build', filter: '**/*.deb', target: 'common', flatten: true)
-                copyArtifacts(projectName: 'common/sonic-utilities-build', filter: '**/*.deb', target: 'utilities', flatten: true)
-                copyArtifacts(projectName: 'buildimage-vs-all', filter: '**/*.deb,**/docker-sonic-vs.gz', target: 'buildimage', flatten: false)
+                copyArtifacts(projectName: 'vs/buildimage-vs-all', filter: '**/*.deb,**/docker-sonic-vs.gz', target: 'buildimage', flatten: false)
             }
         }
 
@@ -52,9 +55,11 @@ pipeline {
         }
         fixed {
             slackSend(color:'#00FF00', message: "Build job back to normal: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
         regression {
             slackSend(color:'#FF0000', message: "Build job Regression: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            office365ConnectorSend(webhookUrl: "${env.SONIC_TEAM_WEBHOOK}")
         }
     }
 }

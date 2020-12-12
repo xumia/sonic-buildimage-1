@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'sonic-slave' } }
+    agent { node { label 'sonic-slave-buster' } }
 
     stages {
         stage('Prepare') {
@@ -10,8 +10,12 @@ pipeline {
                           userRemoteConfigs: [[url: 'http://github.com/Azure/sonic-telemetry',
                                                refspec: '+refs/pull/*:refs/remotes/origin/pr/*']]])
                 }
+                dir('sonic-mgmt-common') {
+                    checkout([$class: 'GitSCM',
+                          branches: [[name: 'refs/heads/master']],
+                          userRemoteConfigs: [[url: 'http://github.com/Azure/sonic-mgmt-common']]])
+                }
                 copyArtifacts(projectName: 'vs/buildimage-vs-all', filter: '**/*.deb', target: 'buildimage', flatten: false)
-                copyArtifacts(projectName: 'sonic-mgmt-framework', filter: '**/*.deb', target: 'mgmt-framework', flatten: false)
             }
         }
 

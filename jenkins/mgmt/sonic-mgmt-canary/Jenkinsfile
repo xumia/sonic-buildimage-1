@@ -1,0 +1,58 @@
+pipeline {
+    agent {
+        node { label 'jenkins-kvmtest-workers' }
+    }
+
+    options {
+        buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '30'))
+    }
+
+    triggers {
+        cron('H H/12 * * *')
+    }
+
+    stages {
+        stage('Prepare') {
+            steps {
+                dir('sonic-mgmt') {
+                    checkout([$class: 'GitSCM',
+                              branches: [[name: '*/master']],
+                              userRemoteConfigs: [[url: 'https://github.com/Azure/sonic-mgmt']]])
+                }
+                copyArtifacts(projectName: 'vs/buildimage-vs-image', filter: '**/sonic-vs.img.gz', target: 'target', flatten: true)
+            }
+        }
+
+        stage('Test') {
+            steps {
+                wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+                    lock(resource: "kvmtest_${env.NODE_NAME}") {
+                        withCredentials([sshUserPrivateKey(credentialsId: '2b6b6afe-4892-41d1-967c-d683e7773727', keyFileVariable: 'VM_USER_PRIVATE_KEY'), \
+                                         usernamePassword(credentialsId: 'sonicdev-cr', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWD')]) {
+                            timeout(time: 2, unit: 'HOURS') {
+                                sh './scripts/vs/buildimage-vs-image/test.sh'
+                            }
+				        }
+                    }
+                }
+            }
+
+            post {
+                always {
+                    junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'sonic-mgmt/tests/logs/**/*.xml')
+                    archiveArtifacts(artifacts: 'sonic-mgmt/tests/logs/**')
+                }
+
+                failure {
+                    archiveArtifacts(artifacts: 'kvmdump/**, ptfdump/**')
+                }
+            }
+        }
+    }
+
+    post {
+        cleanup {
+            cleanWs(disableDeferredWipeout: false, deleteDirs: true, notFailBuild: true)
+        }
+    }
+}
