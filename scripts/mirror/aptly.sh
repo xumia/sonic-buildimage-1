@@ -10,7 +10,7 @@ WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
 PUBLISH_DIR=$WEB_DIR/debian
 
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
-DEBINA_SECURITY_MIRROR_URL="https://security.debian.org/debian-security"
+DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
 
 if [ -z "$DISTRIBUTE" ]; then
    echo "DIST is empty" 1>&2
