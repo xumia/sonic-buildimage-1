@@ -25,7 +25,7 @@ fi
 DOCKERFILE_PRE_SCRIPT='# Auto-Generated for buildinfo 
 COPY ["buildinfo", "/usr/local/share/buildinfo"]
 RUN dpkg -i /usr/local/share/buildinfo/sonic-build-hooks_1.0_all.deb
-RUN cp -rf /usr/local/share/buildinfo/trusted.gpg.d/* /etc/apt/trusted.gpg.d/
+COPY ["buildinfo/trusted.gpg.d/*", "/etc/apt/trusted.gpg.d"]
 RUN pre_run_buildinfo'
 
 # Add the auto-generate code if it is not added in the target Dockerfile
