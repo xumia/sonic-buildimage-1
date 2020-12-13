@@ -11,7 +11,7 @@ pool: sonic-mirror-build
 variables:
 - group: Debian-Mirror-GPG-VG
 jobs:
-- job: "Publish Debian Jessie To Stroage Test1"
+- job: PublishJessieToTest1
   variables:
   - group: Debian-Mirror-Jessie
   - group: Debian-Mirror-Storage-Test1
