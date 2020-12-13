@@ -9,7 +9,7 @@ trigger:
 pool: sonic-mirror-build
 
 variables:
-- group: Debian-Mirror-GPG-VG
+- group: $(GPGVG)
 
 steps:
 - template: ../templates/prepare-mirror-agent.yaml
