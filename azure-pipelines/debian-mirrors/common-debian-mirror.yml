@@ -10,11 +10,24 @@ pool: sonic-mirror-build
 
 variables:
 - group: Debian-Mirror-GPG-VG
-- group: Debian-Mirror-Jessie
+- group: Debian-Mirror-Storage-Test1
 jobs:
 - job: PublishJessieToTest1
   variables:
-  - group: Debian-Mirror-Storage-Test1
+  - group: Debian-Mirror-Jessie
+  steps:
+  - template: ../templates/prepare-mirror-agent.yaml
+  - template: ../templates/prepare-mirror-storage.yaml
+    parameters:
+      storageAccount: $(StorageAccount)
+      storageAccountSasToken: $(storageAccountSasToken)
+  - bash: |
+      echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
+      scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
+    displayName: 'Update and publish debian mirrors by aptly'
+- job: PublishJessieSecurityToTest1
+  variables:
+  - group: Debian-Mirror-Jessie-Security
   steps:
   - template: ../templates/prepare-mirror-agent.yaml
   - template: ../templates/prepare-mirror-storage.yaml
