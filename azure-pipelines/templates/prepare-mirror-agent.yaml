@@ -29,3 +29,4 @@ steps:
       sudo apt-get update
       sudo apt-get install -y aptly
     fi
+  displayName: 'Run prepare mirror agent script'
