@@ -17,4 +17,7 @@ jobs:
   - group: Debian-Mirror-Jessie
   steps:
   - template: ../templates/publish-mirror.yaml
+  - bash: |
+      echo Mirror_Distributions=$(Mirror_Distributions)
+    displayName: 'Test variables'
 
