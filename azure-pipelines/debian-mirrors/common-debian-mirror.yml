@@ -13,8 +13,8 @@ variables:
 jobs:
 - job: "Publish Debian Jessie To Stroage Test1"
   variables:
-  - group: Debian-Mirror-Storage-Test1
   - group: Debian-Mirror-Jessie
+  - group: Debian-Mirror-Storage-Test1
   steps:
   - template: ../templates/prepare-mirror-agent.yaml
   - template: ../templates/prepare-mirror-storage.yaml
