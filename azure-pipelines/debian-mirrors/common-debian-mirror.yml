@@ -18,14 +18,29 @@ steps:
 - template: ../templates/prepare-mirror-agent.yaml
 - bash: |
     # Mount storage containers for debian mirrors
+    if [ -z "$(StorageAccount)" ]; then
+      echo "The stroage account not set" 1>&2
+      exit 1
+    fi
     echo 'Mount storage containers for debian mirrors'
-    if ! mount | grep -q /blobfuse-$(StorageAccount)-web; then
-      sudo mkdir -p /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
-      sudo chmod a+rx /blobfuse-$(StorageAccount)-web /blobfuse-$(StorageAccount)-aptly
+    BLOBFUSE_WEB_PATH=/blobfuse-$(StorageAccount)-web
+    BLOBFUSE_APTLY_PATH=/blobfuse-$(StorageAccount)-aptly
+    if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
+      sudo mkdir -p "$BLOBFUSE_WEB_PATH" "$BLOBFUSE_APTLY_PATH"
+      sudo chmod a+rx "$BLOBFUSE_WEB_PATH" "$BLOBFUSE_APTLY_PATH"
       export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
       export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
-      sudo -E blobfuse /blobfuse-$(StorageAccount)-web --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-      sudo -E blobfuse /blobfuse-$(StorageAccount)-aptly --container-name='aptly' --tmp-path=/data/blobfuse-$(StorageAccount)-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      sudo -E blobfuse "$BLOBFUSE_WEB_PATH" --container-name='$web' --tmp-path=/data/blobfuse-$(StorageAccount)-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-$(StorageAccount)-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+    fi
+    # Validate the mount results
+    if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
+      echo "Failed to mount $BLOBFUSE_WEB_PATH" 1>&2
+      exit 1
+    fi
+    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
+      echo "Failed to mount $BLOBFUSE_APTLY_PATH" 1>&2
+      exit 1
     fi
     echo 'Init is complete'
   displayName: 'Run init script'
