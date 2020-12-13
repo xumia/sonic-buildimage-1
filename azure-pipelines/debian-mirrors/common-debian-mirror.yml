@@ -8,6 +8,8 @@ trigger:
 
 pool: sonic-mirror-build
 
+variables:
+- group: Debian-Mirror-GPG-VG
 steps:
 - task: AzureKeyVault@1
   inputs:
