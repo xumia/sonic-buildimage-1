@@ -16,8 +16,11 @@ jobs:
   variables:
   - group: Debian-Mirror-Jessie
   steps:
+  - bash: |
+      echo Mirror_Architectures=$(Mirror_Architectures)
+    displayName: 'Test variables 1'
   - template: ../templates/publish-mirror.yaml
   - bash: |
       echo Mirror_Distributions=$(Mirror_Distributions)
-    displayName: 'Test variables'
+    displayName: 'Test variables 2'
 
