@@ -150,7 +150,7 @@ update_repo()
 
 prepare_workspace
 for distribution in $(echo $MIRROR_DISTRIBUTIONS | tr ',' ' '); do
-    echo "update repo for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES, components=$MIRROR_COMPONENTS"
+    echo "update repo for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES components=$MIRROR_COMPONENTS"
     update_repo $MIRROR_NAME "$MIRROR_URL" $distribution "$MIRROR_ARICHTECTURES" "$MIRROR_COMPONENTS"
 done
 save_workspace
