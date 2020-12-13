@@ -1,10 +1,13 @@
 #!/bin/bash -e
 
-
-STORAGE_ACCOUNT=$1
-DISTRIBUTE=$2
-CREATE_DB=$3
-PASSPHRASE="$4"
+CREATE_DB=$1
+PASSPHRASE="$2"
+STORAGE_ACCOUNT=$3
+MIRROR_NAME=$4
+MIRROR_URL=$5
+MIRROR_DISTRIBUTIONS=$6
+MIRROR_ARICHTECTURES=$7
+MIRROR_COMPONENTS=$8
 APTLY_DIR="/blobfuse-${STORAGE_ACCOUNT}-aptly"
 WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
 PUBLISH_DIR=$WEB_DIR/debian
@@ -12,13 +15,13 @@ PUBLISH_DIR=$WEB_DIR/debian
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
 
-if [ -z "$DISTRIBUTE" ]; then
+if [ -z "$MIRROR_NAME" ]; then
    echo "DIST is empty" 1>&2
    exit 1
 fi
 
 BLOBFUSE_METTRIC_DIR=$APTLY_DIR/metric
-BLOBFUSE_WORK_DIR=$APTLY_DIR/$DISTRIBUTE
+BLOBFUSE_WORK_DIR=$APTLY_DIR/$MIRROR_NAME
 BLOBFUSE_POOL_DIR=$BLOBFUSE_WORK_DIR/pool
 BLOBFUSE_DB_DIR=$BLOBFUSE_WORK_DIR/db
 ENCRIPTED_KEY_GPG=$(realpath ./encrypted_private_key.gpg)
@@ -56,7 +59,7 @@ create_or_update_database()
 prepare_workspace()
 {
     local remote_aptly_dir="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-    local remote_dist_dir="$remote_aptly_dir/$DISTRIBUTE"
+    local remote_dist_dir="$remote_aptly_dir/$MIRROR_NAME"
     local remote_db_dir="$remote_dist_dir/db"
     local remote_pool_dir="$remote_dist_dir/pool"
 
@@ -85,7 +88,7 @@ prepare_workspace()
 save_workspace()
 {
     local remote_aptly_dir="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-    local remote_dist_dir="$remote_aptly_dir/$DISTRIBUTE"
+    local remote_dist_dir="$remote_aptly_dir/$MIRROR_NAME"
     local remote_db_dir="$remote_dist_dir/db"
     local package="$remote_db_dir/db-$(date +%Y%m%d%H%M%S).tar.gz"
 
@@ -146,5 +149,8 @@ update_repo()
 }
 
 prepare_workspace
-update_repo debian "$DEBIAN_MIRROR_URL" buster-updates "amd64,arm64,armhf" "contrib,non-free,main"
+for distribution in $(echo $MIRROR_DISTRIBUTIONS | tr ',' ' '); do
+    echo "update repo for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES, components=$MIRROR_COMPONENTS"
+    update_repo $MIRROR_NAME "$MIRROR_URL" $distribution "$MIRROR_ARICHTECTURES" "$MIRROR_COMPONENTS"
+done
 save_workspace

@@ -6,5 +6,5 @@ steps:
     storageAccountSasToken: $(storageAccountSasToken)
 - bash: |
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
-    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
+    scripts/mirror/aptly.sh "$(CreateDB)" "$(sonic-gpg-passphrase)" $(StorageAccount) "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)"
   displayName: 'Update and publish debian mirrors by aptly'
