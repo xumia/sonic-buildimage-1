@@ -10,19 +10,20 @@ pool: sonic-mirror-build
 
 variables:
 - group: Debian-Mirror-GPG-VG
-
-steps:
-- template: ../templates/prepare-mirror-agent.yaml
-- template: ../templates/prepare-mirror-storage.yaml
-  parameters:
-    storageAccount: $(StorageAccount)
-    storageAccountSasToken: $(storageAccountSasToken)
-- bash: |
-    echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
-    scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
-  displayName: 'Update and publish debian mirrors by aptly'
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+- job:
+  steps:
+  - template: ../templates/prepare-mirror-agent.yaml
+  - template: ../templates/prepare-mirror-storage.yaml
+    parameters:
+      storageAccount: $(StorageAccount)
+      storageAccountSasToken: $(storageAccountSasToken)
+  - bash: |
+      echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
+      scripts/mirror/aptly.sh $(StorageAccount) "$(Distribution)" "$(CreateDB)" "$(sonic-gpg-passphrase)"
+    displayName: 'Update and publish debian mirrors by aptly'
+  - script: |
+      echo Add other tasks to build, test, and deploy your project.
+      echo See https://aka.ms/yaml
+    displayName: 'Run a multi-line script'
 
