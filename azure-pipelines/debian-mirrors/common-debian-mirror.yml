@@ -10,12 +10,13 @@ pool: sonic-mirror-build
 
 variables:
 - group: Debian-Mirror-GPG-VG
+
 steps:
 - task: AzureKeyVault@1
   inputs:
     azureSubscription: 'Network Dev Environment -- SONiC 2 (No ExpressRoute)(90318812-d77d-426d-90a3-44997faf17f4)'
     KeyVaultName: 'sonic-kv'
-    SecretsFilter: 'sonic-gpg-passphrase,sonic-gpg-enc-private-key'
+    SecretsFilter: 'sonic-gpg-passphrase'
     RunAsPreJob: true
 - template: ../templates/prepare-mirror-agent.yaml
 - template: ../templates/prepare-mirror-storage.yaml
