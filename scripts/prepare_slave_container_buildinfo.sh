@@ -14,7 +14,7 @@ cp -rf $SLAVE_DIR/buildinfo/* /usr/local/share/buildinfo/
 # Build the slave version config
 [ -d /usr/local/share/buildinfo/versions ] && rm -rf /usr/local/share/buildinfo/versions
 scripts/versions_manager.py generate -t "/usr/local/share/buildinfo/versions" -n "build-${SLAVE_DIR}" -d "$DISTRO" -a "$ARCH"
-touch ${BUILDINFO_PATH}/build/versions/versions-deb
+touch ${BUILDINFO_PATH}/versions/versions-deb
 
 rm -f /etc/apt/preferences.d/01-versions-deb
 ([ "$ENABLE_VERSION_CONTROL_DEB" == "y" ] && [ -f $VERSION_DEB_PREFERENCE ]) && cp -f $VERSION_DEB_PREFERENCE /etc/apt/preferences.d/

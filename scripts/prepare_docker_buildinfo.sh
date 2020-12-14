@@ -44,12 +44,6 @@ fi
 # Copy the build info config
 cp -rf src/sonic-build-hooks/buildinfo/* $BUILDINFO_PATH
 
-# Build the slave running config
-if [ "$BUILD_SLAVE" == "y" ]; then
-    scripts/versions_manager.py generate -t "${BUILDINFO_PATH}/build/versions" -n "build-${IMAGENAME}" -d "$DISTRO" -a "$ARCH"
-    touch ${BUILDINFO_PATH}/build/versions/versions-deb
-fi
-
 # Generate the version lock files
 scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -n "$IMAGENAME" -d "$DISTRO" -a "$ARCH"
 
