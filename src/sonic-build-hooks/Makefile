@@ -9,6 +9,7 @@ SYMBOL_LINKS = symlink_build_hooks post_run_buildinfo pre_run_buildinfo collect_
 SONIC_BUILD_HOOKS_TARGET = $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS_PACKAGE)
 BUILD_ROOT_DIR = $(TMP_DIR)/$(SONIC_BUILD_HOOKS)
 DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
+TRUSTED_GPG_PATH = $(BUILD_ROOT_DIR)/etc/apt/trusted.gpg.d
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/local/share/buildinfo
 SYMBOL_LINK_PATH = $(BUILD_ROOT_DIR)/usr/sbin
 SCRIPTS_PATH = $(INSTALL_PATH)/scripts
@@ -26,10 +27,11 @@ endif
 DEPENDS := $(shell find scripts hooks debian -type f)
 $(SONIC_BUILD_HOOKS_TARGET): $(DEPENDS)
 	@rm -rf $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS) $(TMP_DIR)
-	@mkdir -p $(DEBIAN_DIR) $(SCRIPTS_PATH) $(HOOKS_PATH) $(SYMBOL_LINK_PATH)
+	@mkdir -p $(DEBIAN_DIR) $(SCRIPTS_PATH) $(HOOKS_PATH) $(SYMBOL_LINK_PATH) $(TRUSTED_GPG_PATH)
 	@cp debian/* $(DEBIAN_DIR)/
 	@cp scripts/* $(SCRIPTS_PATH)/
 	@cp hooks/* $(HOOKS_PATH)/
+	@for url in $$(echo $(TRUSTED_GPG_URLS) | sed 's/[,;]/ /g'); do wget -q "$$url" -P "$(TRUSTED_GPG_PATH)/"; done
 	@for f in $(SYMBOL_LINKS); do ln -s $(SYMBOL_LINKS_SRC_DIR)/$$f $(SYMBOL_LINK_PATH)/$$f; done
 	@$(BUILD_COMMAND)
 	@sudo chmod a+rw $(SONIC_BUILD_HOOKS_TARGET)

@@ -265,7 +265,7 @@ $(info SONiC Build System for $(CONFIGURED_PLATFORM):$(CONFIGURED_ARCH))
 endif
 
 # Overwrite the buildinfo in slave container
-$(shell sudo scripts/prepare_slave_container_buildinfo.sh $(SLAVE_DIR))
+$(shell sudo scripts/prepare_slave_container_buildinfo.sh $(SLAVE_DIR) $(CONFIGURED_ARCH) $(BLDENV))
 
 include Makefile.cache
 

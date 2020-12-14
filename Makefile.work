@@ -246,7 +246,7 @@ endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
 
-	@pushd src/sonic-build-hooks; make all; popd
+	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
 	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
@@ -266,7 +266,7 @@ else
 endif
 
 sonic-build-hooks:
-	@pushd src/sonic-build-hooks; make all; popd
+	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
 	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
 
 sonic-slave-base-build : sonic-build-hooks

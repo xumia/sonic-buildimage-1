@@ -25,7 +25,6 @@ fi
 DOCKERFILE_PRE_SCRIPT='# Auto-Generated for buildinfo 
 COPY ["buildinfo", "/usr/local/share/buildinfo"]
 RUN dpkg -i /usr/local/share/buildinfo/sonic-build-hooks_1.0_all.deb
-COPY ["buildinfo/trusted.gpg.d/*", "/etc/apt/trusted.gpg.d/"]
 RUN pre_run_buildinfo'
 
 # Add the auto-generate code if it is not added in the target Dockerfile
@@ -36,7 +35,7 @@ if [ ! -f $DOCKERFILE_TARGE ] || ! grep -q "Auto-Generated for buildinfo" $DOCKE
     awk -v text="${DOCKERFILE_PRE_SCRIPT}" -v linenumber=$LINE_NUMBER 'NR==linenumber{print text}1' $DOCKERFILE > $TEMP_FILE
 
     # Append the docker build script at the end of the docker file
-    echo "RUN post_run_buildinfo" >> $TEMP_FILE
+    echo -e "\nRUN post_run_buildinfo" >> $TEMP_FILE
 
     cat $TEMP_FILE > $DOCKERFILE_TARGE
     rm -f $TEMP_FILE
