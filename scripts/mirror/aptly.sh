@@ -123,10 +123,30 @@ update_repo()
             SAVE_WORKSPACE=y
         fi
         repos="$repos $repo"
+        
+        local success=n
+        local has_error=n
+        local retry=3
+        for ((i=1;i<=$retry;i++)); do
+            echo "Try to update the mirror, retry step $1 of $retry"
+            aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
+            if [ "$?" -eq "0" ]; then
+                echo "Successfully update the mirror $mirror"
+                success=y
+                break
+            else
+                echo "Failed to update the mirror $mirror"
+                has_error=y
+            fi
+        done
+        if [ "$success" != "y" ]; then
+            echo "Failed to update the mirror $mirror" 1>&2
+            exit 1
+        fi
         aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
             aptly -config $APTLY_CONFIG repo create $repo
-        elif grep -q "Download queue: 0 items" $logfile; then
+        elif [ "$has_error" == "n" ] && grep -q "Download queue: 0 items" $logfile; then
             continue
         fi
         need_to_publish=y
