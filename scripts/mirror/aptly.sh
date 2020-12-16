@@ -128,7 +128,7 @@ update_repo()
         
         local success=n
         local has_error=n
-        local retry=1
+        local retry=3
         for ((i=1;i<=$retry;i++)); do
             echo "Try to update the mirror, retry step $i of $retry"
             aptly -config $APTLY_CONFIG -ignore-signatures mirror update -max-tries=5 $mirror | tee $logfile
