@@ -119,17 +119,19 @@ update_repo()
         local repo="repo-${name}-${distname}-${component}"
         local logfile="${mirror}.log"
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
-            aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create -with-sources $mirror $url $dist $component
+            WITH_SOURCES="-with-sources"
+            [ "$dist" == "jessie" ] && WITH_SOURCES=""
+            aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create $WITH_SOURCES $mirror $url $dist $component
             SAVE_WORKSPACE=y
         fi
         repos="$repos $repo"
         
         local success=n
         local has_error=n
-        local retry=3
+        local retry=1
         for ((i=1;i<=$retry;i++)); do
-            echo "Try to update the mirror, retry step $1 of $retry"
-            aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
+            echo "Try to update the mirror, retry step $i of $retry"
+            aptly -config $APTLY_CONFIG -ignore-signatures mirror update -max-tries=5 $mirror | tee $logfile
             if [ "$?" -eq "0" ]; then
                 echo "Successfully update the mirror $mirror"
                 success=y
@@ -143,7 +145,6 @@ update_repo()
             echo "Failed to update the mirror $mirror" 1>&2
             exit 1
         fi
-        aptly -config $APTLY_CONFIG -ignore-signatures mirror update $mirror | tee $logfile
         if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
             aptly -config $APTLY_CONFIG repo create $repo
         elif [ "$has_error" == "n" ] && grep -q "Download queue: 0 items" $logfile; then
