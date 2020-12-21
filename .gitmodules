@@ -1,9 +1,6 @@
 [submodule "docker-base"]
 	path = dockers/docker-base
 	url = https://github.com/Azure/sonic-docker-base.git
-[submodule "sonic-swss-common"]
-	path = src/sonic-swss-common
-	url = https://github.com/Azure/sonic-swss-common
 [submodule "sonic-linux-kernel"]
 	path = src/sonic-linux-kernel
 	url = https://github.com/Azure/sonic-linux-kernel
@@ -29,3 +26,7 @@
 	path = src/sonic-quagga
 	url = https://github.com/Azure/sonic-quagga
 	branch = debian/0.99.24.1
+[submodule "src/sonic-swss-common"]
+	path = src/sonic-swss-common
+	url = https://github.com/kktheballer/sonic-swss-common.git
+	branch = new-SAI
