@@ -8,6 +8,7 @@ MIRROR_URL=$5
 MIRROR_DISTRIBUTIONS=$6
 MIRROR_ARICHTECTURES=$7
 MIRROR_COMPONENTS=$8
+MIRROR_FILESYSTEM=$9
 APTLY_DIR="/blobfuse-${STORAGE_ACCOUNT}-aptly"
 WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
 PUBLISH_DIR=$WEB_DIR/debian
@@ -19,6 +20,8 @@ if [ -z "$MIRROR_NAME" ]; then
    echo "DIST is empty" 1>&2
    exit 1
 fi
+
+[ -z "$MIRROR_FILESYSTEM" ] && MIRROR_FILESYSTEM=debian
 
 BLOBFUSE_METTRIC_DIR=$APTLY_DIR/metric
 BLOBFUSE_WORK_DIR=$APTLY_DIR/$MIRROR_NAME
@@ -118,9 +121,14 @@ update_repo()
         local mirror="mirror-${name}-${distname}-${component}"
         local repo="repo-${name}-${distname}-${component}"
         local logfile="${mirror}.log"
+        local current_url=$url
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
             WITH_SOURCES="-with-sources"
             [ "$dist" == "jessie" ] && WITH_SOURCES=""
+            if [ "$component" != "amd64" ]; then
+                current_url=$DEBIAN_MIRROR_URL
+                [[ "$current_url" == *security* ]] && current_url=$DEBINA_SECURITY_MIRROR_URL
+            fi
             aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create $WITH_SOURCES $mirror $url $dist $component
             SAVE_WORKSPACE=y
         fi
@@ -128,7 +136,7 @@ update_repo()
         
         local success=n
         local has_error=n
-        local retry=3
+        local retry=5
         for ((i=1;i<=$retry;i++)); do
             echo "Try to update the mirror, retry step $i of $retry"
             aptly -config $APTLY_CONFIG -ignore-signatures mirror update -max-tries=5 $mirror | tee $logfile
@@ -137,7 +145,8 @@ update_repo()
                 success=y
                 break
             else
-                echo "Failed to update the mirror $mirror"
+                echo "Failed to update the mirror $mirror, sleep 10 seconds"
+                sleep 10
                 has_error=y
             fi
         done
