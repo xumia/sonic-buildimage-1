@@ -89,10 +89,10 @@ steps:
     echo 'The mount storage container web is complete'
     exit 1
   env:
-    ${{ if eq(variables['PublishToReplica'], 'n') }}:
+    ${{ if eq($(PublishToReplica), 'n') }}:
       StorageAccount: $(StorageAccount)
       StorageAccountSasToken: $(StorageAccountSasToken)
-    ${{ if ne(variables['PublishToReplica'], 'n') }}:
+    ${{ if ne($(PublishToReplica), 'n') }}:
       StorageAccount: $(StorageAccountReplica)
       StorageAccountSasToken: $(StorageAccountReplicaSasToken)
     
