@@ -17,7 +17,7 @@ jobs:
   variables:
   - group: Debian-Mirror-Jessie
   - name: PublishToReplica
-    value: n
+    value: 'n'
   steps:
   - bash: |
       echo $(StorageAccount) > test.key
