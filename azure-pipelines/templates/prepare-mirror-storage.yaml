@@ -18,8 +18,6 @@ parameters:
 steps:
 - bash: |
     # Mount storage containers for debian mirrors
-    StorageAccount=${{ parameters.storageAccount }}
-    StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
     WORKSPACE=${{ parameters.workspace }}
     if [ -z "$StorageAccount" ]; then
       echo "The stroage account not set" 1>&2
@@ -53,16 +51,12 @@ steps:
     ln -s "$BLOBFUSE_APTLY_PATH/dbs" "$APTLY_PATH"
     ln -s "$BLOBFUSE_APTLY_PATH/pool" "$APTLY_POOL_PATH"
     echo 'The mount storage container aptly is complete'
+  env:
+    StorageAccount: $(StorageAccount)
+    StorageAccountSasToken: $(StorageAccountSasToken)
   displayName: 'Run mount stroage container to load aptly db and pool script'
 - bash: |
     # Mount the publish contianers for debian mirrors
-    StorageAccount=${{ parameters.storageAccount }}
-    StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
-    PublishToReplica=${{ parameters.publishToReplica }}
-    if [ "$PublishToReplica" != "n" ]; then
-      StorageAccount=${{ parameters.storageAccountReplica }}
-      StorageAccountSasToken=${{ parameters.storageAccountReplicaSasToken }}
-    fi
     WORKSPACE=${{ parameters.workspace }}
     PUBLISH_PATH=$WORKSPACE/publish
     if [ -z "$StorageAccount" ]; then
@@ -79,8 +73,7 @@ steps:
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
       sudo -E blobfuse "$BLOBFUSE_WEB_PATH" --container-name='$web' --tmp-path=/data/blobfuse-${StorageAccount}-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-      mkdir -p $BLOBFUSE_WEB_PATH/publish
-      ln -s $BLOBFUSE_WEB_PATH/publish $PUBLISH_PATH
+      sleep 1
     fi
     # Validate the mount results
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
@@ -91,4 +84,13 @@ steps:
     mkdir -p $BLOBFUSE_WEB_PATH/debian
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
     echo 'The mount storage container web is complete'
+    exit 1
+  env:
+    ${{ if eq(variables['PublishToReplica'], 'n') }}:
+      StorageAccount: $(StorageAccount)
+      StorageAccountSasToken: $(StorageAccountSasToken)
+    ${{ if ne(variables[''], 'n') }}:
+      StorageAccount: $(StorageAccountReplica)
+      StorageAccountSasToken: $(StorageAccountReplicaSasToken)
+    
   displayName: 'Run mount stroage container to publish mirror script'
