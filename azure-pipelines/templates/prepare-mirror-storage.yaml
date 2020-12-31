@@ -35,7 +35,8 @@ steps:
       fi
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
-      echo "$StorageAccountSasToken" > sas.key
+      echo "$StorageAccount" > sas.key
+      echo "$StorageAccountSasToken" >> sas.key
       sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
     # Validate the mount results
