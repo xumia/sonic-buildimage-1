@@ -19,8 +19,13 @@ steps:
 - bash: |
     # Mount storage containers for debian mirrors
     WORKSPACE=${{ parameters.workspace }}
+    MIRROR_NAME=${{ parameters.mirrorName }}
     if [ -z "$StorageAccount" ]; then
       echo "The stroage account not set" 1>&2
+      exit 1
+    fi
+    if [ -z "$MIRROR_NAME" ]; then
+      echo "The mirror name not set" 1>&2
       exit 1
     fi
     echo 'Mount storage container aptly for debian mirrors'
@@ -45,17 +50,15 @@ steps:
     mkdir -p "$WORKSPACE"
     APTLY_PATH=$WORKSPACE/aptly
     APTLY_POOL_PATH=$WORKSPACE/pool
+    BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_PATH/$MIRROR_NAME
     echo "pwd=$(pwd)"
     echo "APTLY_PATH=$APTLY_PATH"
     echo "APTLY_POOL_PATH=$APTLY_POOL_PATH"
-    mkdir -p "$BLOBFUSE_APTLY_PATH"
-    mkdir -p "$BLOBFUSE_APTLY_PATH/pool"
-    echo "ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH"
-    echo "ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH"
-    ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH
-    ls work
-    ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH
-    ls work
+    mkdir -p "$BLOBFUSE_MIRROR_PATH/pool"
+    echo "ln -s $BLOBFUSE_MIRROR_PATH $APTLY_PATH"
+    echo "ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH"
+    ln -s $BLOBFUSE_MIRROR_PATH $APTLY_PATH
+    ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH
     echo 'The mount storage container aptly is complete'
   env:
     StorageAccount: $(StorageAccount)
