@@ -1,0 +1,27 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool: sonic-mirror-build
+
+variables:
+- group: Debian-Mirror-GPG-VG
+- group: Debian-Mirror-Storage-Test1
+jobs:
+- job: PublishJessieToTest1
+  timeoutInMinutes: 0
+  variables:
+  - group: Debian-Mirror-Jessie
+  steps:
+  - bash: |
+      echo Mirror_Architectures=$(Mirror_Architectures)
+    displayName: 'Test variables 1'
+  - template: ../templates/publish-mirror.yaml
+  - bash: |
+      echo Mirror_Distributions=$(Mirror_Distributions)
+    displayName: 'Test variables 2'
+
