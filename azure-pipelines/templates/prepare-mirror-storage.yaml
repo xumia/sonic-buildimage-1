@@ -33,9 +33,6 @@ steps:
       fi
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
-      echo "$StorageAccount" > sas.key
-      echo "$StorageAccountSasToken" >> sas.key
-      echo "AZURE_STORAGE_SAS_TOKEN=$AZURE_STORAGE_SAS_TOKEN" >> sas.key
       sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
     # Validate the mount results
@@ -70,8 +67,6 @@ steps:
       exit 1
     fi
     echo 'Mount storage containers for debian mirrors'
-    echo "PublishToReplica=$(PublishToReplica)" > test1
-    echo "StorageAccount=$StorageAccount" >> test1
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
       if [ ! -e $BLOBFUSE_WEB_PATH ]; then 
