@@ -7,6 +7,7 @@ steps:
     storageAccountReplica: $(StorageAccountReplica)
     storageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
     publishToReplica: $(PublishToReplica)
+    mirrorName: $(Mirror_Name)
 - bash: |
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
     scripts/mirror/aptly.sh "$(CreateDB)" "$(sonic-gpg-passphrase)" "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)" "$(MIRROR_FILESYSTEM)"
