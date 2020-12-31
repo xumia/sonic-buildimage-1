@@ -49,8 +49,10 @@ steps:
     echo "APTLY_POOL_PATH=$APTLY_POOL_PATH"
     mkdir -p "$BLOBFUSE_APTLY_PATH"
     mkdir -p "$BLOBFUSE_APTLY_PATH/pool"
-    ln -s "$BLOBFUSE_APTLY_PATH" "$APTLY_PATH"
-    ln -s "$BLOBFUSE_APTLY_PATH/pool" "$APTLY_POOL_PATH"
+    echo "ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH"
+    echo "ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH"
+    ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH
+    ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH
     echo 'The mount storage container aptly is complete'
   env:
     StorageAccount: $(StorageAccount)
