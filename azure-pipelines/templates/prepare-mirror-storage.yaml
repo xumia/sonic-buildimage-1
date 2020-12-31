@@ -52,7 +52,9 @@ steps:
     echo "ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH"
     echo "ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH"
     ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH
+    [ $? -ne 0 ] && echo "Failed to make link"
     ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH
+    [ $? -eq 0 ] && echo "Make link successfully"
     echo 'The mount storage container aptly is complete'
   env:
     StorageAccount: $(StorageAccount)
