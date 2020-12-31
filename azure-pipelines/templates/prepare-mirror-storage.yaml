@@ -68,8 +68,8 @@ steps:
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
       if [ ! -e $BLOBFUSE_APTLY_PATH ]; then 
-        sudo mkdir -p $BLOBFUSE_APTLY_PATH
-        sudo chmod a+rw $BLOBFUSE_APTLY_PATH
+        sudo mkdir -p $BLOBFUSE_WEB_PATH
+        sudo chmod a+rw $BLOBFUSE_WEB_PATH
       fi
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
@@ -90,7 +90,7 @@ steps:
     ${{ if eq(variables['PublishToReplica'], 'n') }}:
       StorageAccount: $(StorageAccount)
       StorageAccountSasToken: $(StorageAccountSasToken)
-    ${{ if ne(variables[''], 'n') }}:
+    ${{ if ne(variables['PublishToReplica'], 'n') }}:
       StorageAccount: $(StorageAccountReplica)
       StorageAccountSasToken: $(StorageAccountReplicaSasToken)
     
