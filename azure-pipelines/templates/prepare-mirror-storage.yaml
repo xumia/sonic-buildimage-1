@@ -87,7 +87,6 @@ steps:
     mkdir -p $BLOBFUSE_WEB_PATH/debian
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
     echo 'The mount storage container web is complete'
-    exit 1
   env:
     StorageAccount: $(StorageAccount)
     StorageAccountSasToken: $(StorageAccountSasToken)
