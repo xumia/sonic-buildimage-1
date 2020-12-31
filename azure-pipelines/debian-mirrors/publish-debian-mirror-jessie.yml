@@ -16,6 +16,8 @@ jobs:
   timeoutInMinutes: 0
   variables:
   - group: Debian-Mirror-Jessie
+  - name: PublishToReplica
+    value: n
   steps:
   - bash: |
       echo Mirror_Architectures=$(Mirror_Architectures)
