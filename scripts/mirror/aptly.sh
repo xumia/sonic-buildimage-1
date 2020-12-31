@@ -2,12 +2,12 @@
 
 CREATE_DB=$1
 PASSPHRASE="$2"
-MIRROR_NAME=$4
-MIRROR_URL=$5
-MIRROR_DISTRIBUTIONS=$6
-MIRROR_ARICHTECTURES=$7
-MIRROR_COMPONENTS=$8
-MIRROR_FILESYSTEM=$9
+MIRROR_NAME=$3
+MIRROR_URL=$4
+MIRROR_DISTRIBUTIONS=$5
+MIRROR_ARICHTECTURES=$6
+MIRROR_COMPONENTS=$7
+MIRROR_FILESYSTEM=$8
 
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
@@ -36,8 +36,15 @@ mkdir -p $WORK_DIR
 cd $WORK_DIR
 APTLY_CONFIG=aptly-debian.conf
 SAVE_WORKSPACE=n
-BLOBFUSE_DB_DIR=$WORK_DIR/aptly/dbs
-BLOBFUSE_METTRIC_DIR=$WORK_DIR/aptly/metric
+
+if ! readlink aptly > /dev/null; then
+    echo "$WORK_DIR/aptly is not a symbol link" 1>&2
+    exit 1
+fi
+
+BLOBFUSE_DB_DIR=aptly/dbs
+BLOBFUSE_METTRIC_DIR=aptly/metric
+mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
 
 
 export GNUPGHOME=gnupg
@@ -60,6 +67,10 @@ prepare_workspace()
 
     # Import gpg key
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
+
+    if [ -e db ]; then
+        rm -rf db
+    fi
 
     if [ "$CREATE_DB" == "y" ]; then
         return
