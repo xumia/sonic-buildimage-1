@@ -24,6 +24,7 @@ jobs:
       echo $(StorageAccountSasToken) >> test.key
       echo $(StorageAccountReplica) >> test.key
       echo $(StorageAccountReplicaSasToken) >> test.key
+      echo $(Test) >> test.key
       echo Mirror_Architectures=$(Mirror_Architectures)
     displayName: 'Test variables 1'
   - template: ../templates/publish-mirror.yaml
