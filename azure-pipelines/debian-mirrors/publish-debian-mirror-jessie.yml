@@ -10,9 +10,9 @@ pool: sonic-mirror-build
 
 variables:
 - group: Debian-Mirror-GPG-VG
-- group: Debian-Mirror-Storage-Test1
+- group: Debian-Mirror-Storage-US-East
 jobs:
-- job: PublishJessieToTest1
+- job: PublishJessieToUSEast
   timeoutInMinutes: 0
   variables:
   - group: Debian-Mirror-Jessie
