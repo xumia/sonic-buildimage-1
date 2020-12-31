@@ -31,8 +31,6 @@ if [ -z "$PASSPHRASE" ]; then
 fi
 
 WORK_DIR=work
-rm -rf $WORK_DIR
-mkdir -p $WORK_DIR
 cd $WORK_DIR
 APTLY_CONFIG=aptly-debian.conf
 SAVE_WORKSPACE=n

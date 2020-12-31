@@ -41,6 +41,7 @@ steps:
       exit 1
     fi
 
+    rm -rf "$WORKSPACE"
     mkdir -p "$WORKSPACE"
     APTLY_PATH=$WORKSPACE/aptly
     APTLY_POOL_PATH=$WORKSPACE/pool
@@ -52,10 +53,8 @@ steps:
     echo "ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH"
     echo "ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH"
     ln -s $BLOBFUSE_APTLY_PATH $APTLY_PATH
-    [ $? -ne 0 ] && echo "Failed to make link"
     ls work
     ln -s $BLOBFUSE_APTLY_PATH/pool $APTLY_POOL_PATH
-    [ $? -eq 0 ] && echo "Make link successfully"
     ls work
     echo 'The mount storage container aptly is complete'
   env:
