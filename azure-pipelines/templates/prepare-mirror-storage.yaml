@@ -74,7 +74,7 @@ steps:
     echo "StorageAccount=$StorageAccount" >> test1
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
-      if [ ! -e $BLOBFUSE_APTLY_PATH ]; then 
+      if [ ! -e $BLOBFUSE_WEB_PATH ]; then 
         sudo mkdir -p $BLOBFUSE_WEB_PATH
         sudo chmod a+rw $BLOBFUSE_WEB_PATH
       fi
