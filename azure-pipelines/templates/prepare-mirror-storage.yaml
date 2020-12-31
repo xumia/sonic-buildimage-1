@@ -33,8 +33,8 @@ steps:
          sudo mkdir -p "$BLOBFUSE_APTLY_PATH"
          sudo chmod a+rw "$BLOBFUSE_APTLY_PATH"
       fi
-      export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
-      export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
+      export AZURE_STORAGE_ACCOUNT="$StorageAccount"
+      export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
       sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
     # Validate the mount results
@@ -74,8 +74,8 @@ steps:
         sudo mkdir -p $BLOBFUSE_APTLY_PATH
         sudo chmod a+rw $BLOBFUSE_APTLY_PATH
       fi
-      export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
-      export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
+      export AZURE_STORAGE_ACCOUNT="$StorageAccount"
+      export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
       sudo -E blobfuse "$BLOBFUSE_WEB_PATH" --container-name='$web' --tmp-path=/data/blobfuse-${StorageAccount}-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
       mkdir -p $BLOBFUSE_WEB_PATH/publish
       ln -s $BLOBFUSE_WEB_PATH/publish $PUBLISH_PATH
