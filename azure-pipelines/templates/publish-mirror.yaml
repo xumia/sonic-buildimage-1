@@ -4,8 +4,8 @@ steps:
   parameters:
     storageAccount: $(StorageAccount)
     storageAccountSasToken: $(StorageAccountSasToken)
-    storageAccount: $(StorageAccountReplica)
-    storageAccountSasToken: $(StorageAccountReplicaSasToken)
+    storageAccountReplica: $(StorageAccountReplica)
+    storageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
     publishToReplica: $(PublishToReplica)
 - bash: |
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
