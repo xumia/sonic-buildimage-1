@@ -3,34 +3,89 @@ parameters:
   type: string
 - name: 'storageAccountSasToken'
   type: string
+- name: 'storageAccountReplica'
+  type: string
+- name: 'storageAccountReplicaSasToken'
+  type: string
+- name: 'mirrorName'
+  type: string
+- name: 'publishToReplica'
+  type: string
+  default: 'n'
+- name: 'workspace'
+  type: string
+  default: 'work'
 steps:
 - bash: |
     # Mount storage containers for debian mirrors
     StorageAccount=${{ parameters.storageAccount }}
     StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
+    WORKSPACE=${{ parameters.workspace }}
+    if [ -z "$StorageAccount" ]; then
+      echo "The stroage account not set" 1>&2
+      exit 1
+    fi
+    echo 'Mount storage container aptly for debian mirrors'
+    BLOBFUSE_APTLY_PATH=/blobfuse-${StorageAccount}-aptly
+    
+    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
+      if [ ! -e $BLOBFUSE_APTLY_PATH ]; then
+         sudo mkdir -p "$BLOBFUSE_APTLY_PATH"
+         sudo chmod a+rw "$BLOBFUSE_APTLY_PATH"
+      fi
+      export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
+      export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
+      sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+    fi
+    # Validate the mount results
+    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
+      echo "Failed to mount $BLOBFUSE_APTLY_PATH" 1>&2
+      exit 1
+    fi
+
+    mkdir -p "$WORKSPACE"
+    APTLY_db_PATH=$WORKSPACE/aptly-db
+    APTLY_pool_PATH=$WORKSPACE/pool
+    mkdir -p "$BLOBFUSE_APTLY_PATH/db"
+    mkdir -p "$BLOBFUSE_APTLY_PATH/pool"
+    ln -s "$BLOBFUSE_APTLY_PATH" "$APTLY_PATH"
+    echo 'The mount storage container aptly is complete'
+  displayName: 'Run mount stroage container to load aptly db and pool script'
+- bash: |
+    # Mount the publish contianers for debian mirrors
+    StorageAccount=${{ parameters.storageAccount }}
+    StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
+    PublishToReplica=${{ parameters.publishToReplica }}
+    if [ "$PublishToReplica" != "n" ]; then
+      StorageAccount=${{ parameters.storageAccountReplica }}
+      StorageAccountSasToken=${{ parameters.storageAccountReplicaSasToken }}
+    fi
+    WORKSPACE=${{ parameters.workspace }}
+    PUBLISH_PATH=$WORKSPACE/publish
     if [ -z "$StorageAccount" ]; then
       echo "The stroage account not set" 1>&2
       exit 1
     fi
     echo 'Mount storage containers for debian mirrors'
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
-    BLOBFUSE_APTLY_PATH=/blobfuse-${StorageAccount}-aptly
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
-      sudo mkdir -p "$BLOBFUSE_WEB_PATH" "$BLOBFUSE_APTLY_PATH"
-      sudo chmod a+rx "$BLOBFUSE_WEB_PATH" "$BLOBFUSE_APTLY_PATH"
+      if [ ! -e $BLOBFUSE_APTLY_PATH ]; then 
+        sudo mkdir -p $BLOBFUSE_APTLY_PATH
+        sudo chmod a+rw $BLOBFUSE_APTLY_PATH
+      fi
       export AZURE_STORAGE_ACCOUNT="$(StorageAccount)"
       export AZURE_STORAGE_SAS_TOKEN="$(StorageAccountSasToken)"
       sudo -E blobfuse "$BLOBFUSE_WEB_PATH" --container-name='$web' --tmp-path=/data/blobfuse-${StorageAccount}-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-      sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      mkdir -p $BLOBFUSE_WEB_PATH/publish
+      ln -s $BLOBFUSE_WEB_PATH/publish $PUBLISH_PATH
     fi
     # Validate the mount results
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
       echo "Failed to mount $BLOBFUSE_WEB_PATH" 1>&2
       exit 1
     fi
-    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
-      echo "Failed to mount $BLOBFUSE_APTLY_PATH" 1>&2
-      exit 1
-    fi
-    echo 'The mount storage account script is complete'
-  displayName: 'Run mount stroage account script'
+
+    mkdir -p $BLOBFUSE_WEB_PATH/debian
+    ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
+    echo 'The mount storage container web is complete'
+  displayName: 'Run mount stroage container to publish mirror script'
