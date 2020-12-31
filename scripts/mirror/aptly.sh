@@ -2,16 +2,12 @@
 
 CREATE_DB=$1
 PASSPHRASE="$2"
-STORAGE_ACCOUNT=$3
 MIRROR_NAME=$4
 MIRROR_URL=$5
 MIRROR_DISTRIBUTIONS=$6
 MIRROR_ARICHTECTURES=$7
 MIRROR_COMPONENTS=$8
 MIRROR_FILESYSTEM=$9
-APTLY_DIR="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-WEB_DIR="/blobfuse-${STORAGE_ACCOUNT}-web"
-PUBLISH_DIR=$WEB_DIR/debian
 
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
@@ -23,10 +19,6 @@ fi
 
 [ -z "$MIRROR_FILESYSTEM" ] && MIRROR_FILESYSTEM=debian
 
-BLOBFUSE_METTRIC_DIR=$APTLY_DIR/metric
-BLOBFUSE_WORK_DIR=$APTLY_DIR/$MIRROR_NAME
-BLOBFUSE_POOL_DIR=$BLOBFUSE_WORK_DIR/pool
-BLOBFUSE_DB_DIR=$BLOBFUSE_WORK_DIR/db
 ENCRIPTED_KEY_GPG=$(realpath ./encrypted_private_key.gpg)
 if [ ! -f "$ENCRIPTED_KEY_GPG" ]; then
     echo "The encripted key gpg file $ENCRIPTED_KEY_GPG does not exist." 1>&2
@@ -44,6 +36,8 @@ mkdir -p $WORK_DIR
 cd $WORK_DIR
 APTLY_CONFIG=aptly-debian.conf
 SAVE_WORKSPACE=n
+BLOBFUSE_DB_DIR=$WORK_DIR/aptly/dbs
+BLOBFUSE_METTRIC_DIR=$WORK_DIR/aptly/metric
 
 
 export GNUPGHOME=gnupg
@@ -61,17 +55,8 @@ create_or_update_database()
 
 prepare_workspace()
 {
-    local remote_aptly_dir="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-    local remote_dist_dir="$remote_aptly_dir/$MIRROR_NAME"
-    local remote_db_dir="$remote_dist_dir/db"
-    local remote_pool_dir="$remote_dist_dir/pool"
-
-    mkdir -p $BLOBFUSE_POOL_DIR
-    mkdir -p $PUBLISH_DIR
     echo "pwd=$(pwd)"
     cp ../config/aptly-debian.conf $APTLY_CONFIG
-    ln -s "$remote_pool_dir" pool
-    ln -s $PUBLISH_DIR publish
 
     # Import gpg key
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
@@ -90,12 +75,7 @@ prepare_workspace()
 
 save_workspace()
 {
-    local remote_aptly_dir="/blobfuse-${STORAGE_ACCOUNT}-aptly"
-    local remote_dist_dir="$remote_aptly_dir/$MIRROR_NAME"
-    local remote_db_dir="$remote_dist_dir/db"
-    local package="$remote_db_dir/db-$(date +%Y%m%d%H%M%S).tar.gz"
-
-    mkdir -p "$remote_db_dir"
+    local package="$BLOBFUSE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
 
     if [ "$SAVE_WORKSPACE" == "n" ]; then
         return
