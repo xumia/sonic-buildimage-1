@@ -65,7 +65,7 @@ steps:
       exit 1
     fi
     echo 'Mount storage containers for debian mirrors'
-    echo "PublishToReplica=$PublishToReplica" > test1
+    echo "PublishToReplica=$(PublishToReplica)" > test1
     echo "StorageAccount=$StorageAccount" >> test1
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
