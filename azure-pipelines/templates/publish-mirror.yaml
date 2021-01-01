@@ -10,5 +10,8 @@ steps:
     mirrorName: $(Mirror_Name)
 - bash: |
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
-    scripts/mirror/aptly.sh "$(CreateDB)" "$(sonic-gpg-passphrase)" "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)" "$(MIRROR_FILESYSTEM)"
+    scripts/mirror/aptly.sh "$(CreateDB)" "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)" "$(MIRROR_FILESYSTEM)"
+  env:
+    PASSPHRASE=$(sonic-gpg-passphrase)
+    
   displayName: 'Update and publish debian mirrors by aptly'
