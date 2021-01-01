@@ -6,7 +6,7 @@
 trigger:
 - main
 
-pool: sonic-mirror-build
+pool: sonic-mirror-build-2
 
 variables:
 - group: Debian-Mirror-GPG-VG
