@@ -105,6 +105,7 @@ save_workspace()
     local public_key_file_asc=publish/public_key.asc
     local public_key_file_gpg=publish/public_key.gpg
 
+    mkdir -p publish/versions
     if [ "$IS_DIRTY_VERSION" == "y" ] && [ -f "$database_version_file" ]; then
         cp "$database_version_file" "$publish_version_file"
         gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
@@ -197,11 +198,6 @@ update_repo()
 
     echo "Publish Repos=$repos dist=$dist"
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist filesystem:debian:
-
-    mkdir -p publish/versions
-    cp -f $database_version_file $publish_version_file
-
-    # Update the gpg public key
 }
 
 prepare_workspace
