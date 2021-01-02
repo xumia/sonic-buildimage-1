@@ -187,7 +187,7 @@ update_repo()
         if [ "$IS_DIRTY_VERSION" == "n" ]; then
             return
         fi
-    if
+    fi
 
     echo "Publish repos: $repos"
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
