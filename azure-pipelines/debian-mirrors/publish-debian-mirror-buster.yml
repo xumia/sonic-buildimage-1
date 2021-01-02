@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool: sonic-mirror-build-2
+
+variables:
+- group: Debian-Mirror-GPG-VG
+- group: Debian-Mirror-Storage-US-East
+jobs:
+- job: PublishBusterToUSEast
+  timeoutInMinutes: 0
+  variables:
+  - group: Debian-Mirror-Stretch
+  - name: PublishToReplica
+    value: 'n'
+  steps:
+  - template: ../templates/publish-mirror.yaml
+- job: PublishBusterToUSEastReplica
+  variables:
+  - group: Debian-Mirror-Buster
+  - name: PublishToReplica
+    value: 'y'
+  - name: CreateDB
+    value: 'n'
+  steps:
+  - template: ../templates/publish-mirror.yaml
