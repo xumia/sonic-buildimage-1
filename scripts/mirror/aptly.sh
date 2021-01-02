@@ -68,7 +68,9 @@ check_dirty_version()
     [ -f $database_version_file ] && database_version=$(cat $database_version_file)
     [ -f $publish_version_file ] && publish_version=$(cat $publish_version_file)
     local is_dirty_version=n
-    [ "$database_version" != "$publish_version" ] && is_dirty_version=y
+    if [ "$database_version" != "$publish_version" ]; then
+        is_dirty_version=y
+    fi
     echo is_dirty_version
 }
 
@@ -95,6 +97,7 @@ prepare_workspace()
 
     tar -xzvf "$latest_db" -C .
     IS_DIRTY_VERSION=$(check_dirty_version)
+    echo "IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
 }
 
 save_workspace()
@@ -183,9 +186,11 @@ update_repo()
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
     done
 
+    echo "Start publish repos $dist need_to_publish=$need_to_publish IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
     if [ "$need_to_publish" != "y" ]; then
         SAVE_WORKSPACE=y
         if [ "$IS_DIRTY_VERSION" == "n" ]; then
+            echo "Skip publish repos $dist"
             return
         fi
     fi
