@@ -95,6 +95,7 @@ prepare_workspace()
         exit 1
     fi
 
+    echo "The latest db file is $latest_db."
     tar -xzvf "$latest_db" -C .
     IS_DIRTY_VERSION=$(check_dirty_version)
     echo "IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
@@ -118,12 +119,14 @@ save_workspace()
     if [ "$SAVE_WORKSPACE" == "n" ]; then
         return
     fi
-    tar -czvf "$package" db
 
-    date "+%FT%T.%N" > $database_version_file
+    local version=$(date "+%FT%T.%N")
+    echo "Saving the db version $version"
+    echo $version > $database_version_file
     cp "$database_version_file" "$publish_version_file"
     gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
     gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
+    tar -czvf "$package" db
     echo "Saving workspace to $package is complete"
 }
 
