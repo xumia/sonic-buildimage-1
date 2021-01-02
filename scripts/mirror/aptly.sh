@@ -8,6 +8,7 @@ MIRROR_ARICHTECTURES=$5
 MIRROR_COMPONENTS=$6
 MIRROR_FILESYSTEM=$7
 
+IS_DIRTY_VERSION=n
 DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
@@ -58,6 +59,19 @@ create_or_update_database()
     echo y
 }
 
+check_dirty_version()
+{
+    local database_version=none
+    local publish_version=
+    local database_version_file=db/$DATABASE_VERSION_FILENAME
+    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
+    [ -f $database_version_file ] && database_version=$(cat $database_version_file)
+    [ -f $publish_version_file ] && publish_version=$(cat $publish_version_file)
+    local is_dirty_version=n
+    [ "$database_version" != "$publish_version" ] && is_dirty_version=y
+    echo is_dirty_version
+}
+
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
@@ -80,16 +94,32 @@ prepare_workspace()
     fi
 
     tar -xzvf "$latest_db" -C .
+    IS_DIRTY_VERSION=$(check_dirty_version)
 }
 
 save_workspace()
 {
     local package="$BLOBFUSE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
+    local database_version_file=db/$DATABASE_VERSION_FILENAME
+    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
+    local public_key_file_asc=publish/public_key.asc
+    local public_key_file_gpg=publish/public_key.gpg
+
+    if [ "$IS_DIRTY_VERSION" == "y" ] && [ -f "$database_version_file" ]; then
+        cp "$database_version_file" "$publish_version_file"
+        gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
+        gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
+    fi
 
     if [ "$SAVE_WORKSPACE" == "n" ]; then
         return
     fi
     tar -czvf "$package" db
+
+    date "+%FT%T.%N" > $database_version_file
+    cp "$database_version_file" "$publish_version_file"
+    gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
+    gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
     echo "Saving workspace to $package is complete"
 }
 
@@ -152,26 +182,20 @@ update_repo()
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
     done
 
-    local database_version=none
-    local publish_version=
-    local database_version_file=db/$DATABASE_VERSION_FILENAME
-    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
-    [ -f $database_version_file ] && database_version=$(cat $database_version_file)
-    [ -f $publish_version_file ] && publish_version=$(cat $publish_version_file)
-     
+    if [ "$need_to_publish" != "y" ]; then
+        if [ "$IS_DIRTY_VERSION" == "y" ]; then
+            return
+        fi
+        SAVE_WORKSPACE=y
+    if
 
-    if [ "$need_to_publish" != "y" ] && [ "$database_version" == "$publish_version" ] ;then
-        return
-    fi
-
-    date "+%FT%T.%N" > $database_version_file
-
-    SAVE_WORKSPACE=y
     echo "Publish repos: $repos"
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
-        echo aptly -config $APTLY_CONFIG publish repo -passphrase="***" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:
+        echo "aptly -config $APTLY_CONFIG publish repo -passphrase="***" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:"
         aptly -config $APTLY_CONFIG publish repo -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:
     fi
+
+    echo "Publish Repos=$repos dist=$dist"
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist filesystem:debian:
 
     mkdir -p publish/versions
