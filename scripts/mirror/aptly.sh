@@ -71,7 +71,7 @@ check_dirty_version()
     if [ "$database_version" != "$publish_version" ]; then
         is_dirty_version=y
     fi
-    echo is_dirty_version
+    echo $is_dirty_version
 }
 
 prepare_workspace()
