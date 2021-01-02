@@ -198,10 +198,13 @@ update_repo()
         fi
     fi
 
+    local options=
+    [[ "$dist" == *-backports ]] && options="-notautomatic=yes -butautomaticupgrades=yes"
+
     echo "Publish repos: $repos"
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
-        echo "aptly -config $APTLY_CONFIG publish repo -passphrase=*** -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:"
-        aptly -config $APTLY_CONFIG publish repo -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:
+        echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:"
+        aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:
     fi
 
     echo "Publish Repos=$repos dist=$dist"
