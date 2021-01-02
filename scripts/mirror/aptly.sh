@@ -8,6 +8,7 @@ MIRROR_ARICHTECTURES=$5
 MIRROR_COMPONENTS=$6
 MIRROR_FILESYSTEM=$7
 
+DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
 
@@ -151,9 +152,19 @@ update_repo()
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
     done
 
-    if [ "$need_to_publish" != "y" ];then
+    local database_version=none
+    local publish_version=
+    local database_version_file=db/$DATABASE_VERSION_FILENAME
+    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
+    [ -f $database_version_file ] && database_version=$(cat $database_version_file)
+    [ -f $publish_version_file ] && publish_version=$(cat $publish_version_file)
+     
+
+    if [ "$need_to_publish" != "y" ] && [ "$database_version" == "$publish_version" ] ;then
         return
     fi
+
+    date "+%FT%T.%N" > $database_version_file
 
     SAVE_WORKSPACE=y
     echo "Publish repos: $repos"
@@ -162,6 +173,9 @@ update_repo()
         aptly -config $APTLY_CONFIG publish repo -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos filesystem:debian:
     fi
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist filesystem:debian:
+
+    mkdir -p publish/versions
+    cp -f $database_version_file $publish_version_file
 
     # Update the gpg public key
 }
