@@ -183,10 +183,10 @@ update_repo()
     done
 
     if [ "$need_to_publish" != "y" ]; then
-        if [ "$IS_DIRTY_VERSION" == "y" ]; then
+        SAVE_WORKSPACE=y
+        if [ "$IS_DIRTY_VERSION" == "n" ]; then
             return
         fi
-        SAVE_WORKSPACE=y
     if
 
     echo "Publish repos: $repos"
