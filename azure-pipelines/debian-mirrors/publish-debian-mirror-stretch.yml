@@ -23,6 +23,7 @@ stages:
     steps:
     - template: ../templates/publish-mirror.yaml
   - job: PublishStretchToUSEastReplica
+    timeoutInMinutes: 0
     dependsOn: PublishStretchToUSEast
     variables:
     - group: Debian-Mirror-Stretch
