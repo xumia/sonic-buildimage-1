@@ -190,12 +190,10 @@ update_repo()
     done
 
     echo "Start publish repos $dist need_to_publish=$need_to_publish IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
-    if [ "$need_to_publish" != "y" ]; then
-        SAVE_WORKSPACE=y
-        if [ "$IS_DIRTY_VERSION" == "n" ]; then
-            echo "Skip publish repos $dist"
-            return
-        fi
+    [ "$need_to_publish" == "y" ] && SAVE_WORKSPACE=y
+    if [ "$need_to_publish" != "y" ] && [ "$IS_DIRTY_VERSION" == "n" ]; then
+        echo "Skip publish repos $dist"
+        return
     fi
 
     local options=
