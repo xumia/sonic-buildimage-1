@@ -22,9 +22,8 @@ stages:
       value: 'n'
     steps:
     - template: ../templates/publish-mirror.yaml
-- stage: PublishStretchToUSEastReplica
-  jobs:
   - job: PublishStretchToUSEastReplica
+    dependsOn: PublishStretchToUSEast
     variables:
     - group: Debian-Mirror-Stretch
     - name: PublishToReplica
