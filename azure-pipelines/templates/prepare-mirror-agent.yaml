@@ -3,17 +3,17 @@ steps:
     echo 'Try to init disk'
     [ ! -d /data ] && sudo mkdir -p /data
     # Init data disk
-    if [ ! -e /dev/sdc1 ]; then
-      echo 'Run parted disk /dev/sdc'
-      sudo parted /dev/sdc --script mklabel gpt mkpart data ext4 0% 100%
+    if [ ! -e /dev/disk/azure/scsi1/lun0-part1 ]; then
+      echo 'Run parted disk /dev/disk/azure/scsi1/lun0'
+      sudo parted /dev/disk/azure/scsi1/lun0 --script mklabel gpt mkpart data ext4 0% 100%
       sleep 10
-      sudo mkfs.ext4 /dev/sdc1
-      sudo partprobe /dev/sdc1
+      sudo mkfs.ext4 /dev/disk/azure/scsi1/lun0-part1
+      sudo partprobe /dev/disk/azure/scsi1/lun0-part1
     fi
     # Mount data disk
     echo 'Mount data disk'
-    if ! mount | grep -q /dev/sdc1; then
-      sudo sh -c 'echo "/dev/sdc1 /data ext4 defaults 0 0" >> /etc/fstab'
+    if ! mount | grep -q /dev/disk/azure/scsi1/lun0-part1; then
+      sudo sh -c 'echo "/dev/disk/azure/scsi1/lun0-part1 /data ext4 defaults 0 0" >> /etc/fstab'
       sudo mount -a
     fi
     # Install blobfuse
