@@ -34,7 +34,7 @@ steps:
     if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
       sudo mkdir $NFS_MOUNT_POINT
       sudo chmod 775 $NFS_MOUNT_POINT
-      sudo echo "$NFS_VOLUMN	$NFS_MOUNT_POINT    nfs     rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid       0       0" > /etc/fstab
+      echo "$NFS_VOLUMN	$NFS_MOUNT_POINT    nfs     rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid       0       0" | sudo tee -a /etc/fstab
       sudo mount -a
     fi
 
