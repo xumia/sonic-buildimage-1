@@ -64,6 +64,8 @@ steps:
     mkdir -p "$NFS_MIRROR_PATH/pool"
     echo "ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH"
     ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH
+    ls -l work
+    exit 1
     echo 'The mount nfs aptly pool is complete'
   displayName: 'Run mount NFS to load aptly db pool script'
 - bash: |
