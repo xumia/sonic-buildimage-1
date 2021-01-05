@@ -69,7 +69,7 @@ steps:
     # Mount storage containers for the aptly db and/or pool of debian mirrors
     WORKSPACE=${{ parameters.workspace }}
     MIRROR_NAME=${{ parameters.mirrorName }}
-    if [ -z "$StorageAccount" ]; then
+    if [ -z "$StorageAccount" ]; then:/
       echo "The stroage account not set" 1>&2
       exit 1
     fi
@@ -87,6 +87,8 @@ steps:
       fi
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
+      echo "StorageAccount=$StorageAccount" > test1
+      echo "StorageAccountSasToken=$StorageAccountSasToken" >> test1
       sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
     # Validate the mount results
