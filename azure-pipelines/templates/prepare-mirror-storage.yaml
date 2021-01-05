@@ -67,6 +67,7 @@ steps:
   displayName: 'Run mount NFS to load aptly db pool script'
 - bash: |
     # Mount storage containers for the aptly db and/or pool of debian mirrors
+    EnableNFS=${{ parameters.enableNfs }}
     WORKSPACE=${{ parameters.workspace }}
     MIRROR_NAME=${{ parameters.mirrorName }}
     if [ -z "$StorageAccount" ]; then
