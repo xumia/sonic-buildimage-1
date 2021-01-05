@@ -29,4 +29,9 @@ steps:
       sudo apt-get update
       sudo apt-get install -y aptly
     fi
+    # Install nfs-common
+    if ! dpkg -s nfs-common 1>/dev/null 2>&1; then
+      sudo apt-get update
+      sudo apt-get install -y nfs-common
+    fi
   displayName: 'Run prepare mirror agent script'
