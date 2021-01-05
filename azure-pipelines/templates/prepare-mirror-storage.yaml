@@ -32,8 +32,10 @@ steps:
       exit 0
     fi
     if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
-      sudo mkdir $NFS_MOUNT_POINT
-      sudo chmod 777 $NFS_MOUNT_POINT
+      if [ ! -e $NFS_MOUNT_POINT ]; then
+        sudo mkdir $NFS_MOUNT_POINT
+        sudo chmod 777 $NFS_MOUNT_POINT
+      fi
       echo "$NFS_VOLUMN	$NFS_MOUNT_POINT    nfs     rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid       0       0" | sudo tee -a /etc/fstab
       sudo mount -a
     fi
@@ -51,7 +53,7 @@ steps:
     if ! rm $NFS_MOUNT_POINT/_tmp; then
       echo "failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
       exit 1
-    if
+    fi
 
     rm -rf "$WORKSPACE"
     mkdir -p "$WORKSPACE"
