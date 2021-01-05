@@ -20,6 +20,15 @@ parameters:
   default: 'n'
 steps:
 - bash: |
+    WORKSPACE=${{ parameters.workspace }}
+    if [ -z "$WORKSPACE" ]; then
+      echo "The workspace is not set." 2>&1
+      exit 1
+    fi
+    [ -e "$WORKSPACE" ] sudo rm -rf "$WORKSPACE"
+    mkdir -p "$WORKSPACE"
+  displayName: 'Run clean workspace'
+- bash: |
     # Mount NFS for the aptly db and pool of debian mirrors
     EnableNFS=${{ parameters.enableNfs }}
     WORKSPACE=${{ parameters.workspace }}
@@ -55,8 +64,6 @@ steps:
       exit 1
     fi
 
-    rm -rf "$WORKSPACE"
-    mkdir -p "$WORKSPACE"
     APTLY_POOL_PATH=$WORKSPACE/pool
     NFS_MIRROR_PATH=$NFS_MOUNT_POINT/$MIRROR_NAME
     echo "pwd=$(pwd)"
@@ -64,8 +71,6 @@ steps:
     mkdir -p "$NFS_MIRROR_PATH/pool"
     echo "ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH"
     ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH
-    ls -l work
-    exit 1
     echo 'The mount nfs aptly pool is complete'
   displayName: 'Run mount NFS to load aptly db pool script'
 - bash: |
@@ -101,7 +106,6 @@ steps:
       exit 1
     fi
 
-    rm -rf "$WORKSPACE"
     mkdir -p "$WORKSPACE"
     APTLY_PATH=$WORKSPACE/aptly
     APTLY_POOL_PATH=$WORKSPACE/pool
