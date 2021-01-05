@@ -31,7 +31,7 @@ steps:
       echo "Skip to mount nfs, EnableNFS=$EnableNFS"
       exit 0
     fi
-    if grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
+    if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
       sudo mkdir $NFS_MOUNT_POINT
       sudo chmod 775 $NFS_MOUNT_POINT
       sudo echo "$NFS_VOLUMN	$NFS_MOUNT_POINT    nfs     rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid       0       0" > /etc/fstab
