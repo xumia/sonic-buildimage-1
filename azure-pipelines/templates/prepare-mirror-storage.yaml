@@ -25,7 +25,7 @@ steps:
       echo "The workspace is not set." 2>&1
       exit 1
     fi
-    [ -e "$WORKSPACE" ] sudo rm -rf "$WORKSPACE"
+    [ -e "$WORKSPACE" ] && sudo rm -rf "$WORKSPACE"
     mkdir -p "$WORKSPACE"
   displayName: 'Run clean workspace'
 - bash: |
