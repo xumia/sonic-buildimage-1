@@ -31,7 +31,7 @@ stages:
   - job: PublishBusterToUSEast
     timeoutInMinutes: 0
     dependsOn: PublishBusterToUSEastReplica
-    condition: eq(dependencies.PublishBusterToUSEastReplica.outputs['DetermineResult.MIRROR_PUBLISHED'], 'y')
+    condition: eq(dependencies.PublishBusterToUSEastReplica.outputs['publishMirrorBash.MIRROR_PUBLISHED'], 'y')
     variables:
     - group: Debian-Mirror-Buster
     - name: PublishToReplica
