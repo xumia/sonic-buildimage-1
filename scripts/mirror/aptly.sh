@@ -149,7 +149,7 @@ update_repo()
         local logfile="${mirror}.log"
         local current_url=$url
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
-            if [ "$UPDATE_MIRROR" != "Y" ]; then
+            if [ "$UPDATE_MIRROR" != "y" ]; then
                 echo "The mirror does not exit $mirror, not to create it, since UPDATE_MIRROR=$UPDATE_MIRROR" 1>&2
                 exit 1
             fi
@@ -163,7 +163,7 @@ update_repo()
             SAVE_WORKSPACE=y
         fi
         repos="$repos $repo"
-        if [ "$UPDATE_MIRROR" != "Y" ]; then
+        if [ "$UPDATE_MIRROR" != "y" ]; then
             echo "Skip to update the mirror $mirror, UPDATE_MIRROR=$UPDATE_MIRROR"
             continue
         fi
