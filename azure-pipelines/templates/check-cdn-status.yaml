@@ -8,7 +8,7 @@ steps:
     cdn_profile=$(CDNProfile)
     cdn_replicaorigin_name=$(CDNReplicaOriginName)
     origin_replica=$(az cdn origin show -g "$resource_group" --endpoint-name "$endpoint_name" -n "$cdn_replicaorigin_name"  --profile-name "$cdn_profile")
-    priority=echo "$origin_replica" | grep priority | sed -e "s/.*priority.:\s*//" | cut -d, -f1
+    priority=$(echo "$origin_replica" | grep priority | sed -e "s/.*priority.:\s*//" | cut -d, -f1)
     if [ "$priority" != "3" ]; then
         echo "The expected priority of the origin $cdn_replicaorigin_name in cdn endpoint $endpoint_name is 3, but the priority is $priority" 2>&1
         exit 1
