@@ -11,29 +11,38 @@ pool: sonic-mirror-build-2
 variables:
 - group: Debian-Mirror-GPG-VG
 - group: Debian-Mirror-Storage-US-East-2
+- name: EnableNfs
+  value: 'y'
 stages:
 - stage: PublishBusterToUSEast
   jobs:
-  - job: PublishBusterToUSEast
+  - job: PublishBusterToUSEastReplica
     timeoutInMinutes: 0
-    variables:
-    - group: Debian-Mirror-Buster
-    - name: PublishToReplica
-      value: 'n'
-    steps:
-    - template: ../templates/publish-mirror.yaml
-      parameters:
-        enableNfs: 'y'
-  - job: PublishBusterToUSEasteplica
-    timeoutInMinutes: 0
-    dependsOn: PublishBusterToUSEast
     variables:
     - group: Debian-Mirror-Buster
     - name: PublishToReplica
       value: 'y'
+    steps:
+    - template: ../templates/check-cdn-status.yaml
+    - template: ../templates/publish-mirror.yaml
+      parameters:
+        updateMirror: 'y'
+    - template: ../templates/migrate-cdn-replica.yaml
+      parameters:
+        cdnReplicaOriginPriority: '1'
+  - job: PublishBusterToUSEast
+    timeoutInMinutes: 0
+    dependsOn: PublishBusterToUSEastReplica
+    variables:
+    - group: Debian-Mirror-Buster
+    - name: PublishToReplica
+      value: 'n'
     - name: CreateDB
       value: 'n'
     steps:
     - template: ../templates/publish-mirror.yaml
       parameters:
-        enableNfs: 'y'
+        updateMirror: 'n'
+    - template: ../templates/migrate-cdn-replica.yaml
+      parameters:
+        cdnReplicaOriginPriority: '3'
