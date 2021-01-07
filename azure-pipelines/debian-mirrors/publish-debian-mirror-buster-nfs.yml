@@ -27,12 +27,10 @@ stages:
     - template: ../templates/publish-mirror.yaml
       parameters:
         updateMirror: 'y'
-    - template: ../templates/migrate-cdn-replica.yaml
-      parameters:
-        cdnReplicaOriginPriority: '1'
   - job: PublishBusterToUSEast
     timeoutInMinutes: 0
     dependsOn: PublishBusterToUSEastReplica
+    condition: eq(dependencies.PublishBusterToUSEastReplica.outputs['DetermineResult.MIRROR_PUBLISHED'], 'y')
     variables:
     - group: Debian-Mirror-Buster
     - name: PublishToReplica
@@ -40,6 +38,9 @@ stages:
     - name: CreateDB
       value: 'n'
     steps:
+    - template: ../templates/migrate-cdn-replica.yaml
+      parameters:
+        cdnReplicaOriginPriority: '1'
     - template: ../templates/publish-mirror.yaml
       parameters:
         updateMirror: 'n'
