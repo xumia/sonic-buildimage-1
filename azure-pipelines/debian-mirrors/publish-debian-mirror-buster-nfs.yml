@@ -53,7 +53,7 @@ stages:
     - template: ../templates/migrate-cdn-replica.yaml
       parameters:
         cdnReplicaOriginPriority: '3'
-- stage: PublishBusterToUSEast
+- stage: PublishBusterToUSEastReplica
   jobs:
   - job: Test
     steps:
