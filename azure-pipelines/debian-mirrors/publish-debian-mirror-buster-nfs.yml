@@ -14,8 +14,6 @@ variables:
 - group: Debian-Mirror-Common
 - name: EnableNfs
   value: 'y'
-- name: Timestamp
-  value: $(Date:yyyyMMdd)
 stages:
 - stage: PublishBusterToUSEast
   jobs:
@@ -26,9 +24,6 @@ stages:
     - name: PublishToReplica
       value: 'y'
     steps:
-    - bash: |
-        echo $(Timestamp)
-      displayName: 'Test'
     - template: ../templates/check-cdn-status.yaml
     - template: ../templates/publish-mirror.yaml
       parameters:
@@ -58,5 +53,5 @@ stages:
   - job: Test
     steps:
     - bash: |
-        echo $(Timestamp)
+        echo test
       displayName: 'Test'
