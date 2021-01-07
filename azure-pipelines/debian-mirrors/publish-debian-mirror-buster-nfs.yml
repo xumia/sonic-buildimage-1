@@ -26,13 +26,13 @@ stages:
     - name: PublishToReplica
       value: 'y'
     steps:
+    - bash: |
+        echo $(Timestamp)
+      displayName: 'Test'
     - template: ../templates/check-cdn-status.yaml
     - template: ../templates/publish-mirror.yaml
       parameters:
         updateMirror: 'y'
-    - bash: |
-        echo $(Timestamp)
-      displayName: 'Update and publish debian mirrors by aptly'
   - job: PublishBusterToUSEast
     timeoutInMinutes: 0
     dependsOn: PublishBusterToUSEastReplica
@@ -59,4 +59,4 @@ stages:
     steps:
     - bash: |
         echo $(Timestamp)
-      displayName: 'Update and publish debian mirrors by aptly'
+      displayName: 'Test'
