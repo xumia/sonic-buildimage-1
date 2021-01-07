@@ -14,6 +14,8 @@ variables:
 - group: Debian-Mirror-Common
 - name: EnableNfs
   value: 'y'
+- name: Timestamp
+  value: $(Date:yyyyMMdd-HHmmss)
 stages:
 - stage: PublishBusterToUSEast
   jobs:
@@ -28,6 +30,9 @@ stages:
     - template: ../templates/publish-mirror.yaml
       parameters:
         updateMirror: 'y'
+    - bash: |
+        echo $(Timestamp)
+      displayName: 'Update and publish debian mirrors by aptly'
   - job: PublishBusterToUSEast
     timeoutInMinutes: 0
     dependsOn: PublishBusterToUSEastReplica
@@ -48,3 +53,10 @@ stages:
     - template: ../templates/migrate-cdn-replica.yaml
       parameters:
         cdnReplicaOriginPriority: '3'
+- stage: PublishBusterToUSEast
+  jobs:
+  - job: Test
+    steps:
+    - bash: |
+        echo $(Timestamp)
+      displayName: 'Update and publish debian mirrors by aptly'
