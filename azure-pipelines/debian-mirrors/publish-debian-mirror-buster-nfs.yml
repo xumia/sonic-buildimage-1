@@ -11,6 +11,7 @@ pool: sonic-mirror-build-2
 variables:
 - group: Debian-Mirror-GPG-VG
 - group: Debian-Mirror-Storage-US-East-2
+- group: Debian-Mirror-Common
 - name: EnableNfs
   value: 'y'
 stages:
