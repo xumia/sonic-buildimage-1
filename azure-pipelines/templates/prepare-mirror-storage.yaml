@@ -27,7 +27,7 @@ steps:
     fi
     [ -e "$WORKSPACE" ] && sudo rm -rf "$WORKSPACE"
     mkdir -p "$WORKSPACE"
-  displayName: 'Run clean workspace'
+  displayName: 'Clean up workspace'
 - bash: |
     # Mount NFS for the aptly db and pool of debian mirrors
     EnableNFS=${{ parameters.enableNfs }}

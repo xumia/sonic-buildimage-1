@@ -1,5 +1,5 @@
 parameters:
-- name: 'enableNfs'
+- name: 'updateMirror'
   type: string
   default: 'n'
 steps:
@@ -12,11 +12,16 @@ steps:
     storageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
     publishToReplica: $(PublishToReplica)
     mirrorName: $(Mirror_Name)
-    enableNfs: ${{ parameters.enableNfs }}
+    enableNfs: $(EnableNfs)
 - bash: |
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
     scripts/mirror/aptly.sh "$(CreateDB)" "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)" "$(MIRROR_FILESYSTEM)"
+    MIRROR_PUBLISHED=n
+    [ -e "$PUBLIS_FLAG" ] && $MIRROR_PUBLISHED=y
+    echo "##vso[task.setvariable variable=MIRROR_PUBLISHED;isOutput=true]$MIRROR_PUBLISHED"
   env:
     PASSPHRASE: $(sonic-gpg-passphrase)
+    UPDATE_MIRROR: ${{ parameters.updateMirror }}
+    PUBLIS_FLAG: $(Build.SourcesDirectory)/work/.mirror_published
     
   displayName: 'Update and publish debian mirrors by aptly'
