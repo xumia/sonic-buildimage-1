@@ -15,7 +15,7 @@ variables:
 - name: EnableNfs
   value: 'y'
 - name: Timestamp
-  value: $(Date:yyyyMMdd-HHmmss)
+  value: $(Date:yyyyMMdd)
 stages:
 - stage: PublishBusterToUSEast
   jobs:
