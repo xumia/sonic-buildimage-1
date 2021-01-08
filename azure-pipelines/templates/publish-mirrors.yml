@@ -15,13 +15,14 @@ parameters:
 - name: 'mirrorNames'
   type: object
   default:
-  - FOO
-  - ZOO
+  - stretch
+  - buster
 jobs:
 - ${{ each mirrorName in parameters.mirrorNames }}:
   - ${{ each pair in parameters.publishjob }}:
-      ${{ if ne(pair.key, 'steps') }}:
+      ${{ if ne(pair.key, 'steps') and ne(pair.key, 'job') }}:
         ${{ pair.key }}: ${{ pair.value }}
+    job: ${{ mirrorName }}
     steps:
     - bash: |
         echo "pre-step"
