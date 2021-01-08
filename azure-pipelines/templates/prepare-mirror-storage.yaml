@@ -1,12 +1,4 @@
 parameters:
-- name: 'storageAccount'
-  type: string
-- name: 'storageAccountSasToken'
-  type: string
-- name: 'storageAccountReplica'
-  type: string
-- name: 'storageAccountReplicaSasToken'
-  type: string
 - name: 'mirrorName'
   type: string
 - name: 'publishToReplica'
@@ -60,7 +52,7 @@ steps:
       exit 1
     fi
     if ! rm $NFS_MOUNT_POINT/_tmp; then
-      echo "failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
+      echo "Failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
       exit 1
     fi
 
