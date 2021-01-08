@@ -81,22 +81,20 @@ steps:
       exit 1
     fi
     echo 'Mount storage container aptly for debian mirrors'
-    BLOBFUSE_APTLY_PATH=/blobfuse-${StorageAccount}-aptly
+    BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
     
-    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
-      if [ ! -e $BLOBFUSE_APTLY_PATH ]; then
-         sudo mkdir -p "$BLOBFUSE_APTLY_PATH"
-         sudo chmod a+rw "$BLOBFUSE_APTLY_PATH"
+    if ! mount | grep -q "$BLOBFUSE_APTLY_DATA"; then
+      if [ ! -e $BLOBFUSE_APTLY_DATA ]; then
+         sudo mkdir -p "$BLOBFUSE_APTLY_DATA"
+         sudo chmod a+rw "$BLOBFUSE_APTLY_DATA"
       fi
       export AZURE_STORAGE_ACCOUNT="$StorageAccount"
       export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
-      echo "StorageAccount=$StorageAccount" > test1
-      echo "StorageAccountSasToken=$StorageAccountSasToken" >> test1
-      sudo -E blobfuse "$BLOBFUSE_APTLY_PATH" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-aptly -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+      sudo -E blobfuse "$BLOBFUSE_APTLY_DATA" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-data -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
     fi
     # Validate the mount results
-    if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
-      echo "Failed to mount $BLOBFUSE_APTLY_PATH" 1>&2
+    if ! mount | grep -q "$BLOBFUSE_APTLY_DATA"; then
+      echo "Failed to mount $BLOBFUSE_APTLY_DATA" 1>&2
       exit 1
     fi
 
@@ -108,8 +106,8 @@ steps:
     mkdir -p "$WORKSPACE"
     APTLY_PATH=$WORKSPACE/aptly
     APTLY_POOL_PATH=$WORKSPACE/pool
-    BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_PATH/$MIRROR_NAME
-    [ "$EnableNFS" == "y" ] && BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_PATH/$MIRROR_NAME/nfs
+    BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/aptly/$MIRROR_NAME
+    [ "$EnableNFS" == "y" ] && BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/$MIRROR_NAME/nfs
     echo "pwd=$(pwd)"
     echo "APTLY_PATH=$APTLY_PATH"
     echo "APTLY_POOL_PATH=$APTLY_POOL_PATH"
@@ -125,7 +123,7 @@ steps:
   env:
     StorageAccount: $(StorageAccount)
     StorageAccountSasToken: $(StorageAccountSasToken)
-  displayName: 'Run mount stroage container to load aptly db and pool (if nfs not enabled) script'
+  displayName: 'Mount stroage container to load aptly db and pool script'
 - bash: |
     # Mount the publish contianers for debian mirrors
     WORKSPACE=${{ parameters.workspace }}
