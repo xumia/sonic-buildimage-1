@@ -1,6 +1,7 @@
 parameters:
 - name: 'mirrorName'
   type: string
+  default: 'none'
 - name: 'publishToReplica'
   type: string
   default: 'n'
@@ -55,6 +56,11 @@ steps:
       exit 1
     fi
 
+    if [ "$MIRROR_NAME" == "none" ]; then
+      echo "Skip to make soft link"
+      exit 0
+    fi
+
     APTLY_POOL_PATH=$WORKSPACE/pool
     NFS_MIRROR_PATH=$NFS_MOUNT_POINT/aptly/$MIRROR_NAME
     echo "pwd=$(pwd)"
@@ -63,7 +69,7 @@ steps:
     echo "ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH"
     ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH
     echo 'The mount nfs aptly pool is complete'
-  displayName: 'Run mount NFS to load aptly db pool script'
+  displayName: 'Mount and validate the NFS'
   condition: eq('${{ parameters.EnableNFS }}', 'y')
 - bash: |
     # Mount storage containers for the aptly db and/or pool of debian mirrors
@@ -72,10 +78,6 @@ steps:
     MIRROR_NAME=${{ parameters.mirrorName }}
     if [ -z "$StorageAccount" ]; then
       echo "The stroage account not set" 1>&2
-      exit 1
-    fi
-    if [ -z "$MIRROR_NAME" ]; then
-      echo "The mirror name not set" 1>&2
       exit 1
     fi
     echo 'Mount storage container aptly for debian mirrors'
@@ -96,6 +98,11 @@ steps:
     if ! mount | grep -q "$BLOBFUSE_APTLY_PATH"; then
       echo "Failed to mount $BLOBFUSE_APTLY_PATH" 1>&2
       exit 1
+    fi
+
+    if [ "$MIRROR_NAME" == "none" ]; then
+      echo "Skip to make soft link" 
+      exit 0
     fi
 
     mkdir -p "$WORKSPACE"
