@@ -76,6 +76,7 @@ stages:
     steps:
     - bash: |
         echo "MIRROR_VERSION=$MIRROR_VERSION"
+        exit 1
 - stage: MigratePrimaryStage
   dependsOn:
   - InitStage
@@ -88,3 +89,10 @@ stages:
     steps:
     - bash: |
         echo "MIRROR_VERSION=$MIRROR_VERSION"
+- stage: CleanUp
+  condition: always()
+  jobs:
+  - job: Test
+    steps:
+    - bash: |
+        echo "Clean up"
