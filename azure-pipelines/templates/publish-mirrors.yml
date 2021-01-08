@@ -1,0 +1,30 @@
+- name: 'publishjob'
+  type: job
+  default:
+    steps:
+    - bash: |
+        echo "test"
+      name: 'test'
+      displayName: 'Test'
+    - bash: |
+        echo "test1"
+      name: 'test1'
+      displayName: 'Test1'
+- name: 'mirrorNames'
+  type: object
+  default:
+  - FOO
+  - ZOO
+jobs:
+- ${{ each job in parameters.mirrorNames }}:
+  - ${{ each pair in parameters.publishjob }}:
+      ${{ if ne(pair.key, 'steps') }}:
+        ${{ pair.key }}: ${{ pair.value }}
+    steps:
+    - bash: |
+        echo "pre-step"
+      displayName: 'pre-step'
+    - ${{ job.steps }}
+    - bash: |
+        echo "post-step"
+      displayName: 'post-step'
