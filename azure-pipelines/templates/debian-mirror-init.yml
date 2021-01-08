@@ -1,0 +1,24 @@
+steps:
+- template: ../templates/debian-mirror-prepare-agent.yml
+- template: ../templates/debian-mirror-prepare-storage.yml
+- bash: |
+    set -e
+  displayName: 'Set lock file'
+- bash: |
+    set -e
+    az login -u $(ApplicationId) --service-principal --tenant $(AzureTenant) -p "$ApplicationKey"
+    # Expect the priority of the replica origin is 3
+    resource_group=$(CDNResourceGroup)
+    endpoint_name=$(CDNEndpointName)
+    cdn_profile=$(CDNProfile)
+    cdn_replicaorigin_name=$(CDNReplicaOriginName)
+    origin_replica=$(az cdn origin show -g "$resource_group" --endpoint-name "$endpoint_name" -n "$cdn_replicaorigin_name"  --profile-name "$cdn_profile")
+    priority=$(echo "$origin_replica" | grep priority | sed -e "s/.*priority.:\s*//" | cut -d, -f1)
+    if [ "$priority" != "3" ]; then
+        echo "The expected priority of the origin $cdn_replicaorigin_name in cdn endpoint $endpoint_name is 3, but the priority is $priority" 2>&1
+        exit 1
+    fi
+  env:
+    ApplicationKey: '$(ApplicationKey)'
+    AZURE_CONFIG_DIR: '.azureconfig'
+  displayName: 'Check CDN Endpoint status'
