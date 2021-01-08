@@ -54,3 +54,36 @@ stages:
     - bash: |
         echo "MIRROR_VERSION=$MIRROR_VERSION"
       displayName: 'Test'
+- stage: PublishToPrimaryStage
+  dependsOn:
+  - InitStage
+  - MigrateReplicaStage
+  variables:
+  - name: MIRROR_VERSION
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  jobs:
+  - job: PublishBusterToUSEast
+    timeoutInMinutes: 0
+    #dependsOn: PublishBusterToUSEastReplica
+    #condition: eq(dependencies.PublishBusterToUSEastReplica.outputs['publishMirrorBash.MIRROR_PUBLISHED'], 'y')
+    variables:
+    - group: Debian-Mirror-Buster
+    - name: PublishToReplica
+      value: 'n'
+    - name: CreateDB
+      value: 'n'
+    steps:
+    - bash: |
+        echo "MIRROR_VERSION=$MIRROR_VERSION"
+- stage: MigratePrimaryStage
+  dependsOn:
+  - InitStage
+  - PublishToPrimaryStage
+  variables:
+  - name: MIRROR_VERSION
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  jobs:
+  - job: Test
+    steps:
+    - bash: |
+        echo "MIRROR_VERSION=$MIRROR_VERSION"
