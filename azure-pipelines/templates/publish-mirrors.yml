@@ -26,7 +26,7 @@ jobs:
     - bash: |
         echo "pre-step"
       displayName: 'pre-step'
-    - ${{ job.steps }}
+    - ${{ parameters.publishjob.steps }}
     - bash: |
         echo "post-step"
       displayName: 'post-step'
