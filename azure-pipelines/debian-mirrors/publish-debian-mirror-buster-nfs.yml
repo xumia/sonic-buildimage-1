@@ -29,6 +29,7 @@ stages:
   - name: MIRROR_VERSION
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
   jobs:
+  - template: ../templates/publish-mirrors.yml
   - job: PublishBusterToUSEastReplica
     timeoutInMinutes: 0
     variables:
