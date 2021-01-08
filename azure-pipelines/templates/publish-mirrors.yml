@@ -2,6 +2,7 @@ parameters:
 - name: 'publishjob'
   type: job
   default:
+    job:
     steps:
     - bash: |
         echo "test"
@@ -17,7 +18,7 @@ parameters:
   - FOO
   - ZOO
 jobs:
-- ${{ each job in parameters.mirrorNames }}:
+- ${{ each mirrorName in parameters.mirrorNames }}:
   - ${{ each pair in parameters.publishjob }}:
       ${{ if ne(pair.key, 'steps') }}:
         ${{ pair.key }}: ${{ pair.value }}
