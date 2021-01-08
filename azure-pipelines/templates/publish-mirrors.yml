@@ -20,7 +20,7 @@ parameters:
 jobs:
 - ${{ each mirrorName in parameters.mirrorNames }}:
   - ${{ each pair in parameters.publishjob }}:
-      ${{ if ne(pair.key, 'steps') and ne(pair.key, 'job') }}:
+      ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
         ${{ pair.key }}: ${{ pair.value }}
     job: ${{ mirrorName }}
     steps:
