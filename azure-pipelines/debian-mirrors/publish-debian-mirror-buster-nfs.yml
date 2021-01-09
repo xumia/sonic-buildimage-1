@@ -40,18 +40,17 @@ stages:
   - name: MirrorVersion
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
-  - job: Test
+  - job: MigrateReplica
     steps:
-    - bash: |
-        echo "MirrorVersion=$MirrorVersion"
-      displayName: 'Test'
+    - template: ../templates/debian-mirror-migrate-replica.yml
+      parameters:
+        cdnReplicaOriginPriority: '1'
 - stage: PublishToPrimaryStage
   dependsOn:
   - InitStage
   - MigrateReplicaStage
+  condition: eq(stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'], 'y')
   variables:
-  - name: MirrorVersion
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   - name: PublishToReplica
     value: 'n'
   - name: UpdateMirror
@@ -60,18 +59,20 @@ stages:
   - template: ../templates/debian-mirror-publish-mirrors.yml
 - stage: MigratePrimaryStage
   dependsOn:
-  - InitStage
+  - MigrateReplicaStage
   - PublishToPrimaryStage
+  condition: eq(stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'], 'y')
   variables:
   - name: PublishToReplica
     value: 'n'
-  - name: MirrorVersion
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
+  - name: MigrateCdnReplica
+    value: 'y'
   jobs:
-  - job: Test
+  - job: MigratePrimary
     steps:
-    - bash: |
-        echo "MirrorVersion=$MirrorVersion"
+    - template: ../templates/debian-mirror-migrate-primary.yml
+      parameters:
+        cdnReplicaOriginPriority: '3'
 - stage: CleanUp
   condition: always()
   jobs:
