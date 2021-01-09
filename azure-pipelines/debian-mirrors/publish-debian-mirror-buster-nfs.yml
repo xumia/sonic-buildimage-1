@@ -13,6 +13,8 @@ variables:
 - group: Debian-Mirror-Common
 - name: EnableNfs
   value: 'y'
+- name: PublishToReplica
+  value: 'y'
 stages:
 - stage: InitStage
   jobs:
@@ -78,6 +80,8 @@ stages:
   - InitStage
   - PublishToPrimaryStage
   variables:
+  - name: PublishToReplica
+    value: 'n'
   - name: MIRROR_VERSION
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
   jobs:
