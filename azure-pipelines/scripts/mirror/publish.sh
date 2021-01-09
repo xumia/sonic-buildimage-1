@@ -235,7 +235,7 @@ update_repo()
     fi
 
     echo "Publish Repos=$repos publish_dist=$publish_dist"
-    aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist $FILESYSTEM
+    aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $publish_dist $FILESYSTEM
     if [ ! -z "$PUBLIS_FLAG" ]; then
       touch "$PUBLIS_FLAG"
     fi
