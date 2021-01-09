@@ -94,7 +94,7 @@ check_dirty_version()
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
-    cp azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
+    cp ../azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
 
     # Import gpg key
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
