@@ -228,12 +228,13 @@ update_repo()
     [[ "$dist" == *-backports ]] && options="-notautomatic=yes -butautomaticupgrades=yes"
 
     echo "Publish repos: $repos"
+    local publish_dist=$(echo $dist | tr / -)
     if ! aptly -config $APTLY_CONFIG publish show $dist filesystem:debian: > /dev/null 2>&1; then
-        echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos $FILESYSTEM"
-        aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$dist -architectures=$archs -component=$components $repos $FILESYSTEM
+        echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
+        aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM
     fi
 
-    echo "Publish Repos=$repos dist=$dist"
+    echo "Publish Repos=$repos publish_dist=$publish_dist"
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist $FILESYSTEM
     if [ ! -z "$PUBLIS_FLAG" ]; then
       touch "$PUBLIS_FLAG"
