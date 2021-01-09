@@ -3,7 +3,7 @@ steps:
 - template: ../templates/debian-mirror-init-storage.yml
 - bash: |
     set -e
-    APTLY_LOCK_PATH=work/_data/.lockdir
+    APTLY_LOCK_PATH=work/_aptly/.lockdir
     mkdir $APTLY_LOCK_PATH
     touch $APTLY_LOCK_PATH/.lockfile
   displayName: 'Set lock file'
