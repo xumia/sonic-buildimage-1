@@ -17,6 +17,7 @@ parameters:
 steps:
 - bash: |
     WORKSPACE=${{ parameters.workspace }}
+    echo "pwd=$(pwd)"
     if [ -z "$WORKSPACE" ]; then
       echo "The workspace is not set." 2>&1
       exit 1
@@ -31,30 +32,7 @@ steps:
     MIRROR_NAME=${{ parameters.mirrorName }}
     NFS_VOLUMN=$(NFSVolumn)
     NFS_MOUNT_POINT=${{ parameters.nfsMountPoint }}
-    sudo mkdir -p $NFS_MOUNT_POINT
-    if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
-      if [ ! -e $NFS_MOUNT_POINT ]; then
-        sudo mkdir $NFS_MOUNT_POINT
-        sudo chmod 777 $NFS_MOUNT_POINT
-      fi
-      echo "$NFS_VOLUMN	$NFS_MOUNT_POINT    nfs     rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid       0       0" | sudo tee -a /etc/fstab
-      sudo mount -a
-    fi
-
-    if ! mount | grep -q "$NFS_MOUNT_POINT"; then
-      echo "Failed to mount $NFS_MOUNT_POINT" 1>&2
-      exit 1
-    fi
-
-    # Validate the permission
-    if ! touch $NFS_MOUNT_POINT/_tmp; then
-      echo "Failed to create $NFS_MOUNT_POINT/_tmp" 1>&2
-      exit 1
-    fi
-    if ! rm $NFS_MOUNT_POINT/_tmp; then
-      echo "Failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
-      exit 1
-    fi
+    azure-pipelines/scripts/mirror/mount-nfs.sh "$NFS_MOUNT_POINT" "$NFS_VOLUMN"
 
     if [ "$MIRROR_NAME" == "none" ]; then
       echo "Skip to make soft link"
@@ -63,7 +41,6 @@ steps:
 
     APTLY_POOL_PATH=$WORKSPACE/pool
     NFS_MIRROR_PATH=$NFS_MOUNT_POINT/aptly/$MIRROR_NAME
-    echo "pwd=$(pwd)"
     echo "APTLY_POOL_PATH=$APTLY_POOL_PATH"
     mkdir -p "$NFS_MIRROR_PATH/pool"
     echo "ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH"
@@ -82,21 +59,7 @@ steps:
     fi
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
-    
-    if ! mount | grep -q "$BLOBFUSE_APTLY_DATA"; then
-      if [ ! -e $BLOBFUSE_APTLY_DATA ]; then
-         sudo mkdir -p "$BLOBFUSE_APTLY_DATA"
-         sudo chmod a+rw "$BLOBFUSE_APTLY_DATA"
-      fi
-      export AZURE_STORAGE_ACCOUNT="$StorageAccount"
-      export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
-      sudo -E blobfuse "$BLOBFUSE_APTLY_DATA" --container-name='aptly' --tmp-path=/data/blobfuse-${StorageAccount}-data -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-    fi
-    # Validate the mount results
-    if ! mount | grep -q "$BLOBFUSE_APTLY_DATA"; then
-      echo "Failed to mount $BLOBFUSE_APTLY_DATA" 1>&2
-      exit 1
-    fi
+    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data"
 
     if [ "$MIRROR_NAME" == "none" ]; then
       echo "Skip to make soft link" 
@@ -108,9 +71,7 @@ steps:
     APTLY_POOL_PATH=$WORKSPACE/pool
     BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/aptly/$MIRROR_NAME
     [ "$EnableNFS" == "y" ] && BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/$MIRROR_NAME/nfs
-    echo "pwd=$(pwd)"
-    echo "APTLY_PATH=$APTLY_PATH"
-    echo "APTLY_POOL_PATH=$APTLY_POOL_PATH"
+    echo "APTLY_PATH=$APTLY_PATH, APTLY_POOL_PATH=$APTLY_POOL_PATH"
     mkdir -p "$BLOBFUSE_MIRROR_PATH/pool"
     echo "ln -s $BLOBFUSE_MIRROR_PATH $APTLY_PATH"
     ln -s $BLOBFUSE_MIRROR_PATH $APTLY_PATH
@@ -139,21 +100,7 @@ steps:
     fi
     echo 'Mount storage containers for debian mirrors'
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
-    if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
-      if [ ! -e $BLOBFUSE_WEB_PATH ]; then 
-        sudo mkdir -p $BLOBFUSE_WEB_PATH
-        sudo chmod a+rw $BLOBFUSE_WEB_PATH
-      fi
-      export AZURE_STORAGE_ACCOUNT="$StorageAccount"
-      export AZURE_STORAGE_SAS_TOKEN="$StorageAccountSasToken"
-      sudo -E blobfuse "$BLOBFUSE_WEB_PATH" --container-name='$web' --tmp-path=/data/blobfuse-${StorageAccount}-web -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
-      sleep 1
-    fi
-    # Validate the mount results
-    if ! mount | grep -q "$BLOBFUSE_WEB_PATH"; then
-      echo "Failed to mount $BLOBFUSE_WEB_PATH" 1>&2
-      exit 1
-    fi
+    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
 
     mkdir -p $BLOBFUSE_WEB_PATH/debian
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
