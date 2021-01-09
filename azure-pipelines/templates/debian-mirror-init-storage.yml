@@ -2,9 +2,6 @@ parameters:
 - name: 'mirrorName'
   type: string
   default: 'none'
-- name: 'publishToReplica'
-  type: string
-  default: 'n'
 - name: 'workspace'
   type: string
   default: 'work'
