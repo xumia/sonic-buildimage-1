@@ -33,7 +33,8 @@ steps:
     NFS_VOLUMN=$(NFSVolumn)
     NFS_MOUNT_POINT=${{ parameters.nfsMountPoint }}
     azure-pipelines/scripts/mirror/mount-nfs.sh "$NFS_MOUNT_POINT" "$NFS_VOLUMN"
-
+    mkdir -p "$NFS_MOUNT_POINT/aptly"
+    ln -s "$NFS_MOUNT_POINT/aptly" "$WORKSPACE/_aptly"
     if [ "$MIRROR_NAME" == "none" ]; then
       echo "Skip to make soft link"
       exit 0
@@ -69,6 +70,7 @@ steps:
     mkdir -p "$WORKSPACE"
     APTLY_PATH=$WORKSPACE/aptly
     APTLY_POOL_PATH=$WORKSPACE/pool
+    BLOBFUSE_MIRROR_APTLY=$BLOBFUSE_APTLY_DATA/aptly
     BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/aptly/$MIRROR_NAME
     [ "$EnableNFS" == "y" ] && BLOBFUSE_MIRROR_PATH=$BLOBFUSE_APTLY_DATA/$MIRROR_NAME/nfs
     echo "APTLY_PATH=$APTLY_PATH, APTLY_POOL_PATH=$APTLY_POOL_PATH"
@@ -79,6 +81,7 @@ steps:
       echo "Mount Aptly pool, EnableNFS=$EnableNFS"
       echo "ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH"
       ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH
+      ln -s "$BLOBFUSE_MIRROR_APTLY" "$WORKSPACE/_aptly"
     fi
     echo 'The mount storage container aptly is complete'
   env:
