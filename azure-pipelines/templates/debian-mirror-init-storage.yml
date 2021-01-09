@@ -114,4 +114,4 @@ steps:
     StorageAccountReplica: $(StorageAccountReplica)
     StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
     
-  displayName: 'Run mount stroage container to publish mirror script'
+  displayName: 'Mount stroage container to publish mirror script'
