@@ -92,7 +92,7 @@ stages:
 - stage: CleanUp
   condition: always()
   jobs:
-  - job: Test
+  - job: CleanUp
     steps:
     - bash: |
-        echo "Clean up"
+        rm -r work/_data/.lockdir
