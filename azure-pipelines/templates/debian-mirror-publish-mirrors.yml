@@ -21,4 +21,4 @@ parameters:
 jobs:
 - template: debian-mirror-publish-mirrors-internal.yml
   parameters:
-    publishjob: ${{ parameters.mirrorNames }}
+    mirrorNames: ${{ parameters.mirrorNames }}
