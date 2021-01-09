@@ -96,3 +96,4 @@ stages:
     steps:
     - bash: |
         [ -d work/_aptly/.lockdir ] && rm -rf work/_aptly/.lockdir
+      displayName: 'CleanUp'
