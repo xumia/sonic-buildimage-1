@@ -8,6 +8,10 @@ steps:
     touch $APTLY_LOCK_PATH/.lockfile
   displayName: 'Set lock file'
 - bash: |
+    MIRROR_VERSION=$(date +%Y%m%d%H%M%S-%N)
+    echo "##vso[task.setvariable variable=MIRROR_VERSION;isOutput=true]$MIRROR_VERSION"
+  name: InitStep
+- bash: |
     set -e
     az login -u $(ApplicationId) --service-principal --tenant $(AzureTenant) -p "$ApplicationKey"
     # Expect the priority of the replica origin is 3
