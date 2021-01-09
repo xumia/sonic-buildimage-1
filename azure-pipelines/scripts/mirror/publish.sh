@@ -4,7 +4,7 @@ CREATE_DB=$1
 MIRROR_NAME=$2
 
 IS_DIRTY_VERSION=n
-DEBIAN_MIRRORS_CONFIG=config/debian-mirrors.config
+DEBIAN_MIRRORS_CONFIG=azure-pipelines/config/debian-mirrors.config
 DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
@@ -95,7 +95,7 @@ check_dirty_version()
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
-    cp ../config/aptly-debian.conf $APTLY_CONFIG
+    cp azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
 
     # Import gpg key
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
