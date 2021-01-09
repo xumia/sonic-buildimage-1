@@ -51,6 +51,7 @@ SAVE_WORKSPACE=n
 ENCRIPTED_KEY_GPG=./encrypted_private_key.gpg
 VERSION_FILE=_aptly/version
 echo $GPG_KEY > $ENCRIPTED_KEY_GPG
+echo $PASSPHRASE > _passphrase
 
 
 if ! readlink aptly > /dev/null; then
