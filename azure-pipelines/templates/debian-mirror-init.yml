@@ -1,6 +1,6 @@
 steps:
-- template: ../templates/debian-mirror-prepare-agent.yml
-- template: ../templates/debian-mirror-prepare-storage.yml
+- template: ../templates/debian-mirror-init-agent.yml
+- template: ../templates/debian-mirror-init-storage.yml
 - bash: |
     set -e
   displayName: 'Set lock file'
