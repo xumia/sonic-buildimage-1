@@ -17,6 +17,7 @@ jobs:
       ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
         ${{ pair.key }}: ${{ pair.value }}
     job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
+    timeoutInMinutes: 0
     steps:
     - template: ../templates/debian-mirror-init-agent.yml
     - template: ../templates/debian-mirror-init-storage.yml
