@@ -9,6 +9,8 @@ parameters:
   default:
     job:
     steps:
+    - bash: |
+        echo "test"
 jobs:
 - ${{ each mirrorName in parameters.mirrorNames }}:
   - ${{ each pair in parameters.publishjob }}:
