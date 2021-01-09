@@ -1,0 +1,23 @@
+parameters:
+- name: 'cdnReplicaOriginPriority'
+  type: string
+  default: '3'
+- name: 'purgeContent'
+  type: string
+  default: 'y'
+steps:
+- template: ../templates/debian-mirror-init-agent.yml
+- template: ../templates/debian-mirror-init-storage.yml
+- bash: |
+    set -e
+    db_version=none
+    publish_version=
+    [ -f work/publish/version ] && publish_version=$(cat work/publish/version)
+    [ -f work/_aptly/version ] && publish_version=$(cat work/_aptly/version)
+    migrate_cdn_replica=y
+    echo "The version info: db_version=$db_version, publish_version=$publish_version"
+    [ "$db_version" == "$publish_version" ] && migrate_cdn_replica=n
+    echo "##vso[task.setvariable variable=MigrateCdnReplica;isOutput=true]$migrate_cdn_replica"
+  name: CheckVersion
+  displayName: 'Check the publish version'
+- template: ../templates/debian-mirror-migrate-cdn-replica.yml

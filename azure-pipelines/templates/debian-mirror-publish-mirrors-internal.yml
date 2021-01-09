@@ -16,6 +16,10 @@ jobs:
         ${{ pair.key }}: ${{ pair.value }}
     job: ${{ format('Publish_mirror_{0}', mirrorName) }}
     steps:
+    - template: ../templates/debian-mirror-init-agent.yml
+    - template: ../templates/debian-mirror-init-storage.yml
+      parameters:
+          mirrorName: ${{ mirrorName }}
     - bash: |
         echo "pre-step"
       displayName: 'pre-step'

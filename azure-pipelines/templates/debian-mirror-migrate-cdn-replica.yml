@@ -1,0 +1,33 @@
+parameters:
+- name: 'cdnReplicaOriginPriority'
+  type: string
+  default: '3'
+- name: 'purgeContent'
+  type: string
+  default: 'y'
+steps:
+- bash: |
+    set -e
+    migrate_cdn_replica=$(MigrateCdnReplica)
+    if [ "$migrate_cdn_replica" == 'n' ]; then
+        echo "Skip migrate CDN endpoint"
+        exit 0
+    fi
+
+    echo "Start to migrate CDN endpoint, db_version=$db_version, publish_version=$publish_version"
+    az login -u $(ApplicationId) --service-principal --tenant $(AzureTenant) -p "$ApplicationKey"
+    resource_group=$(CDNResourceGroup)
+    endpoint_name=$(CDNEndpointName)
+    cdn_profile=$(CDNProfile)
+    cdn_replicaorigin_name=$(CDNReplicaOriginName)
+    priority=${{ parameters.cdnReplicaOriginPriority }}
+    echo "Change the priority of $cdn_replicaorigin_name in $endpoint_name to $priority"
+    az cdn origin update -g "$resource_group" --endpoint-name "$endpoint_name" -n "$cdn_replicaorigin_name"  --profile-name "$cdn_profile" --priority $priority
+    if [ "$purgeContent" == "y" ]; then
+      echo "Purge the CDN content path /debian/debian/dist/*, it will take several miniutes"
+      az cdn endpoint purge -g "$resource_group" -n "$endpoint_name" --profile-name sonicstoragepublic --content-paths '/debian/debian/dist/*'
+    fi
+  env:
+    ApplicationKey: '$(ApplicationKey)'
+    AZURE_CONFIG_DIR: '.azureconfig'
+  displayName: 'Migrete CDN Endpoint'
