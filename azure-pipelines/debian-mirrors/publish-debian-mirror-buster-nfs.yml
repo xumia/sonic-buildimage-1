@@ -24,42 +24,34 @@ stages:
 - stage: PublishToReplicaStage
   dependsOn: InitStage
   variables:
-  - name: MIRROR_VERSION
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  - name: MirrorVersion
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
+  - name: PublishToReplica
+    value: 'y'
+  - name: UpdateMirror
+    value: 'y'
   jobs:
   - template: ../templates/debian-mirror-publish-mirrors.yml
-  - job: PublishBusterToUSEastReplica
-    timeoutInMinutes: 0
-    variables:
-    - group: Debian-Mirror-Buster
-    - name: PublishToReplica
-      value: 'y'
-    steps:
-    - bash: |
-        echo "MIRROR_VERSION=$MIRROR_VERSION"
-    #- template: ../templates/publish-mirror.yaml
-    #  parameters:
-    #    updateMirror: 'y'
 - stage: MigrateReplicaStage
   dependsOn:
   - InitStage
   - PublishToReplicaStage
   variables:
-  - name: MIRROR_VERSION
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  - name: MirrorVersion
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
   - job: Test
     steps:
     - bash: |
-        echo "MIRROR_VERSION=$MIRROR_VERSION"
+        echo "MirrorVersion=$MirrorVersion"
       displayName: 'Test'
 - stage: PublishToPrimaryStage
   dependsOn:
   - InitStage
   - MigrateReplicaStage
   variables:
-  - name: MIRROR_VERSION
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  - name: MirrorVersion
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
   - job: PublishBusterToUSEast
     timeoutInMinutes: 0
@@ -73,7 +65,7 @@ stages:
       value: 'n'
     steps:
     - bash: |
-        echo "MIRROR_VERSION=$MIRROR_VERSION"
+        echo "MirrorVersion=$MirrorVersion"
         exit 1
 - stage: MigratePrimaryStage
   dependsOn:
@@ -82,13 +74,13 @@ stages:
   variables:
   - name: PublishToReplica
     value: 'n'
-  - name: MIRROR_VERSION
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MIRROR_VERSION'] ]
+  - name: MirrorVersion
+    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
   - job: Test
     steps:
     - bash: |
-        echo "MIRROR_VERSION=$MIRROR_VERSION"
+        echo "MirrorVersion=$MirrorVersion"
 - stage: CleanUp
   condition: always()
   jobs:
