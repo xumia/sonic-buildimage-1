@@ -95,4 +95,4 @@ stages:
   - job: CleanUp
     steps:
     - bash: |
-        rm -rf work/_data/.lockdir
+        rm -rf work/_aptly/.lockdir
