@@ -26,7 +26,6 @@ MIRROR_URL=$(echo $MIRROR_CONFIG | awk '{print $3}')
 MIRROR_DISTRIBUTIONS=$(echo $MIRROR_CONFIG | awk '{print $4}')
 MIRROR_COMPONENTS=$(echo $MIRROR_CONFIG | awk '{print $5}')
 MIRROR_ARICHTECTURES=$(echo $MIRROR_CONFIG | awk '{print $6}')
-
 FILESYSTEM="filesystem:$MIRROR_FILESYSTEM:"
 
 if [ -z "$GPG_KEY" ]; then

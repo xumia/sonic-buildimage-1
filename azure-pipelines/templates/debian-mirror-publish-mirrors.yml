@@ -2,22 +2,8 @@ parameters:
 - name: 'mirrorNames'
   type: object
   default:
-  - jessie
-  - stretch
-  - buster
-- name: 'publishjob'
-  type: job
-  default:
-    job:
-    steps:
-    - bash: |
-        echo "test"
-      name: 'test'
-      displayName: 'Test'
-    - bash: |
-        echo "test1"
-      name: 'test1'
-      displayName: 'Test1'
+  - jessie-security
+  - stretch-security
 jobs:
 - template: debian-mirror-publish-mirrors-internal.yml
   parameters:
