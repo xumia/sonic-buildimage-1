@@ -52,21 +52,12 @@ stages:
   variables:
   - name: MirrorVersion
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
+  - name: PublishToReplica
+    value: 'n'
+  - name: UpdateMirror
+    value: 'n'
   jobs:
-  - job: PublishBusterToUSEast
-    timeoutInMinutes: 0
-    #dependsOn: PublishBusterToUSEastReplica
-    #condition: eq(dependencies.PublishBusterToUSEastReplica.outputs['publishMirrorBash.MIRROR_PUBLISHED'], 'y')
-    variables:
-    - group: Debian-Mirror-Buster
-    - name: PublishToReplica
-      value: 'n'
-    - name: CreateDB
-      value: 'n'
-    steps:
-    - bash: |
-        echo "MirrorVersion=$MirrorVersion"
-        exit 1
+  - template: ../templates/debian-mirror-publish-mirrors.yml
 - stage: MigratePrimaryStage
   dependsOn:
   - InitStage
