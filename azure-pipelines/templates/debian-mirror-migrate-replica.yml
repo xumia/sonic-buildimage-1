@@ -1,10 +1,3 @@
-parameters:
-- name: 'cdnReplicaOriginPriority'
-  type: string
-  default: '3'
-- name: 'purgeContent'
-  type: string
-  default: 'y'
 steps:
 - template: ../templates/debian-mirror-init-agent.yml
 - template: ../templates/debian-mirror-init-storage.yml
@@ -31,3 +24,5 @@ steps:
   name: CheckVersion
   displayName: 'Check the publish version'
 - template: ../templates/debian-mirror-migrate-cdn-replica.yml
+  parameters:
+    cdnReplicaOriginPriority: '1'
