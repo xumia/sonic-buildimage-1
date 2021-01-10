@@ -25,7 +25,7 @@ jobs:
           mirrorName: ${{ mirrorName }}
     - bash: |
         echo "pre-step"
-        echo "${{ parameters.mirrorNames }}'"
+        echo "${{ join(',', parameters.mirrorNames) }}"
       displayName: 'pre-step'
     - ${{ parameters.publishjob.steps }}
     - bash: |
