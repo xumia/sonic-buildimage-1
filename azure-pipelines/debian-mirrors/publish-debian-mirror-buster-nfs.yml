@@ -46,8 +46,6 @@ stages:
   - job: MigrateReplica
     steps:
     - template: ../templates/debian-mirror-migrate-replica.yml
-      parameters:
-        cdnReplicaOriginPriority: '1'
 - stage: PublishToPrimaryStage
   dependsOn:
   - InitStage
@@ -87,8 +85,6 @@ stages:
   - job: MigratePrimary
     steps:
     - template: ../templates/debian-mirror-migrate-primary.yml
-      parameters:
-        cdnReplicaOriginPriority: '3'
 - stage: CleanUp
   condition: always()
   jobs:
