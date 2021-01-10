@@ -237,15 +237,39 @@ update_repo()
 
     echo "Publish repos: $repos"
     local publish_dist=$(echo $dist | tr / -)
-    if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
-        echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
-        aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM
+
+    local retry=5
+    local publish_succeeded=n
+    local wait_seconds=300
+    for ((i=1;i<=$retry;i++)); do
+        echo "Try to publish $publish_dist $FILESYSTEM, retry step $i of $retry"
+        if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
+            echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
+            if aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM; then
+                publish_succeeded = y
+                break
+            fi
+        else
+            echo "Publish Repos=$repos publish_dist=$publish_dist"
+            if aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $publish_dist $FILESYSTEM; then
+                publish_succeeded = y
+                break
+            fi
+        fi
+
+        if [ "$i" != "$retry" ]; then
+            echo "Sleep $wait_seconds seconds"
+            sleep $wait_seconds
+        fi
+    done
+
+    if [ "$publish_succeeded" != "y" ]; then
+        echo "Failed to publish $publish_dist $FILESYSTEM after $retry retries" 1>&2
+        exit 1
     fi
 
-    echo "Publish Repos=$repos publish_dist=$publish_dist"
-    aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $publish_dist $FILESYSTEM
     if [ ! -z "$PUBLIS_FLAG" ]; then
-      touch "$PUBLIS_FLAG"
+        touch "$PUBLIS_FLAG"
     fi
 }
 
