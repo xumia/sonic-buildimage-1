@@ -25,7 +25,9 @@ jobs:
           mirrorName: ${{ mirrorName }}
     - bash: |
         echo "pre-step"
-        echo "${{ join(',', parameters.mirrorNames) }}"
+        MirrorNames=${{ join(',', parameters.mirrorNames) }}
+        echo "MirrorNames=$MirrorNames"
+        echo "$MirrorNames" > work/_aptly/mirror_names
       displayName: 'pre-step'
     - ${{ parameters.publishjob.steps }}
     - bash: |
