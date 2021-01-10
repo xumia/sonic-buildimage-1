@@ -59,8 +59,8 @@ if ! readlink aptly > /dev/null; then
     exit 1
 fi
 
-BLOBFUSE_DB_DIR=aptly/dbs
-BLOBFUSE_METTRIC_DIR=aptly/metric
+BLOBFUSE_DB_DIR=_storage_data/aptly/$MIRROR_NAME/dbs
+BLOBFUSE_METTRIC_DIR=_storage_data/metric
 mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
 
 
