@@ -36,6 +36,7 @@ stages:
   dependsOn:
   - InitStage
   - PublishToReplicaStage
+  condition: succeeded()
   variables:
   - name: MirrorVersion
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
@@ -51,7 +52,7 @@ stages:
   dependsOn:
   - InitStage
   - MigrateReplicaStage
-  condition: eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y')
+  condition: and(succeeded(), eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y'))
   variables:
   - name: PublishToReplica
     value: 'n'
@@ -76,7 +77,7 @@ stages:
   dependsOn:
   - MigrateReplicaStage
   - PublishToPrimaryStage
-  condition: eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y')
+  condition: and(succeeded(), eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y'))
   variables:
   - name: PublishToReplica
     value: 'n'
