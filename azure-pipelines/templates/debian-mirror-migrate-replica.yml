@@ -10,13 +10,21 @@ steps:
 - template: ../templates/debian-mirror-init-storage.yml
 - bash: |
     set -e
-    db_version=none
-    publish_version=
-    [ -f work/publish/version ] && publish_version=$(cat work/publish/version)
-    [ -f work/_aptly/version ] && db_version=$(cat work/_aptly/version)
-    migrate_cdn_replica=y
-    echo "The version info: db_version=$db_version, publish_version=$publish_version"
-    [ "$db_version" == "$publish_version" ] && migrate_cdn_replica=n
+
+    migrate_cdn_replica=n
+    mirror_names=$(cat work/_aptly/mirror_names)
+    export IFS=","
+    for mirror_name in $mirror_names; do
+        db_version=none
+        publish_version=
+        version_name=${mirror_name}-databse-version
+        publish_version_file=work/publish/versions/$version_name
+        db_version_file=work/_storage_data/aptly/${mirror_name}/version
+        [ -f "$publish_version_file" ] && publish_version=$(cat "$publish_version_file")
+        [ -f "$db_version_file" ] && db_version=$(cat "$db_version_file")
+        echo "The version info of the mirror $mirror_name is: db_version=$db_version, publish_version=$publish_version"
+        [ "$db_version" != "$publish_version" ] && migrate_cdn_replica=y
+    done
     # The variable is set for both the current job and the depended jobs
     echo "##vso[task.setvariable variable=MigrateCdnReplica]$migrate_cdn_replica"
     echo "##vso[task.setvariable variable=MigrateCdnReplica;isOutput=true]$migrate_cdn_replica"

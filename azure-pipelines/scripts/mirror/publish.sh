@@ -123,6 +123,7 @@ save_workspace()
 {
     local package="$BLOBFUSE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
     local database_version_file=db/$DATABASE_VERSION_FILENAME
+    local latest_database_version_file=_storage_data/aptly/$MIRROR_NAME/version
     local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
     local public_key_file_asc=publish/public_key.asc
     local public_key_file_gpg=publish/public_key.gpg
@@ -134,6 +135,10 @@ save_workspace()
         gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
     fi
 
+    if [ -f "$database_version_file" ] && [ ! -f "$latest_database_version_file" ]; then
+        cp "$database_version_file" "$latest_database_version_file"
+    fi
+
     if [ "$SAVE_WORKSPACE" == "n" ]; then
         return
     fi
@@ -143,6 +148,7 @@ save_workspace()
     echo "Saving the db version $version"
     echo $version > $database_version_file
     cp "$database_version_file" "$publish_version_file"
+    cp "$database_version_file" "$latest_database_version_file"
     gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
     gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
     tar -czvf "$package" db
