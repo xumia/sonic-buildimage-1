@@ -15,6 +15,9 @@ steps:
 - bash: |
     WORKSPACE=${{ parameters.workspace }}
     echo "pwd=$(pwd)"
+    echo "PublishToReplica=$(PublishToReplica)"
+    echo "StorageAccount=$(StorageAccount)"
+    echo "StorageAccountReplica=$(StorageAccountReplica)"
     if [ -z "$WORKSPACE" ]; then
       echo "The workspace is not set." 2>&1
       exit 1
@@ -90,8 +93,8 @@ steps:
     PUBLISH_PATH=$WORKSPACE/publish
     PublishToReplica=$(PublishToReplica)
     if [ "$PublishToReplica" == "y" ]; then
-        StorageAccount=$StorageAccountReplica
-        StorageAccountSasToken=$StorageAccountReplicaSasToken
+        export StorageAccount=$StorageAccountReplica
+        export StorageAccountSasToken=$StorageAccountReplicaSasToken
     fi
     if [ -z "$StorageAccount" ]; then
       echo "The stroage account not set" 1>&2
@@ -102,6 +105,7 @@ steps:
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
 
     mkdir -p $BLOBFUSE_WEB_PATH/debian
+    echo "ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH"
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
     echo 'The mount storage container web is complete'
   env:
