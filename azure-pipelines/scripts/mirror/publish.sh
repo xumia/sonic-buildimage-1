@@ -246,13 +246,13 @@ update_repo()
         if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
             echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
             if aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM; then
-                publish_succeeded = y
+                publish_succeeded=y
                 break
             fi
         else
             echo "Publish Repos=$repos publish_dist=$publish_dist"
             if aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $publish_dist $FILESYSTEM; then
-                publish_succeeded = y
+                publish_succeeded=y
                 break
             fi
         fi
