@@ -109,8 +109,10 @@ prepare_workspace()
     fi
     local latest_db=$(ls -Ar $BLOBFUSE_DB_DIR/db-*.gz 2>/dev/null | head -n 1)
     if [ -z "$latest_db" ]; then
-        echo "Please create the aptly database and try again." 1>&2
-        exit 1
+        #echo "Please create the aptly database and try again." 1>&2
+        #exit 1
+        echo "The database is empty, create a new database"
+        return
     fi
 
     echo "The latest db file is $latest_db."
