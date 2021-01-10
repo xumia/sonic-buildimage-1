@@ -5,6 +5,9 @@ parameters:
   - jessie-security
   - stretch-security
   - buster-security
+  - jessie
+  - stretch
+  - buster
 jobs:
 - template: debian-mirror-publish-mirrors-internal.yml
   parameters:
