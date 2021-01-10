@@ -14,7 +14,7 @@ steps:
         exit 0
     fi
 
-    echo "Start to migrate CDN endpoint, db_version=$db_version, publish_version=$publish_version"
+    echo "Start to migrate CDN endpoint, migrate_cdn_replica=$migrate_cdn_replica"
     az login -u $(ApplicationId) --service-principal --tenant $(AzureTenant) -p "$ApplicationKey"
     resource_group=$(CDNResourceGroup)
     endpoint_name=$(CDNEndpointName)
