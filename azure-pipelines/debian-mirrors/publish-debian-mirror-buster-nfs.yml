@@ -62,7 +62,6 @@ stages:
 - stage: Test
   dependsOn:
   - MigrateReplicaStage
-  - PublishToPrimaryStage
   variables:
   - name: PublishToReplica
     value: 'n'
