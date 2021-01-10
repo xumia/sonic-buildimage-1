@@ -229,7 +229,7 @@ update_repo()
 
     echo "Publish repos: $repos"
     local publish_dist=$(echo $dist | tr / -)
-    if ! aptly -config $APTLY_CONFIG publish show $dist $FILESYSTEM: > /dev/null 2>&1; then
+    if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM: > /dev/null 2>&1; then
         echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
         aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM
     fi
