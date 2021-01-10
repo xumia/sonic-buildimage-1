@@ -39,6 +39,8 @@ stages:
   variables:
   - name: MirrorVersion
     value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
+  - name: PublishToReplica
+    value: 'n'
   jobs:
   - job: MigrateReplica
     steps:
