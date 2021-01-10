@@ -51,7 +51,7 @@ stages:
   dependsOn:
   - InitStage
   - MigrateReplicaStage
-  condition: eq($[ stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'] ], 'y')
+  condition: eq(stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'], 'y')
   variables:
   - name: PublishToReplica
     value: 'n'
