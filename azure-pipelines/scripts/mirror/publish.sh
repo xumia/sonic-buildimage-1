@@ -54,7 +54,7 @@ echo "$GPG_KEY" > $ENCRIPTED_KEY_GPG
 echo "$PASSPHRASE" > _passphrase
 
 
-if ! readlink aptly > /dev/null; then
+if ! readlink _storage_data > /dev/null; then
     echo "$WORK_DIR/aptly is not a symbol link" 1>&2
     exit 1
 fi
