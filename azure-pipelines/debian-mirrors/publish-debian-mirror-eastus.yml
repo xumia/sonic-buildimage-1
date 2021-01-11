@@ -67,7 +67,7 @@ stages:
   - name: MigrateCdnReplica
     value: $[ stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'] ]
   jobs:
-  - job: MigratePrimary
+  - job: TestOnly
     steps:
     - bash: |
         echo "MigrateCdnReplica=$(MigrateCdnReplica)"
