@@ -142,6 +142,8 @@ save_workspace()
     fi
 
     if [ "$SAVE_WORKSPACE" == "n" ]; then
+        cp "$database_version_file" "$publish_version_file"
+        cp "$database_version_file" "$latest_database_version_file"
         return
     fi
 
