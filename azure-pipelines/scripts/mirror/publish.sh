@@ -224,7 +224,8 @@ update_repo()
             continue
         fi
         need_to_publish=y
-        aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)'
+        echo "Importing mirror $mirror to repo $repo"
+        aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)' >> ${repo}.log
     done
 
     echo "Start publish repos $dist need_to_publish=$need_to_publish IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
