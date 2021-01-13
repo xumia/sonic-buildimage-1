@@ -25,6 +25,7 @@ log_err()
 # Get the real command not hooked by sonic-build-hook package
 get_command()
 {
+    # Change the PATH env to get the real command by excluding the command in the hooked folders
     local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##' | sed "s#/usr/local/sbin:##")
     local command=$(PATH=$path which $1)
     echo $command
