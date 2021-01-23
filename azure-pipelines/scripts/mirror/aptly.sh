@@ -9,54 +9,42 @@ MIRROR_COMPONENTS=$6
 MIRROR_FILESYSTEM=$7
 
 IS_DIRTY_VERSION=n
+WORK_DIR=work
+APTLY_CONFIG=aptly-debian.conf
+SAVE_WORKSPACE=n
+BLOBFUSE_DB_DIR=aptly/dbs
+BLOBFUSE_METTRIC_DIR=aptly/metric
 DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
-
-if [ -z "$MIRROR_NAME" ]; then
-   echo "DIST is empty" 1>&2
-   exit 1
-fi
-
-[ -z "$MIRROR_FILESYSTEM" ] && MIRROR_FILESYSTEM=debian
-
 ENCRIPTED_KEY_GPG=$(realpath ./encrypted_private_key.gpg)
-if [ ! -f "$ENCRIPTED_KEY_GPG" ]; then
-    echo "The encripted key gpg file $ENCRIPTED_KEY_GPG does not exist." 1>&2
-    exit 1
-fi
+UPDATE_DISTRIBUITIONS=
 
-if [ -z "$PASSPHRASE" ]; then
-    echo "The passphrase is not set." 1>&2
-    exit 1
-fi
-
-WORK_DIR=work
 cd $WORK_DIR
-APTLY_CONFIG=aptly-debian.conf
-SAVE_WORKSPACE=n
 
-if ! readlink aptly > /dev/null; then
-    echo "$WORK_DIR/aptly is not a symbol link" 1>&2
-    exit 1
-fi
-
-BLOBFUSE_DB_DIR=aptly/dbs
-BLOBFUSE_METTRIC_DIR=aptly/metric
-mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
-
-
-export GNUPGHOME=gnupg
-rm -rf $GNUPGHOME
-GPG_FILE=$GNUPGHOME/mykey.gpg
-mkdir $GNUPGHOME
-echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
-chmod 600 $GNUPGHOME/*
-chmod 700 $GNUPGHOME
-
-create_or_update_database()
+check_input_conditions()
 {
-    echo y
+    if [ -z "$MIRROR_NAME" ]; then
+       echo "DIST is empty" 1>&2
+       exit 1
+    fi
+
+    [ -z "$MIRROR_FILESYSTEM" ] && MIRROR_FILESYSTEM=debian
+
+    if [ ! -f "$ENCRIPTED_KEY_GPG" ]; then
+        echo "The encripted key gpg file $ENCRIPTED_KEY_GPG does not exist." 1>&2
+        exit 1
+    fi
+
+    if [ -z "$PASSPHRASE" ]; then
+        echo "The passphrase is not set." 1>&2
+        exit 1
+    fi
+
+    if ! readlink aptly > /dev/null; then
+        echo "$WORK_DIR/aptly is not a symbol link" 1>&2
+        exit 1
+    fi
 }
 
 check_dirty_version()
@@ -77,9 +65,21 @@ check_dirty_version()
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
+
+    # Check the input conditions
+    check_input_conditions
+
+    mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
     cp ../config/aptly-debian.conf $APTLY_CONFIG
 
     # Import gpg key
+    export GNUPGHOME=gnupg
+    rm -rf $GNUPGHOME
+    GPG_FILE=$GNUPGHOME/mykey.gpg
+    mkdir $GNUPGHOME
+    echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
+    chmod 600 $GNUPGHOME/*
+    chmod 700 $GNUPGHOME
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
 
     if [ -e db ]; then
