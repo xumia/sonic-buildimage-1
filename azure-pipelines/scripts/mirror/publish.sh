@@ -140,7 +140,7 @@ save_workspace()
         return
     fi
 
-    if ["$UPDATE_MIRROR" != "y" ];
+    if ["$UPDATE_MIRROR" != "y" ]; then
         return
     fi
 
