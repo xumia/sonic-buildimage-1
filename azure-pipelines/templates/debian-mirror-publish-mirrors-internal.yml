@@ -39,6 +39,7 @@ jobs:
         GPG_KEY: $(sonic-gpg-enc-private-key)
         UPDATE_MIRROR: $(UpdateMirror)
         MIRROR_VERSION: $(MirrorVersion)
+        GPG_PUBLIC_KEY2: $(sonic-gpg-public-key-2)
     - bash: |
         echo "post-step"
       displayName: 'post-step'
