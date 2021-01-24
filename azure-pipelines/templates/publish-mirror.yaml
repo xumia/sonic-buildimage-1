@@ -17,12 +17,12 @@ steps:
     echo "$(sonic-gpg-enc-private-key)" > "encrypted_private_key.gpg"
     azure-pipelines/mirror/aptly.sh "$(CreateDB)" "$(Mirror_Name)" "$(Mirror_URL)" "$(Mirror_Distributions)" "$(Mirror_Architectures)" "$(Mirror_Components)" "$(MIRROR_FILESYSTEM)"
     MIRROR_PUBLISHED=n
-    [ -e "$PUBLIS_FLAG" ] && $MIRROR_PUBLISHED=y
+    [ -e "$PUBLISH_FLAG" ] && $MIRROR_PUBLISHED=y
     echo "##vso[task.setvariable variable=MIRROR_PUBLISHED;isOutput=true]$MIRROR_PUBLISHED"
   name: publishMirrorBash
   env:
     PASSPHRASE: $(sonic-gpg-passphrase)
     UPDATE_MIRROR: ${{ parameters.updateMirror }}
-    PUBLIS_FLAG: $(Build.SourcesDirectory)/work/.mirror_published
+    PUBLISH_FLAG: $(Build.SourcesDirectory)/work/.mirror_published
     
   displayName: 'Update and publish debian mirrors by aptly'

@@ -215,8 +215,8 @@ update_repo()
 
     echo "Publish Repos=$repos dist=$dist"
     aptly -config $APTLY_CONFIG publish update -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -skip-cleanup $dist filesystem:debian:
-    if [ ! -z "$PUBLIS_FLAG" ]; then
-      touch "$PUBLIS_FLAG"
+    if [ ! -z "$PUBLISH_FLAG" ]; then
+      touch "$PUBLISH_FLAG"
     fi
 }
 

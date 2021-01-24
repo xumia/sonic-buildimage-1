@@ -3,22 +3,21 @@
 CREATE_DB=$1
 MIRROR_NAME=$2
 
+WORK_DIR=work
+SOURCE_DIR=$(pwd)
+SAVE_WORKSPACE=n
 IS_DIRTY_VERSION=n
+APTLY_CONFIG=aptly-debian.conf
+VERSION_FILE=_aptly/version
+ENCRIPTED_KEY_GPG=./encrypted_private_key.gpg
 DEBIAN_MIRRORS_CONFIG=azure-pipelines/config/debian-mirrors.config
 DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
 DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
 DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
-
-
-if [ -z "$MIRROR_NAME" ]; then
-    echo "DIST is empty" 1>&2
-    exit 1
-fi
-
-if [ ! -f "$DEBIAN_MIRRORS_CONFIG" ]; then
-    echo "The debian mirros config file $DEBIAN_MIRRORS_CONFIG does not exist" 1>&2
-    exit 1
-fi
+export GNUPGHOME=gnupg
+GPG_FILE=$GNUPGHOME/mykey.gpg
+BLOBFUSE_METTRIC_DIR=_storage_data/metric
+BLOBFUSE_DB_DIR=_storage_data/aptly/$MIRROR_NAME/dbs
 
 MIRROR_CONFIG=$(grep -e "^$MIRROR_NAME\s" $DEBIAN_MIRRORS_CONFIG | tail -n 1)
 MIRROR_FILESYSTEM=$(echo $MIRROR_CONFIG | awk '{print $2}')
@@ -27,54 +26,41 @@ MIRROR_DISTRIBUTIONS=$(echo $MIRROR_CONFIG | awk '{print $4}')
 MIRROR_COMPONENTS=$(echo $MIRROR_CONFIG | awk '{print $5}')
 MIRROR_ARICHTECTURES=$(echo $MIRROR_CONFIG | awk '{print $6}')
 FILESYSTEM="filesystem:$MIRROR_FILESYSTEM:"
+APTLIY_MIRROR_PATH=_storage_data/aptly/$MIRROR_NAME
 
-if [ -z "$GPG_KEY" ]; then
-    echo "The encrypted gpg key is not set." 1>&2
-    exit 1
-fi
-
-if [ -z "$MIRROR_VERSION" ]; then
-    echo "The MIRROR_VERSION env is not set." 1>&2
-    exit 1
-fi
-
-if [ -z "$PASSPHRASE" ]; then
-    echo "The passphrase is not set." 1>&2
-    exit 1
-fi
-
-WORK_DIR=work
 cd $WORK_DIR
-APTLY_CONFIG=aptly-debian.conf
-SAVE_WORKSPACE=n
 
-ENCRIPTED_KEY_GPG=./encrypted_private_key.gpg
-VERSION_FILE=_aptly/version
-echo "$GPG_KEY" > $ENCRIPTED_KEY_GPG
-echo "$PASSPHRASE" > _passphrase
-
-
-if ! readlink _storage_data > /dev/null; then
-    echo "$WORK_DIR/aptly is not a symbol link" 1>&2
-    exit 1
-fi
-
-BLOBFUSE_DB_DIR=_storage_data/aptly/$MIRROR_NAME/dbs
-BLOBFUSE_METTRIC_DIR=_storage_data/metric
-mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
-
-
-export GNUPGHOME=gnupg
-rm -rf $GNUPGHOME
-GPG_FILE=$GNUPGHOME/mykey.gpg
-mkdir $GNUPGHOME
-echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
-chmod 600 $GNUPGHOME/*
-chmod 700 $GNUPGHOME
-
-create_or_update_database()
+validate_input_variables()
 {
-    echo y
+    if [ -z "$MIRROR_NAME" ]; then
+        echo "DIST is empty" 1>&2
+        exit 1
+    fi
+
+    if [ -z "$MIRROR_CONFIG" ]; then
+        echo "The debian mirros config is empty, please check $DEBIAN_MIRRORS_CONFIG" 1>&2
+        exit 1
+    fi
+
+    if [ -z "$GPG_KEY" ]; then
+        echo "The encrypted gpg key is not set." 1>&2
+        exit 1
+    fi
+
+    if [ -z "$MIRROR_VERSION" ]; then
+        echo "The MIRROR_VERSION env is not set." 1>&2
+        exit 1
+    fi
+
+    if [ -z "$PASSPHRASE" ]; then
+        echo "The passphrase is not set." 1>&2
+        exit 1
+    fi
+
+    if ! readlink _storage_data > /dev/null; then
+        echo "$WORK_DIR/_storage_data is not a symbol link" 1>&2
+        exit 1
+    fi  
 }
 
 check_dirty_version()
@@ -95,9 +81,16 @@ check_dirty_version()
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
-    cp ../azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
+    mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
+    cp $SOURCE_DIR/azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
 
     # Import gpg key
+    rm -rf $GNUPGHOME
+    mkdir $GNUPGHOME
+    echo "pinentry-mode loopback" > $GNUPGHOME/gpg.conf
+    echo "$GPG_KEY" > $ENCRIPTED_KEY_GPG
+    chmod 600 $GNUPGHOME/*
+    chmod 700 $GNUPGHOME
     gpg --no-default-keyring --passphrase="$PASSPHRASE" --keyring=$GPG_FILE --import "$ENCRIPTED_KEY_GPG"
 
     if [ -e db ]; then
@@ -125,7 +118,7 @@ save_workspace()
 {
     local package="$BLOBFUSE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
     local database_version_file=db/$DATABASE_VERSION_FILENAME
-    local latest_database_version_file=_storage_data/aptly/$MIRROR_NAME/version
+    local latest_database_version_file=$APTLIY_MIRROR_PATH/version
     local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
     local public_key_file_asc=publish/public_key.asc
     local public_key_file_gpg=publish/public_key.gpg
@@ -144,6 +137,10 @@ save_workspace()
     if [ "$SAVE_WORKSPACE" == "n" ]; then
         cp "$database_version_file" "$publish_version_file"
         cp "$database_version_file" "$latest_database_version_file"
+        return
+    fi
+
+    if ["$UPDATE_MIRROR" != "y" ];
         return
     fi
 
@@ -168,6 +165,23 @@ update_repo()
     local archs=$4
     local components=$5
     local distname=$(echo $dist | tr '/' '_')
+    local version_file=$APTLIY_MIRROR_PATH/version
+    local dist_version_file=${version_file}-{distname}
+    local cur_db_version=$MIRROR_VERSION
+    local published_version=
+    [ -f $version_file ] && cur_db_version=$(cat $version_file)
+    if [ -f $dist_version_file ]; then
+        cur_db_version=$(cat $dist_version_file)
+    else
+        echo $cur_db_version > $dist_version_file
+    fi
+
+    # Check if the distribution has been published
+    [ -f publish/versions/$DATABASE_VERSION_FILENAME ] && published_version=$(cat publish/versions/$DATABASE_VERSION_FILENAME)
+    if [ "$CREATE_DB" != "y" ] && [ "$UPDATE_MIRROR" != "y" ] && [[ "$published_version" >= "$cur_db_version" ]] ; then
+        echo "Skipped to publish $dist, the published version is $published_version, and current db version is $cur_db_version"
+        return
+    fi
 
     # Create the aptly mirrors if it does not exist
     local repos=
@@ -178,6 +192,8 @@ update_repo()
         local repo="repo-${name}-${distname}-${component}"
         local logfile="${mirror}.log"
         local current_url=$url
+
+        # Create the aptly mirror if not existing
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
             if [ "$UPDATE_MIRROR" != "y" ]; then
                 echo "The mirror does not exit $mirror, not to create it, since UPDATE_MIRROR=$UPDATE_MIRROR" 1>&2
@@ -201,6 +217,7 @@ update_repo()
         local success=n
         local has_error=n
         local retry=5
+        # Update the aptly mirror with retry
         for ((i=1;i<=$retry;i++)); do
             echo "Try to update the mirror, retry step $i of $retry"
             aptly -config $APTLY_CONFIG -ignore-signatures mirror update -max-tries=5 $mirror | tee $logfile
@@ -218,16 +235,21 @@ update_repo()
             echo "Failed to update the mirror $mirror" 1>&2
             exit 1
         fi
+
+        # Create the aptly repo if not existing
         if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
             aptly -config $APTLY_CONFIG repo create $repo
         elif [ "$has_error" == "n" ] && grep -q "Download queue: 0 items" $logfile; then
             continue
         fi
+
+        # Import the packages to the aptly repo
         need_to_publish=y
         echo "Importing mirror $mirror to repo $repo"
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)' >> ${repo}.log
     done
 
+    # Check if there are any new packages to publish
     echo "Start publish repos $dist need_to_publish=$need_to_publish IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
     [ "$need_to_publish" == "y" ] && SAVE_WORKSPACE=y
     if [ "$need_to_publish" != "y" ] && [ "$IS_DIRTY_VERSION" == "n" ]; then
@@ -235,12 +257,15 @@ update_repo()
         return
     fi
 
+    [ "$UPDATE_MIRROR" != "y" ] && echo $MIRROR_VERSION > $dist_version_file
+
+    # Set the publish options
     local options=
     [[ "$dist" == *-backports ]] && options="-notautomatic=yes -butautomaticupgrades=yes"
 
+    # Publish the aptly repo with retry
     echo "Publish repos: $repos"
-    local publish_dist=$(echo $dist | tr / -)
-
+    local publish_dist=$distname
     local retry=5
     local publish_succeeded=n
     local wait_seconds=300
@@ -271,11 +296,12 @@ update_repo()
         exit 1
     fi
 
-    if [ ! -z "$PUBLIS_FLAG" ]; then
-        touch "$PUBLIS_FLAG"
+    if [ ! -z "$PUBLISH_FLAG" ]; then
+        touch "$PUBLISH_FLAG"
     fi
 }
 
+validate_input_variables
 prepare_workspace
 for distribution in $(echo $MIRROR_DISTRIBUTIONS | tr ',' ' '); do
     echo "update repo for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES components=$MIRROR_COMPONENTS"
