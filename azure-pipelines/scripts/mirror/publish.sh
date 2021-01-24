@@ -257,7 +257,7 @@ update_repo()
         return
     fi
 
-    [ "$UPDATE_MIRROR" != "y" ] && echo $MIRROR_VERSION > $dist_version_file
+    [ "$UPDATE_MIRROR" == "y" ] && echo $MIRROR_VERSION > $dist_version_file
 
     # Set the publish options
     local options=
