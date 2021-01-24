@@ -573,8 +573,8 @@ fi
 clean_proc() {
     sudo umount /proc || true
 }
-trap_push clean_proc
-sudo mount proc /proc -t proc
+#trap_push clean_proc
+sudo mount proc /proc -t proc || true
 sudo mkdir $FILESYSTEM_ROOT/target
 sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
@@ -606,7 +606,7 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
 else
     sudo chroot $FILESYSTEM_ROOT service docker stop
 fi
-sudo umount /proc || true
+#sudo umount /proc || true
 sudo rm $FILESYSTEM_ROOT/etc/init.d/docker
 
 sudo bash -c "echo { > $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"

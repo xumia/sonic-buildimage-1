@@ -213,7 +213,7 @@ DOCKER_BUILD = docker build --no-cache \
 	       $(SLAVE_DIR)
 
 SONIC_BUILD_INSTRUCTION :=  make \
-                           -f slave.mk \
+                           -f slave-mp.mk \
                            PLATFORM=$(PLATFORM) \
                            PLATFORM_ARCH=$(PLATFORM_ARCH) \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
@@ -247,6 +247,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            BUILD_LOG_TIMESTAMP=$(BUILD_LOG_TIMESTAMP) \
                            SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
                            SLAVE_DIR=$(SLAVE_DIR) \
+                           PLATFORMS='$(PLATFORMS)' \
+                           PLATFORM_TARGETS='$(PLATFORM_TARGETS)' \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

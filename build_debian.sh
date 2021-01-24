@@ -35,7 +35,8 @@ DOCKER_VERSION=5:18.09.8~3-0~debian-$IMAGE_DISTRO
 LINUX_KERNEL_VERSION=4.19.0-9-2
 
 ## Working directory to prepare the file system
-FILESYSTEM_ROOT=./fsroot
+[ -z "$IMAGE_INSTALL_PATH" ] && IMAGE_INSTALL_PATH=.
+FILESYSTEM_ROOT=$IMAGE_INSTALL_PATH/fsroot
 PLATFORM_DIR=platform
 ## Hostname for the linux image
 HOSTNAME=sonic
@@ -60,6 +61,10 @@ TRUSTED_GPG_DIR=$BUILD_TOOL_PATH/trusted.gpg.d
 
 ## Prepare the file system directory
 if [[ -d $FILESYSTEM_ROOT ]]; then
+    sudo mount proc /proc -t proc 2>/dev/null || true
+    [ -e $FILESYSTEM_ROOT/var/lib/docker ] && sudo mountpoint -q $FILESYSTEM_ROOT/var/lib/docker && sudo umount $FILESYSTEM_ROOT/var/lib/docker
+	[ -e $FILESYSTEM_ROOT/target ] && sudo mountpoint -q $FILESYSTEM_ROOT/target && sudo umount $FILESYSTEM_ROOT/target
+    [ -e $FILESYSTEM_ROOT/ ] && sudo mountpoint -q $FILESYSTEM_ROOT && sudo umount $FILESYSTEM_ROOT
     sudo rm -rf $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
 mkdir -p $FILESYSTEM_ROOT
@@ -486,8 +491,8 @@ if [[ ! -f './asic_config_checksum' ]]; then
 fi
 sudo cp ./asic_config_checksum $FILESYSTEM_ROOT/etc/sonic/asic_config_checksum
 
-if [ -f sonic_debian_extension.sh ]; then
-    ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR
+if [ -f "$sonic_debian_extension_file" ]; then
+    $sonic_debian_extension_file $FILESYSTEM_ROOT $PLATFORM_DIR
 fi
 
 ## Organization specific extensions such as Configuration & Scripts for features like AAA, ZTP...
@@ -575,7 +580,7 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 ## Note: -x to skip directories on different file systems, such as /proc
 sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
-sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
+sudo mksquashfs $FILESYSTEM_ROOT $IMAGE_INSTALL_PATH/$FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
 scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
 
@@ -586,8 +591,8 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
 fi
 
 ## Compress docker files
-pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd
+pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$IMAGE_INSTALL_PATH/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd
 
 ## Compress together with /boot, /var/lib/docker and $PLATFORM_DIR as an installer payload zip file
-pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ $PLATFORM_DIR/; popd
-sudo zip -g -n .squashfs:.gz $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS
+pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$IMAGE_INSTALL_PATH/$ONIE_INSTALLER_PAYLOAD -r boot/ $PLATFORM_DIR/; popd
+pushd $IMAGE_INSTALL_PATH && sudo zip -g -n .squashfs:.gz $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS

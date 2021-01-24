@@ -462,6 +462,9 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(a
 		# Build project
 		pushd $($*_SRC_PATH) $(LOG_SIMPLE)
 		if [ -f ./autogen.sh ]; then ./autogen.sh $(LOG); fi
+		echo '$(SETUP_OVERLAYFS_FOR_DPKG_ADMINDIR)' >> test.log
+		echo "DEB_BUILD_OPTIONS='${DEB_BUILD_OPTIONS_GENERIC} ${$*_DEB_BUILD_OPTIONS}' dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --as-root -T$($*_DPKG_TARGET) --admindir $$mergedir" >> test.log
+		echo "DEB_BUILD_OPTIONS='${DEB_BUILD_OPTIONS_GENERIC} ${$*_DEB_BUILD_OPTIONS}' dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $$mergedir" >> test.log
 		$(SETUP_OVERLAYFS_FOR_DPKG_ADMINDIR)
 		$(if $($*_DPKG_TARGET),
 			DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS_GENERIC} ${$*_DEB_BUILD_OPTIONS}" dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --as-root -T$($*_DPKG_TARGET) --admindir $$mergedir $(LOG),
@@ -822,7 +825,8 @@ DOCKER_LOAD_TARGETS = $(addsuffix -load,$(addprefix $(TARGET_PATH)/, \
 
 $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TARGET_PATH)/$$*.gz
 	$(HEADER)
-	docker load -i $(TARGET_PATH)/$*.gz $(LOG)
+	@docker inspect --type image $*:latest &> /dev/null || \
+	    { docker load -i $(TARGET_PATH)/$*.gz $(LOG) ; }
 	$(FOOTER)
 
 ###############################################################################
@@ -925,6 +929,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export sonic_utilities_py3_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_UTILITIES_PY3))"
 	export sonic_host_services_py3_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_HOST_SERVICES_PY3))"
 
+	$(eval IMAGE_INSTALL_PATH=$(addprefix installer-,$*))
+	@mkdir -p $(IMAGE_INSTALL_PATH)
 	$(foreach docker, $($*_DOCKERS),\
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"
@@ -933,7 +939,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		export docker_image_run_opt="$($(docker:-dbg.gz=.gz)_RUN_OPT)"
 
 		if [ -f files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 ]; then
-			j2 files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
+			j2 files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
 
 			# Set the flag GLOBAL for all the global system-wide dockers.
 			$(if $(shell ls files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 2>/dev/null),\
@@ -943,28 +949,28 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		# Any service template, inside instance directory, will be used to generate .service and @.service file.
 		if [ -f files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 ]; then
 			export multi_instance="true"
-			j2 files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)@.service
+			j2 files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)@.service
 			$(if $(shell ls files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 2>/dev/null),\
 				$(eval $(docker:-dbg.gz=.gz)_TEMPLATE = yes)
 			)
 			export multi_instance="false"
-			j2 files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
+			j2 files/build_templates/per_namespace/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
 		fi
 		# Any service template, inside share_image directory, will be used to generate -chassis.service file.
 		# TODO: need better way to name the image-shared service
 		if [ -f files/build_templates/share_image/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 ]; then
-			j2 files/build_templates/share_image/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)-chassis.service
+			j2 files/build_templates/share_image/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)-chassis.service
 			$(if $(shell ls files/build_templates/share_image/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 2>/dev/null),\
 				$(eval $(docker:-dbg.gz=.gz)_SHARE = yes)
 			)
 		fi
 
-		j2 files/build_templates/docker_image_ctl.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
-		chmod +x $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		j2 files/build_templates/docker_image_ctl.j2 > $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		chmod +x $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
 	)
 
 	# Exported variables are used by sonic_debian_extension.sh
-	export installer_start_scripts="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)))"
+	export installer_start_scripts="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)))"
 	export feature_vs_image_names="$(foreach docker, $($*_DOCKERS), $(addsuffix :, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME):$(docker:-dbg.gz=.gz)))"
 
 	# Marks template services with an "@" according to systemd convention
@@ -973,32 +979,32 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	$(foreach docker, $($*_DOCKERS),\
 		$(if $($(docker:-dbg.gz=.gz)_TEMPLATE),\
 			$(if $($(docker:-dbg.gz=.gz)_GLOBAL),\
-				$(eval SERVICES += "$(addsuffix .service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")\
+				$(eval SERVICES += "$(addsuffix .service, $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")\
 			)\
-			$(eval SERVICES += "$(addsuffix @.service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))"),\
-			$(eval SERVICES += "$(addsuffix .service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")
+			$(eval SERVICES += "$(addsuffix @.service, $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME))"),\
+			$(eval SERVICES += "$(addsuffix .service, $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")
 		)
 		$(if $($(docker:-dbg.gz=.gz)_SHARE),\
-			$(eval SERVICES += "$(addsuffix -chassis.service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")
+			$(eval SERVICES += "$(addsuffix -chassis.service, $(IMAGE_INSTALL_PATH)/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME))")
 		)
 	)
 	export installer_services="$(SERVICES)"
 
 	export installer_extra_files="$(foreach docker, $($*_DOCKERS), $(foreach file, $($(docker:-dbg.gz=.gz)_BASE_IMAGE_FILES), $($(docker:-dbg.gz=.gz)_PATH)/base_image_files/$(file)))"
+	export sonic_debian_extension_file=$(IMAGE_INSTALL_PATH)/sonic_debian_extension.sh
 
 	j2 -f env files/initramfs-tools/union-mount.j2 onie-image.conf > files/initramfs-tools/union-mount
 	j2 -f env files/initramfs-tools/arista-convertfs.j2 onie-image.conf > files/initramfs-tools/arista-convertfs
 
 	$(if $($*_DOCKERS),
-		j2 files/build_templates/sonic_debian_extension.j2 > sonic_debian_extension.sh
-		chmod +x sonic_debian_extension.sh,
+		j2 files/build_templates/sonic_debian_extension.j2 > $$sonic_debian_extension_file
+		chmod +x $$sonic_debian_extension_file,
 	)
 
-	DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
+	(DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
 	DEBUG_SRC_ARCHIVE_DIRS="$(DBG_SRC_ARCHIVE)" \
 	DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
-		scripts/dbg_files.sh
-
+		scripts/dbg_files.sh; \
 	DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
 	DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
 	USERNAME="$(USERNAME)" \
@@ -1008,8 +1014,9 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
 	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
 	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-		./build_debian.sh $(LOG)
-
+	FILESYSTEM_ROOT=$(IMAGE_INSTALL_PATH)/fsroot \
+	IMAGE_INSTALL_PATH=$(IMAGE_INSTALL_PATH) \
+		./build_debian.sh $(LOG); \
 	USERNAME="$(USERNAME)" \
 	PASSWORD="$(PASSWORD)" \
 	TARGET_MACHINE=$($*_MACHINE) \
@@ -1019,19 +1026,10 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	SIGNING_CERT="$(SIGNING_CERT)" \
 	CA_CERT="$(CA_CERT)" \
 	TARGET_PATH="$(TARGET_PATH)" \
-		./build_image.sh $(LOG)
+	IMAGE_INSTALL_PATH=$(IMAGE_INSTALL_PATH) \
+		./build_image.sh $(LOG); \
+	chmod a+x $@;)&
 
-	$(foreach docker, $($*_DOCKERS), \
-		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
-		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
-		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)@.service
-	)
-
-	$(if $($*_DOCKERS),
-		rm sonic_debian_extension.sh,
-	)
-
-	chmod a+x $@
 	$(FOOTER)
 
 SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS))
