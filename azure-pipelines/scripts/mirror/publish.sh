@@ -166,7 +166,7 @@ update_repo()
     local components=$5
     local distname=$(echo $dist | tr '/' '_')
     local version_file=$APTLIY_MIRROR_PATH/version
-    local dist_version_file=${version_file}-{distname}
+    local dist_version_file=${version_file}-${distname}
     local cur_db_version=$MIRROR_VERSION
     local published_version=
     [ -f $version_file ] && cur_db_version=$(cat $version_file)
