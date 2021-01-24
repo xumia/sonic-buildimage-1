@@ -178,7 +178,7 @@ update_repo()
 
     # Check if the distribution has been published
     [ -f publish/versions/$DATABASE_VERSION_FILENAME ] && published_version=$(cat publish/versions/$DATABASE_VERSION_FILENAME)
-    if [ "$CREATE_DB" != "y" ] && [ "$UPDATE_MIRROR" != "y" ] && [[ "$published_version" >= "$cur_db_version" ]] ; then
+    if [ "$CREATE_DB" != "y" ] && [ "$UPDATE_MIRROR" != "y" ] && [[ ! "$published_version" < "$cur_db_version" ]] ; then
         echo "Skipped to publish $dist, the published version is $published_version, and current db version is $cur_db_version"
         return
     fi
