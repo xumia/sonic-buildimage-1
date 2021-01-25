@@ -23,6 +23,7 @@ jobs:
     - template: ../templates/debian-mirror-init-storage.yml
       parameters:
           mirrorName: ${{ mirrorName }}
+          nfsMountPoint: '/$(NFSName)'
     - bash: |
         echo "pre-step"
         MirrorNames=${{ join(',', parameters.mirrorNames) }}
