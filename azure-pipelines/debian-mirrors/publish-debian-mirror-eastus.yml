@@ -18,11 +18,13 @@ variables:
 - name: StorageAccount
   value: 'sonicstoragepublic2'
 - name: StorageAccountSasToken
-  value: $['variables.sonicstoragepublic2-SasToken']
+  value: $(sonicstoragepublic2-SasToken)
 - name: StorageAccountReplica
   value: 'sonicstoragepublic3'
 - name: StorageAccountReplicaSasToken
-  value: $['variables.sonicstoragepublic3-SasToken']
+  value: $(sonicstoragepublic3-SasToken)
+- name: sonicstoragepublic3-SasToken1
+  value: ''
 stages:
 - stage: InitStage
   jobs:
