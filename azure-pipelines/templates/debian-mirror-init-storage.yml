@@ -59,7 +59,7 @@ steps:
       echo "The stroage account not set" 1>&2
       exit 1
     fi
-    echo "StorageAccountSasToken" > StorageAccountSasToken.key
+    echo "StorageAccountSasToken=$StorageAccountSasToken" > StorageAccountSasToken.key
     sleep 600
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
