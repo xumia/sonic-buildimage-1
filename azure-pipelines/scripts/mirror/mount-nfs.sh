@@ -7,10 +7,10 @@ sudo mkdir -p $NFS_MOUNT_POINT
 if ! grep -q "$NFS_MOUNT_POINT" /etc/fstab; then
     if [ ! -e $NFS_MOUNT_POINT ]; then
       sudo mkdir $NFS_MOUNT_POINT
-      sudo chmod 777 $NFS_MOUNT_POINT
     fi
     echo "$NFS_VOLUMN   $NFS_MOUNT_POINT    nfs rw,rsize=1048576,wsize=1048576,vers=4.1,tcp,nosuid  0   0" | sudo tee -a /etc/fstab
     sudo mount -a
+    sudo chmod 777 $NFS_MOUNT_POINT
 fi
 
 if ! mount | grep -q "$NFS_MOUNT_POINT"; then
