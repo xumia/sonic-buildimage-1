@@ -1,7 +1,7 @@
 parameters:
 - name: 'cdnReplicaOriginPriority'
   type: string
-  default: '3'
+  default: '4'
 - name: 'purgeContent'
   type: string
   default: 'y'

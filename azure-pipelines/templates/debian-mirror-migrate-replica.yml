@@ -27,4 +27,4 @@ steps:
   displayName: 'Check the publish version'
 - template: ../templates/debian-mirror-migrate-cdn-replica.yml
   parameters:
-    cdnReplicaOriginPriority: '1'
+    cdnReplicaOriginPriority: '2'

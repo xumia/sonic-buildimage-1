@@ -3,4 +3,4 @@ steps:
 - template: ../templates/debian-mirror-init-storage.yml
 - template: ../templates/debian-mirror-migrate-cdn-replica.yml
   parameters:
-    cdnReplicaOriginPriority: '3'
+    cdnReplicaOriginPriority: '4'

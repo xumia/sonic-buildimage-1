@@ -15,7 +15,7 @@ steps:
 - bash: |
     set -e
     az login -u $(ApplicationId) --service-principal --tenant $(AzureTenant) -p "$ApplicationKey"
-    # Expect the priority of the replica origin is 3
+    # Expect the priority of the replica origin is 4
     resource_group=$(CDNResourceGroup)
     endpoint_name=$(CDNEndpointName)
     cdn_profile=$(CDNProfile)
@@ -24,8 +24,8 @@ steps:
     echo "$origin_replica"
     priority=$(echo "$origin_replica" | grep priority | sed -e "s/.*priority.:\s*//" | cut -d, -f1)
     echo "The origin priority is $priority"
-    if [ "$priority" != "3" ]; then
-        echo "The expected priority of the origin $cdn_replicaorigin_name in cdn endpoint $endpoint_name is 3, but the priority is $priority" 2>&1
+    if [ "$priority" != "4" ]; then
+        echo "The expected priority of the origin $cdn_replicaorigin_name in cdn endpoint $endpoint_name is 4, but the priority is $priority" 2>&1
         exit 1
     fi
   env:

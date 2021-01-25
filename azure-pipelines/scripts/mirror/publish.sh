@@ -128,7 +128,7 @@ save_workspace()
         cp "$database_version_file" "$publish_version_file"
         if [ ! -z "$GPG_PUBLIC_KEY2" ]; then
             echo "$GPG_PUBLIC_KEY2" > gpg_public_key2.asc
-            gpg --no-default-keyring --import gpg_public_key2.asc
+            gpg --no-default-keyring --keyring=$GPG_FILE --import gpg_public_key2.asc
         fi
         gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
         gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
