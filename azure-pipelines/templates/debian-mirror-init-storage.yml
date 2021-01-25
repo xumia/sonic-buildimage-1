@@ -59,8 +59,6 @@ steps:
       echo "The stroage account not set" 1>&2
       exit 1
     fi
-    echo "StorageAccountSasToken=$StorageAccountSasToken" > StorageAccountSasToken.key
-    sleep 600
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data"
