@@ -2,7 +2,7 @@ steps:
 - template: ../templates/debian-mirror-init-agent.yml
 - template: ../templates/debian-mirror-init-storage.yml
   parameters:
-    nfsMountPoint: $(NFSVolumn)
+    nfsMountPoint: $(NFSName)
 - bash: |
     set -e
     APTLY_LOCK_PATH=work/_aptly/.lockdir
