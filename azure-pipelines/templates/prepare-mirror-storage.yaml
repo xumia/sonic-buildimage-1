@@ -32,7 +32,7 @@ steps:
       echo "Skip to mount nfs, EnableNFS=$EnableNFS"
       exit 0
     fi
-    if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
+    if ! grep -q "$NFS_MOUNT_POINT" /etc/fstab; then
       if [ ! -e $NFS_MOUNT_POINT ]; then
         sudo mkdir $NFS_MOUNT_POINT
         sudo chmod 777 $NFS_MOUNT_POINT

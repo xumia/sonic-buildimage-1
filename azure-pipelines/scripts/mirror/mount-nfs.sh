@@ -4,7 +4,7 @@ NFS_MOUNT_POINT=$1
 NFS_VOLUMN=$2
 
 sudo mkdir -p $NFS_MOUNT_POINT
-if ! grep -q "$NFS_MOUNT_POINT" /etf/fstab; then
+if ! grep -q "$NFS_MOUNT_POINT" /etc/fstab; then
     if [ ! -e $NFS_MOUNT_POINT ]; then
       sudo mkdir $NFS_MOUNT_POINT
       sudo chmod 777 $NFS_MOUNT_POINT

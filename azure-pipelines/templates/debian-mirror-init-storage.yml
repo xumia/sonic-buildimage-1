@@ -51,6 +51,7 @@ steps:
   condition: eq('${{ parameters.EnableNFS }}', 'y')
 - bash: |
     # Mount storage containers for the aptly db and/or pool of debian mirrors
+    set -e
     EnableNFS=${{ parameters.enableNfs }}
     WORKSPACE=${{ parameters.workspace }}
     MIRROR_NAME=${{ parameters.mirrorName }}
@@ -58,6 +59,8 @@ steps:
       echo "The stroage account not set" 1>&2
       exit 1
     fi
+    echo "StorageAccountSasToken" > StorageAccountSasToken.key
+    sleep 600
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data"
