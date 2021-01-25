@@ -18,7 +18,7 @@ variables:
 - name: StorageAccount
   value: 'sonicstoragepublic2'
 - name: StorageAccountSasToken
-  value: $[variables.sonicstoragepublic2-SasToken]
+  value: $[variables.CDNEndpointName]
 - name: StorageAccountReplica
   value: 'sonicstoragepublic3'
 - name: StorageAccountReplicaSasToken
