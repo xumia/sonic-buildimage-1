@@ -18,7 +18,7 @@ variables:
 - name: StorageAccount
   value: 'sonicstoragepublic2'
 - name: StorageAccountSasToken
-  value: $[variables.ApplicationId]
+  value: $[variables.ApplicationKey]
 - name: StorageAccountReplica
   value: 'sonicstoragepublic3'
 - name: StorageAccountReplicaSasToken
