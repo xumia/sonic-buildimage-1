@@ -23,6 +23,8 @@ variables:
   value: 'sonicstoragepublic3'
 - name: StorageAccountReplicaSasToken
   value: $['variables.sonicstoragepublic3-SasToken']
+- name: sonicstoragepublic3-SasToken1
+  value: ''
 stages:
 - stage: InitStage
   jobs:
