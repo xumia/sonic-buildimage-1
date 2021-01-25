@@ -6,7 +6,7 @@
 trigger:
 - main
 
-pool: sonic-mirror-build-1
+pool: sonic-mirror-build
 variables:
 - group: SONiC-Azure-Key-Vault
 - group: SONiC-Mirror-US-West2-1
