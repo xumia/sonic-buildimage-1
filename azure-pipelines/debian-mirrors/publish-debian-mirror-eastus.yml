@@ -8,13 +8,21 @@ trigger:
 
 pool: sonic-mirror-build-2
 variables:
-- group: Debian-Mirror-GPG-VG
-- group: Debian-Mirror-Storage-US-East
+- group: SONiC-Azure-Key-Vault
+- group: SONiC-Mirror-US-East-1
 - group: Debian-Mirror-Common
 - name: EnableNfs
   value: 'y'
 - name: PublishToReplica
   value: 'y'
+- name: StorageAccount
+  value: 'sonicstoragepublic2'
+- name: StorageAccountSasToken
+  value: $[variables.sonicstoragepublic2-SasToken]
+- name: StorageAccountReplica
+  value: 'sonicstoragepublic3'
+- name: StorageAccountReplicaSasToken
+  value: $[variables.sonicstoragepublic3-SasToken]
 stages:
 - stage: InitStage
   jobs:
