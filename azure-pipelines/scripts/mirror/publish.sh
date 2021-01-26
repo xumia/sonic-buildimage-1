@@ -214,6 +214,22 @@ update_repo()
             aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create $WITH_SOURCES $mirror $url $dist $component
             SAVE_WORKSPACE=y
         fi
+
+        # Remove the packages in the deny list
+        if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
+            aptly -config $APTLY_CONFIG repo create $repo
+            while IFS= read -r line
+            do
+                # trim the line
+                local filter=$(echo $line | awk '{$1=$1};1')
+                if [ -z "filter" ]; then
+                    continue
+                fi
+
+                aptly -config $APTLY_CONFIG repo remove $repo $filter
+           done < $PACKAGES_DENY_LIST
+        fi
+
         repos="$repos $repo"
         if [ "$UPDATE_MIRROR" != "y" ]; then
             echo "Skip to update the mirror $mirror, UPDATE_MIRROR=$UPDATE_MIRROR"

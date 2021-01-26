@@ -1,6 +1,8 @@
 steps:
 - template: ../templates/debian-mirror-init-agent.yml
 - template: ../templates/debian-mirror-init-storage.yml
+  parameters:
+    nfsMountPoint: '/$(NFSName)'
 - bash: |
     set -e
 
