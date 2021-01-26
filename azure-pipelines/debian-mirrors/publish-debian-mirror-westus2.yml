@@ -98,6 +98,4 @@ stages:
   jobs:
   - job: CleanUp
     steps:
-    - bash: |
-        [ -d work/_aptly/.lockdir ] && rm -rf work/_aptly/.lockdir
-      displayName: 'CleanUp'
+    - template: ../templates/debian-mirror-cleanup.yml

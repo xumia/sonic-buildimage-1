@@ -1,0 +1,36 @@
+parameters:
+- name: 'workspace'
+  type: string
+  default: 'work'
+steps:
+- bash: |
+    # Init workspace
+    WORKSPACE=${{ parameters.workspace }}
+    StorageAccount=${{ parameters.storageAccount }}
+    StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
+    echo "pwd=$(pwd)"
+    echo "StorageAccount=$(StorageAccount)"
+    echo "StorageAccountReplica=$(StorageAccountReplica)"
+    [ -e "$WORKSPACE" ] && sudo rm -rf "$WORKSPACE"
+    mkdir -p "$WORKSPACE"
+
+    # Mount the publish contianers for web mirrors
+    echo 'Mount storage containers to publish web packages'
+    MOUNT_POINT_PRIMARY=/blobfuse-${StorageAccount}-web
+    azure-pipelines/scripts/mirror/mount-storage.sh "$MOUNT_POINT_PRIMARY" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
+    mkdir -p $MOUNT_POINT_PRIMARY/public
+    ln -s $MOUNT_POINT_PRIMARY/public $WORKSPACE/public
+    
+    MOUNT_POINT_REPLICA=/blobfuse-${StorageAccountReplica}-web
+    azure-pipelines/scripts/mirror/mount-storage.sh "$MOUNT_POINT_PRIMARY" "$StorageAccountReplica" '$web' "$StorageAccountReplicaSasToken" "/data/blobfuse-${StorageAccountReplica}-web"
+    mkdir -p $MOUNT_POINT_REPLICA/public
+    ln -s $MOUNT_POINT_REPLICA/public $WORKSPACE/public-replica
+
+    echo 'The mount storage container web is complete'
+  env:
+    StorageAccount: $(StorageAccount)
+    StorageAccountSasToken: $(StorageAccountSasToken)
+    StorageAccountReplica: $(StorageAccountReplica)
+    StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
+    
+  displayName: 'Mount stroage container to publish mirror script'

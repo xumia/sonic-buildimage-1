@@ -1,0 +1,8 @@
+steps:
+- template: ../templates/debian-mirror-init-agent.yml
+- template: ../templates/debian-mirror-init-storage.yml
+  parameters:
+    nfsMountPoint: '/$(NFSName)'
+- bash: |
+    [ -d work/_aptly/.lockdir ] && rm -rf work/_aptly/.lockdir
+  displayName: 'CleanUp'
