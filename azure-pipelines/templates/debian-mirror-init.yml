@@ -4,12 +4,6 @@ steps:
   parameters:
     nfsMountPoint: '/$(NFSName)'
 - bash: |
-    set -e
-    APTLY_LOCK_PATH=work/_aptly/.lockdir
-    mkdir $APTLY_LOCK_PATH
-    touch $APTLY_LOCK_PATH/.lockfile
-  displayName: 'Set lock file'
-- bash: |
     MIRROR_VERSION=$(date +%Y%m%d%H%M%S-%N)
     echo "The the next Mirror version is $MIRROR_VERSION"
     echo "##vso[task.setvariable variable=MirrorVersion;isOutput=true]$MIRROR_VERSION"
@@ -34,3 +28,9 @@ steps:
     ApplicationKey: '$(ApplicationKey)'
     AZURE_CONFIG_DIR: '.azureconfig'
   displayName: 'Check CDN Endpoint status'
+- bash: |
+    set -e
+    APTLY_LOCK_PATH=work/_aptly/.lockdir
+    mkdir $APTLY_LOCK_PATH
+    touch $APTLY_LOCK_PATH/.lockfile
+  displayName: 'Set lock file'
