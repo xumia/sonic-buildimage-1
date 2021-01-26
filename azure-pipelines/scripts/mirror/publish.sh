@@ -8,6 +8,7 @@ SOURCE_DIR=$(pwd)
 SAVE_WORKSPACE=n
 IS_DIRTY_VERSION=n
 APTLY_CONFIG=aptly-debian.conf
+PACKAGES_DENY_LIST=debian-packages-denylist.conf
 VERSION_FILE=_aptly/version
 ENCRIPTED_KEY_GPG=./encrypted_private_key.gpg
 DEBIAN_MIRRORS_CONFIG=azure-pipelines/config/debian-mirrors.config
@@ -83,6 +84,7 @@ prepare_workspace()
     echo "pwd=$(pwd)"
     mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
     cp $SOURCE_DIR/azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
+    cp $SOURCE_DIR/azure-pipelines/config/debian-packages-denylist.conf $PACKAGES_DENY_LIST
 
     # Import gpg key
     rm -rf $GNUPGHOME
@@ -251,6 +253,18 @@ update_repo()
         need_to_publish=y
         echo "Importing mirror $mirror to repo $repo"
         aptly -config $APTLY_CONFIG repo import $mirror $repo 'Name (~ .*)' >> ${repo}.log
+
+        # Remove the packages in the deny list
+        while IFS= read -r line
+        do
+            # trim the line
+            local filter=$(echo $line | awk '{$1=$1};1')
+            if [ -z "filter" ]; then
+                continue
+            fi
+
+            aptly -config $APTLY_CONFIG repo remove $filter
+        done < $PACKAGES_DENY_LIST
     done
 
     # Check if there are any new packages to publish
