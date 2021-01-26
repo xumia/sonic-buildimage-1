@@ -216,8 +216,7 @@ update_repo()
         fi
 
         # Remove the packages in the deny list
-        if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
-            aptly -config $APTLY_CONFIG repo create $repo
+        if aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
             while IFS= read -r line
             do
                 # trim the line
