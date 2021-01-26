@@ -263,7 +263,7 @@ update_repo()
                 continue
             fi
 
-            aptly -config $APTLY_CONFIG repo remove $filter
+            aptly -config $APTLY_CONFIG repo remove $repo $filter
         done < $PACKAGES_DENY_LIST
     done
 
