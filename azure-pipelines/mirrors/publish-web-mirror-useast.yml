@@ -9,27 +9,14 @@ trigger:
 pool: sonic-mirror-build-2
 
 variables:
-- group: Debian-Mirror-GPG-VG
 - group: Debian-Mirror-Storage-US-East
 stages:
-- stage: PublishStretchToUSEast
+- stage: PublishWebPackagesToUSEast
   jobs:
-  - job: PublishStretchToUSEast
+  - job: PublishWebPackagesToUSEast
     timeoutInMinutes: 0
-    variables:
-    - group: Debian-Mirror-Stretch
-    - name: PublishToReplica
-      value: 'n'
     steps:
-    - template: ../templates/publish-mirror.yaml
-  - job: PublishStretchToUSEastReplica
-    timeoutInMinutes: 0
-    dependsOn: PublishStretchToUSEast
-    variables:
-    - group: Debian-Mirror-Stretch
-    - name: PublishToReplica
-      value: 'y'
-    - name: CreateDB
-      value: 'n'
-    steps:
-    - template: ../templates/publish-mirror.yaml
+    - template: ../templates/web-mirror-init-storage.yml
+    - bash: |
+        echo "hello"
+      displayName: ""
