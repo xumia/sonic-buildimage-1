@@ -12,12 +12,13 @@ read_packages_per_url()
     local url=$1
     [ -f versions.zip ] && rm versions.zip
     [ -d versions ] && rm -rf versions
+    "echo get version files from $url"
     wget -O versions.zip "$url"
     if [ ! -f versions.zip ]; then
         echo "Failed to download versions.zip from $url" 1>&2
         exit 1
     fi
-    unzip versions.zip -d versions
+    unzip versions.zip -d versions > /dev/null
     find "versions" -name versions-web -exec sh -c 'cat {};echo ' \; | grep -v -e '^$' | sort | uniq > versions.tmp1
     touch $WEB_VERSION_FILE
     mv $WEB_VERSION_FILE versions.tmp2
