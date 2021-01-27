@@ -26,7 +26,7 @@ steps:
     
     # Mount the publish contianer for replica web mirrors
     MOUNT_POINT_REPLICA=/blobfuse-${StorageAccountReplica}-web
-    azure-pipelines/scripts/mirror/mount-storage.sh "$MOUNT_POINT_PRIMARY" "$StorageAccountReplica" '$web' "$StorageAccountReplicaSasToken" "/data/blobfuse-${StorageAccountReplica}-web"
+    azure-pipelines/scripts/mirror/mount-storage.sh "$MOUNT_POINT_REPLICA" "$StorageAccountReplica" '$web' "$StorageAccountReplicaSasToken" "/data/blobfuse-${StorageAccountReplica}-web"
     mkdir -p $MOUNT_POINT_REPLICA/public
     ln -s $MOUNT_POINT_REPLICA/public $WORKSPACE/public-replica
 

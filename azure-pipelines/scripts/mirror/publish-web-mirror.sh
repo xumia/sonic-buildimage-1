@@ -38,6 +38,7 @@ publish_packages()
     local publish_path=$1
     local packages_path=packages
     mkdir -p $publish_path
+    mkdir -p $packages_path
     while IFS= read -r line
     do
         local url=$(echo "$line" | sed -e "s/==[0-9a-fA-F]\+$//")
