@@ -18,7 +18,7 @@ read_packages_per_url()
         exit 1
     fi
     unzip versions.zip -d versions
-    find "$VERSION_PATH" -name versions-web -exec sh -c 'cat {};echo ' \; | grep -v -e '^$' | sort | uniq > versions.tmp1
+    find "versions" -name versions-web -exec sh -c 'cat {};echo ' \; | grep -v -e '^$' | sort | uniq > versions.tmp1
     touch $WEB_VERSION_FILE
     mv $WEB_VERSION_FILE versions.tmp2
     cat versions.tmp1 versions.tmp2 | sort | uniq > $WEB_VERSION_FILE
