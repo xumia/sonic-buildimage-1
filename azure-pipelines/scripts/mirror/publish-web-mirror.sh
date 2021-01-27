@@ -47,6 +47,7 @@ publish_packages()
         local filename=$(echo $url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
         local publish_file="$publish_path/${filename}-${version}"
         if [ "$publish_file" != "y" ] && [ -e "$publish_file" ]; then
+            echo "Skipped $url, the file $publish_file exists."
             continue
         fi
         local filepath="$packages_path/$filename"
