@@ -9,6 +9,7 @@ steps:
     migrate_cdn_replica=n
     mirror_names=$(cat work/_aptly/mirror_names)
     export IFS=","
+    mkdir -p work/publish/versions
     ls -l work/publish
     ls -l work/publish/versions/
     for mirror_name in $mirror_names; do
