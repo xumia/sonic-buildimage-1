@@ -61,7 +61,7 @@ publish_packages()
     done < $WEB_VERSION_FILE
 }
 
-cp $SOURCE_DIR/config/build-version-urls.conf $BUILD_VERSION_URLS
+cp $SOURCE_DIR/azure-pipelines/config/build-version-urls.conf $BUILD_VERSION_URLS
 read_packages
 publish_packages public/packages
 publish_packages public-replica/packages
