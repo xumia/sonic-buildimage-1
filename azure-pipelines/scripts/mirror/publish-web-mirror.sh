@@ -56,7 +56,9 @@ publish_packages()
             echo "The file $url hash value $real_version, mismatch with expected value: $version"
         fi
         local version_filepath="$publish_path/${filename}-${real_version}"
+        echo "Downloaded file $filepath, hash value: ${real_version}"
         if [ ! -e "$version_filepath" ]; then
+            "Copy file $filepath to $version_filepath"
             cp "$filepath" "$version_filepath"
         fi
         rm -rf "$filepath"
