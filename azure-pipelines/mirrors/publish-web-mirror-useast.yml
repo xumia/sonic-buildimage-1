@@ -19,4 +19,5 @@ stages:
     - template: ../templates/web-mirror-init-storage.yml
     - bash: |
         echo "hello"
+        azure-pipelines/scripts/mirror/publish-web-mirror.sh
       displayName: ""

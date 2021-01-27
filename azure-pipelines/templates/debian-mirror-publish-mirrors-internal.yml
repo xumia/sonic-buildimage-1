@@ -33,7 +33,7 @@ jobs:
     - ${{ parameters.publishjob.steps }}
     - bash: |
         set -e
-        azure-pipelines/scripts/mirror/publish.sh "$(CreateDB)" "${{ mirrorName }}"
+        azure-pipelines/scripts/mirror/publish-debian-mirror.sh  "$(CreateDB)" "${{ mirrorName }}"
       name: publishMirrorBash
       env:
         PASSPHRASE: $(sonic-gpg-passphrase)
