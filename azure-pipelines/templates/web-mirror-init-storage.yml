@@ -6,8 +6,6 @@ steps:
 - bash: |
     # Init workspace
     WORKSPACE=${{ parameters.workspace }}
-    StorageAccount=${{ parameters.storageAccount }}
-    StorageAccountSasToken=${{ parameters.storageAccountSasToken }}
     echo "pwd=$(pwd)"
     echo "StorageAccount=$(StorageAccount)"
     echo "StorageAccountReplica=$(StorageAccountReplica)"
