@@ -44,7 +44,7 @@ publish_packages()
         local version=$(echo "$line" | sed -e "s/.*==//")
         local filename=$(echo $url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
         local publish_file="$publish_path/${filename}-${version}"
-        if [ "$publish_file" != "y" ] [ -e "$publish_file" ]; then
+        if [ "$publish_file" != "y" ] && [ -e "$publish_file" ]; then
             continue
         fi
         local filepath="$packages_path/$filename"
