@@ -12,7 +12,7 @@ read_packages_per_url()
     local url=$1
     [ -f versions.zip ] && rm versions.zip
     [ -d versions ] && rm -rf versions
-    "echo get version files from $url"
+    echo "Get the version files from $url"
     wget -O versions.zip "$url"
     if [ ! -f versions.zip ]; then
         echo "Failed to download versions.zip from $url" 1>&2
