@@ -6,22 +6,22 @@
 trigger:
 - main
 
-pool: sonic-mirror-build-2
+pool: sonic-mirror-build
 
 variables:
 - group: SONiC-Azure-Key-Vault
 - name: StorageAccount
-  value: 'sonicstoragepublic2'
+  value: 'sonicstoragepublic0'
 - name: StorageAccountSasToken
-  value: $(sonicstoragepublic2-SasToken)
+  value: $(sonicstoragepublic0-SasToken)
 - name: StorageAccountReplica
-  value: 'sonicstoragepublic3'
+  value: 'sonicstoragepublic1'
 - name: StorageAccountReplicaSasToken
-  value: $(sonicstoragepublic3-SasToken)
+  value: $(sonicstoragepublic1-SasToken)
 stages:
-- stage: PublishWebPackagesToUSEast
+- stage: PublishWebPackagesToUSWest2
   jobs:
-  - job: PublishWebPackagesToUSEast
+  - job: PublishWebPackagesToUSWest2
     timeoutInMinutes: 0
     steps:
     - template: ../templates/web-mirror-init-storage.yml
