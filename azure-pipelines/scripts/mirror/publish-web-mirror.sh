@@ -54,7 +54,7 @@ publish_packages()
         if [ "$real_version" != "$version" ]; then
             echo "The file $url hash value $real_version, mismatch with expected value: $version"
         fi
-        local version_filepath="$packages_path/${filename}-${real_version}"
+        local version_filepath="$publish_path/${filename}-${real_version}"
         if [ ! -e "$version_filepath" ]; then
             cp "$filepath" "$version_filepath"
         fi
