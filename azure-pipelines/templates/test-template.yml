@@ -2,7 +2,7 @@ parameters:
 - name: 'platforms'
   type: object
   default:
-  - vs:
+  - vs: vs1
     prestep:
     targets: 'target/sonic-vs.bin'
     options:
