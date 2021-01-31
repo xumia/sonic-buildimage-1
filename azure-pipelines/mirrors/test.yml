@@ -28,4 +28,4 @@ parameters:
 stages:
 - stage: Build
   jobs:
-  - template: azure-pipelines/templates/test-template.yml
+  - template: ../templates/test-template.yml
