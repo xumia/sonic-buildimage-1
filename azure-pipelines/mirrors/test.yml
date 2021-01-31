@@ -1,0 +1,52 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool: sonic-mirror-build-2
+
+parameters:
+- name: 'platforms'
+  type: object
+  default:
+  - vs:
+    prestep:
+    targets: 'target/sonic-vs.bin'
+    options:
+    poststeps:
+    - bash:
+  - broadcom:
+stages:
+- stage: Build
+  jobs:
+  - ${{ each platform in parameters.platforms }}:
+    - ${{ each pair in parameters.publishjob }}:
+        ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
+          ${{ pair.key }}: ${{ pair.value }}
+      job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
+      timeoutInMinutes: 0
+      steps:
+      - bash: |
+          echo "pre-step"
+          MirrorNames=${{ join(',', parameters.mirrorNames) }}
+          echo "MirrorNames=$MirrorNames"
+          echo "$MirrorNames" > work/_aptly/mirror_names
+        displayName: 'pre-step'
+      ${{ if ne(platform.value.prestep, Null) }}
+      - bash: |
+          set -e
+          echo "test"
+        name: build
+      - bash: |
+          echo "post-step"
+        displayName: 'post-step'
+    jobs:
+    - job: 
+      timeoutInMinutes: 0
+      steps:
+      - template: ../templates/web-mirror-init-storage.yml
+      - bash: |
+          azure-pipelines/scripts/mirror/publish-web-mirror.sh
+        displayName: "Publish Web Mirror"
