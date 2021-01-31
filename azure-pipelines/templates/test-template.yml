@@ -25,5 +25,6 @@ jobs:
     steps:
     - bash: |
         echo "pre-step"
+        echo "platform.key=${{ platform.key }}"
         echo "platform.value=${{ platform.value }}"
       displayName: 'pre-step'
