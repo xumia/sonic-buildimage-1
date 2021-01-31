@@ -3,7 +3,7 @@ parameters:
   type: object
   default:
   - name: vs
-    prestep:
+    prestep: 'echo prestep'
     targets: 'target/sonic-vs.bin'
     options:
     poststeps:
@@ -20,6 +20,9 @@ jobs:
   - job: ${{ format('Publish_mirror_{0}', platform.name) }}
     timeoutInMinutes: 0
     steps:
+    ${{ if ne(platform.prestep, Null) }}:
+      - bash: ${{ platform.prestep }}
+        displayName: 'pre-step'
     - bash: |
         echo "pre-step"
         echo "platform.key=${{ platform.key }}"
