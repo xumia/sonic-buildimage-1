@@ -18,10 +18,17 @@ parameters:
     poststeps:
     - bash:
   - broadcom:
+- name: 'publishjob'
+  type: job
+  default:
+    job:
+    steps:
+    - bash: |
+        echo "test"
 stages:
 - stage: Build
   jobs:
-  - ${{ each platform in parameters.platforms }}:
+  - ${{ each mirrorName in parameters.mirrorNames }}:
     - ${{ each pair in parameters.publishjob }}:
         ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
           ${{ pair.key }}: ${{ pair.value }}
@@ -34,11 +41,3 @@ stages:
           echo "MirrorNames=$MirrorNames"
           echo "$MirrorNames" > work/_aptly/mirror_names
         displayName: 'pre-step'
-      ${{ if ne(platform.value.prestep, Null) }}
-      - bash: |
-          set -e
-          echo "test"
-        name: build
-      - bash: |
-          echo "post-step"
-        displayName: 'post-step'
