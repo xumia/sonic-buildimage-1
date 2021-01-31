@@ -37,7 +37,4 @@ stages:
       steps:
       - bash: |
           echo "pre-step"
-          MirrorNames=${{ join(',', parameters.mirrorNames) }}
-          echo "MirrorNames=$MirrorNames"
-          echo "$MirrorNames" > work/_aptly/mirror_names
         displayName: 'pre-step'
