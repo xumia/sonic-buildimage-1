@@ -1,0 +1,29 @@
+parameters:
+- name: 'platforms'
+  type: object
+  default:
+  - vs:
+    prestep:
+    targets: 'target/sonic-vs.bin'
+    options:
+    poststeps:
+    - bash:
+  - broadcom:
+- name: 'publishjob'
+  type: job
+  default:
+    job:
+    steps:
+    - bash: |
+        echo "test"
+jobs:
+- ${{ each platform in parameters.platforms }}:
+  - ${{ each pair in parameters.publishjob }}:
+      ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
+        ${{ pair.key }}: ${{ pair.value }}
+    job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
+    timeoutInMinutes: 0
+    steps:
+    - bash: |
+        echo "pre-step"
+      displayName: 'pre-step'
