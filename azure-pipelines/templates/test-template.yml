@@ -7,7 +7,6 @@ parameters:
     targets: 'target/sonic-vs.bin'
     options:
     poststep:
-    - bash:
 - name: 'publishjob'
   type: job
   default:
