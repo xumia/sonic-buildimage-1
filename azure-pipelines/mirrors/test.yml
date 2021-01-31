@@ -28,13 +28,4 @@ parameters:
 stages:
 - stage: Build
   jobs:
-  - ${{ each mirrorName in parameters.mirrorNames }}:
-    - ${{ each pair in parameters.publishjob }}:
-        ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
-          ${{ pair.key }}: ${{ pair.value }}
-      job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
-      timeoutInMinutes: 0
-      steps:
-      - bash: |
-          echo "pre-step"
-        displayName: 'pre-step'
+  - template: azure-pipelines/templates/test-template.yml
