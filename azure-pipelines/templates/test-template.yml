@@ -22,5 +22,5 @@ jobs:
     steps:
     - ${{ if ne(platform.targets, '') }}:
       - bash: |
-          echo "pre-step"
+          echo "pre-step ${{ platform.targets }}"
         displayName: 'pre-step'
