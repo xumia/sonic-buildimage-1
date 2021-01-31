@@ -23,8 +23,9 @@ jobs:
     ${{ if ne(platform.prestep, Null) }}:
       - bash: ${{ platform.prestep }}
         displayName: 'pre-step'
-    - bash: |
-        echo "pre-step"
-        echo "platform.key=${{ platform.key }}"
-        echo "platform.value=${{ platform.value }}"
-      displayName: 'pre-step'
+    ${{ if ne(platform.targets, Null) }}:
+      - bash: |
+          echo "pre-step"
+          echo "platform.key=${{ platform.key }}"
+          echo "platform.value=${{ platform.value }}"
+        displayName: 'pre-step'
