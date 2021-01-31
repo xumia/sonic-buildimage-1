@@ -22,12 +22,9 @@ stages:
 - stage: Build
   jobs:
   - ${{ each platform in parameters.platforms }}:
-    job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
+    job: ${{ format('Publish_mirror_{0}', platform.key) }}
     timeoutInMinutes: 0
     steps:
     - bash: |
         echo "pre-step"
-        MirrorNames=${{ join(',', parameters.mirrorNames) }}
-        echo "MirrorNames=$MirrorNames"
-        echo "$MirrorNames" > work/_aptly/mirror_names
       displayName: 'pre-step'
