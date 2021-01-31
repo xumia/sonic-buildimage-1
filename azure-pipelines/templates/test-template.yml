@@ -7,13 +7,6 @@ parameters:
     targets: 'target/sonic-vs.bin'
     options:
     poststep:
-- name: 'publishjob'
-  type: job
-  default:
-    job:
-    steps:
-    - bash: |
-        echo "test"
 jobs:
 - ${{ each platform in parameters.platforms }}:
   - job: ${{ format('Publish_mirror_{0}', platform.name) }}
