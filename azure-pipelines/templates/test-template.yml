@@ -19,7 +19,7 @@ jobs:
     - bash: |
         echo "build step"
       displayName: 'Buildstep'
-    - ${{ if ne(platform.targets, '') }}:
+    - ${{ if ne(platform.poststep, '') }}:
       - bash: |
           ${{ platform.poststep }}
         displayName: 'Poststep'
