@@ -22,7 +22,7 @@ jobs:
           ${{ platform.preStep }}
         displayName: 'PreStep'
     - script: |
-        make PLATFORM=$PLATFORM configure
+        echo "test"
       displayName: 'Make configure'
     - ${{ if ne(platform.targets, '') }}:
       - bash: |
