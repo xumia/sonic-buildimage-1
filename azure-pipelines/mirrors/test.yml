@@ -21,10 +21,24 @@ parameters:
 stages:
 - stage: Build
   jobs:
-  ${{ each platform in parameters.platforms }}:
-  - job: ${{ format('Publish_mirror_{0}', platform.key) }}
-    timeoutInMinutes: 0
-    steps:
-    - bash: |
-        echo "pre-step"
-      displayName: 'pre-step'
+  - ${{ each platform in parameters.platforms }}:
+    - ${{ each pair in parameters.publishjob }}:
+        ${{ if and(ne(pair.key, 'steps'), ne(pair.key, 'job')) }}:
+          ${{ pair.key }}: ${{ pair.value }}
+      job: ${{ format('Publish_mirror_{0}', replace(mirrorName, '-', '_')) }}
+      timeoutInMinutes: 0
+      steps:
+      - bash: |
+          echo "pre-step"
+          MirrorNames=${{ join(',', parameters.mirrorNames) }}
+          echo "MirrorNames=$MirrorNames"
+          echo "$MirrorNames" > work/_aptly/mirror_names
+        displayName: 'pre-step'
+      ${{ if ne(platform.value.prestep, Null) }}
+      - bash: |
+          set -e
+          echo "test"
+        name: build
+      - bash: |
+          echo "post-step"
+        displayName: 'post-step'
