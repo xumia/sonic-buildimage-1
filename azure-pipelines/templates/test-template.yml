@@ -6,7 +6,7 @@ parameters:
     prestep: 'echo prestep'
     targets: 'target/sonic-vs.bin'
     options:
-    poststeps:
+    poststep:
     - bash:
 - name: 'publishjob'
   type: job
@@ -23,11 +23,11 @@ jobs:
     - ${{ if ne(platform.prestep, '') }}:
       - bash: |
           echo "test"
-        displayName: 'test1'
+        displayName: 'Prestep'
+    - bash: |
+        echo "build step"
+      displayName: 'Buildstep'
     - ${{ if ne(platform.targets, '') }}:
       - bash: |
           echo "pre-step ${{ platform.targets }}"
-        displayName: 'pre-step'
-    - bash: |
-        echo "post"
-      displayName: 'post-step'
+        displayName: 'Poststep'
