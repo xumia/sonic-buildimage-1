@@ -14,12 +14,12 @@ jobs:
     steps:
     - ${{ if ne(platform.prestep, '') }}:
       - bash: |
-          echo "test"
+          ${{ platform.prestep }}
         displayName: 'Prestep'
     - bash: |
         echo "build step"
       displayName: 'Buildstep'
     - ${{ if ne(platform.targets, '') }}:
       - bash: |
-          echo "pre-step ${{ platform.targets }}"
+          ${{ platform.poststep }}
         displayName: 'Poststep'
