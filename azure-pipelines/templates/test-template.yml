@@ -2,7 +2,7 @@ parameters:
 - name: 'platforms'
   type: object
   default:
-  - vs: vs1
+  - name: vs
     prestep:
     targets: 'target/sonic-vs.bin'
     options:
@@ -17,7 +17,7 @@ parameters:
         echo "test"
 jobs:
 - ${{ each platform in parameters.platforms }}:
-  - job: ${{ format('Publish_mirror_{0}', platform.value) }}
+  - job: ${{ format('Publish_mirror_{0}', platform.name) }}
     timeoutInMinutes: 0
     steps:
     - bash: |
