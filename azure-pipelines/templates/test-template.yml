@@ -20,10 +20,10 @@ jobs:
   - job: ${{ format('Publish_mirror_{0}', platform.name) }}
     timeoutInMinutes: 0
     steps:
-    - ${{ if ne(platform.prestep, '') }}:
+    ${{ if ne(platform.prestep, '') }}:
       bash: ${{ platform.prestep }}
       displayName: 'pre-step'
-    - ${{ if ne(platform.targets, '') }}:
+    ${{ if ne(platform.targets, '') }}:
       bash: |
         echo "pre-step"
         echo "platform.key=${{ platform.key }}"
