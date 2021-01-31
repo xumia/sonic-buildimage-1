@@ -3,23 +3,35 @@ parameters:
   type: object
   default:
   - name: vs
-    prestep: 'echo prestep'
+    preStep: 'echo prestep'
     targets: 'target/sonic-vs.bin'
-    options:
-    poststep:
+    buildOptions:
+    script: ''
+    postStep: ''
 jobs:
 - ${{ each platform in parameters.platforms }}:
   - job: ${{ format('Publish_mirror_{0}', platform.name) }}
     timeoutInMinutes: 0
+    variables:
+      PLATFORM: ${{ platform.name }}
+      BUILD_OPTIONS: ${{ platform.buildOptions }}
     steps:
-    - ${{ if ne(platform.prestep, '') }}:
+    - ${{ if ne(platform.preStep, '') }}:
+      - bash: |
+          ${{ platform.preStep }}
+        displayName: 'PreStep'
+    - script: |
+        make PLATFORM=$PLATFORM configure
+      displayName: 'Make configure'
+    - ${{ if ne(platform.targets, '') }}:
       - bash: |
           ${{ platform.prestep }}
-        displayName: 'Prestep'
-    - bash: |
-        echo "build step"
-      displayName: 'Buildstep'
-    - ${{ if ne(platform.poststep, '') }}:
+        displayName: 'Buildstep'
+    - ${{ if ne(platform.script, '') }}:
+      - bash: |
+          ${{ platform.script }}
+        displayName: 'BuildScript'
+    - ${{ if ne(platform.postStep, '') }}:
       - bash: |
           ${{ platform.poststep }}
-        displayName: 'Poststep'
+        displayName: 'PostStep'
