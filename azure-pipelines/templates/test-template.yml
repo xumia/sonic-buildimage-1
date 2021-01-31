@@ -8,7 +8,6 @@ parameters:
     options:
     poststeps:
     - bash:
-  - broadcom:
 - name: 'publishjob'
   type: job
   default:
