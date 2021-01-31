@@ -6,7 +6,8 @@ parameters:
     preStep: 'echo prestep'
     targets: 'target/sonic-vs.bin'
     buildOptions:
-    script: ''
+    script: |
+      echo "$PLATFORM"
     postStep: ''
 jobs:
 - ${{ each platform in parameters.platforms }}:
