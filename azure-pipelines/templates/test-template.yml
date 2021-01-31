@@ -28,3 +28,6 @@ jobs:
       - bash: |
           echo "pre-step ${{ platform.targets }}"
         displayName: 'pre-step'
+    - bash: |
+        echo "post"
+      displayName: 'post-step'
