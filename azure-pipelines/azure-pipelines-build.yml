@@ -41,7 +41,8 @@ jobs:
           echo "Run script"
         buildSteps:
         - script: |
-            echo "BuildStep 1"
+            mkdir -p target
+            echo "BuildStep 1" > target/result.log
           displayName: "BuildStep 1"
         - script: |
             echo "BuildStep 2"
