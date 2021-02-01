@@ -6,8 +6,8 @@
 trigger: none
 
 schedules:
-- cron: "0 0 * * *"
-  displayName: Daily Build
+- cron: "0 0 * * 0"
+  displayName: Weekly Build
   branches:
     include:
     - xumia/*
