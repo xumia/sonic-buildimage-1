@@ -1,7 +1,7 @@
 parameters:
 - name: 'preSteps'
   type: stepList
-  default: 'none'
+  default: []
 - name: "postStep"
   type: stepList
   default: 'none'
@@ -21,9 +21,8 @@ jobs:
     variables:
       BUILD_NAME: ${{ build.name }}
     steps:
-    - ${{ if ne(parameters.preSteps, 'none') }}:
-      - ${{ each preStep in parameters.preSteps }}
-        - ${{ preStep }}
+    - ${{ each preStep in parameters.preSteps }}
+      - ${{ preStep }}
     - ${{ if ne(build.script, '') }}:
       - script: |
           ${{ build.script }}
