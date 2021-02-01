@@ -5,6 +5,8 @@ parameters:
 jobs:
 - template: azure-pipelines-comon-build.yml 
   parameters:
+    buildNames:
+      - broadcom
     preSteps:
       - script: |
           [ -d target ] && sudo rm -rf target
