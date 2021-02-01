@@ -16,10 +16,6 @@ pool: sonicbld
 
 stages:
 - stage: Build
-  variables:
-    BUILD_TIMESTAMP: $[format('{0:yyyyMMdd}.{0:HHmmss}', pipeline.startTime)]
-    BUILD_NUMBER: $(Build.BuildId)
-    OVERRIDE_BUILD_VARS: 'SKIP_INSTALLER_BUILD=y'
   jobs:
   - template: azure-pipelines-build.yml 
 - stage: UpgradeVersions
@@ -27,7 +23,6 @@ stages:
   - job: UpgradeVersions
     steps:
     - script: |
-        # Clean up
         [ -d target ] && sudo rm -rf target
         [ -d fsroot ] && sudo rm -rf fsroot
         rm -rf $(Pipeline.Workspace)/sonic-buildimage.*
@@ -37,8 +32,19 @@ stages:
     - download: current
       patterns: '**/versions-*'
     - script: |
-        echo "test"
-        find $(Pipeline.Workspace)/sonic-buildimage.*
-        echo "ArtifactsDirectory=$(Pipeline.Workspace)"
+        mkdir -p target
+        default_platform=broadcom
+        artifacts=$(find $(Pipeline.Workspace) -maxdepth 1 -type d -name 'sonic-buildimage.*' | grep -v "sonic-buildimage.${default_platform}")
+        echo "artifacts$artifacts"
+        cp -r $(Pipeline.Workspace)/sonic-buildimage.${default_platform}/versions target/
+        make freeze FREEZE_VERSION_OPTIONS=-r
+        find files/build/versions 
+        for artifact in $artifacts
+          rm -rf target/versions
+          cp -r $artifact/versions target/
+          make freeze FREEZE_VERSION_OPTIONS="-a -d"
+        do
+        done
+        git diff files/build/versions
       displayName: "Upgrade Versions"
     
