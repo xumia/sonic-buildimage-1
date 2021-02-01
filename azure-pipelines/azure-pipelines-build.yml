@@ -19,7 +19,7 @@ jobs:
         displayName: 'Checkout code'
     postSteps:
       - publish: $(System.DefaultWorkingDirectory)/target
-        artifact: 'sonic-buildimage.${{ build.name }}'
+        artifact: 'sonic-buildimage.$(BUILD_NAME)'
         displayName: "Archive sonic image"
       - script: |
           echo "PostStep 2"
