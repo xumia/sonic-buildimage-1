@@ -40,7 +40,6 @@ stages:
     - script: |
         echo "test"
         ls -l .
-        find target
-        echo "ArtifactsDirectory=$(System.Workspace)"
+        echo "ArtifactsDirectory=$(Pipeline.Workspace)"
       displayName: "Upgrade Versions"
     
