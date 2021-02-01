@@ -1,0 +1,36 @@
+parameters:
+- name: 'preSteps'
+  type: stepList
+  default: 'none'
+- name: "postStep"
+  type: stepList
+  default: 'none'
+- name: 'builds'
+  type: object
+  default:
+  - name: 'none'
+    script: ''
+    buildSteps: ''
+- name: 'timeoutInMinutes'
+  type: 'number'
+  default: 1440
+jobs:
+- ${{ each build in parameters.builds }}:
+  - job: ${{ format('Build_{0}', build.name) }}
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    variables:
+      BUILD_NAME: ${{ build.name }}
+    steps:
+    - ${{ if ne(parameters.preSteps, 'none') }}:
+      - ${{ each preStep in parameters.preSteps }}
+        - ${{ preStep }}
+    - ${{ if ne(build.script, '') }}:
+      - script: |
+          ${{ build.script }}
+        displayName: 'BuildScript'
+    - ${{ if ne(build.buildStep, '') }}:
+      - ${{ each buildStep in build.buildStep }}
+        - ${{ buildStep }}
+    - ${{ if ne(postStep, 'none') }}:
+      - ${{ each postStep in parameters.postSteps }}
+        - ${{ postStep }}

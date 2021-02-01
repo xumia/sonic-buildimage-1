@@ -1,0 +1,26 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily Build
+  branches:
+    include:
+    - *
+
+pool:
+  vmImage: sonic-image-builder
+
+stages:
+- stage: Build
+  pool: sonic-image-builder
+  variables:
+    BUILD_TIMESTAMP: $[format('{0:yyyyMMdd}.{0:HHmmss}', pipeline.startTime)]
+    BUILD_NUMBER: $(Build.BuildId)
+    OVERRIDE_BUILD_VARS: 'SKIP_INSTALLER_BUILD=y'
+  jobs:
+  - template: azure-pipelines-build.yml 

@@ -1,0 +1,49 @@
+parameters:
+- name: 'buildOptions'
+  type: string
+  default: ''
+jobs:
+- template: azure-pipelines-comon-build.yml 
+  parameters:
+    preSteps:
+      - script: |
+          # Clean up
+          [ -d target ] && sudo rm -rf target
+          [ -d fsroot ] && sudo rm -rf fsroot
+          # Make configure
+          OPTIONS="${{ buildOptions }} PLATFORM=$PLATFORM"
+          make $OPTIONS configure
+        displayName: 'Pre Step'
+      - checkout: self
+        #submodules: recursive
+        displayName: 'Checkout code'
+    postSteps:
+      - script: |
+          echo "PostStep 1"
+        displayName: "PostStep 1"
+      - script: |
+          echo "PostStep 2"
+        displayName: "PostStep 2"
+    builds:
+      - name: vs
+        script: |
+          echo "Run script"
+        buildSteps:
+        - script: |
+            echo "BuildStep 1"
+          displayName: "BuildStep 1"
+        buildSteps:
+        - script: |
+            echo "BuildStep 2"
+          displayName: "BuildStep 2"
+      - name: broadcom
+        script: |
+          echo "Run script"
+        buildSteps:
+        - script: |
+            echo "BuildStep 1"
+          displayName: "BuildStep 1"
+        buildSteps:
+        - script: |
+            echo "BuildStep 2"
+          displayName: "BuildStep 2"
