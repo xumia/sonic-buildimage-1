@@ -28,6 +28,13 @@ jobs:
         artifact: 'sonic-buildimage.$(BUILD_NAME)'
         displayName: "Archive sonic image"
       - script: |
+          mkdir -p $(System.DefaultWorkingDirectory)/target/_versions
+          mv $(System.DefaultWorkingDirectory)/target/versions $(System.DefaultWorkingDirectory)/target/_versions/versions.$(BUILD_NAME)
+        displayName: "Move version files"
+      - publish: $(System.DefaultWorkingDirectory)/target/_versions
+        artifact: 'sonic-buildimage.versions'
+        displayName: "Archive sonic versions"
+      - script: |
           echo "PostStep 2"
         displayName: "PostStep 2"
     builds:
