@@ -13,8 +13,9 @@ jobs:
           # Make configure
           OPTIONS="${{ parameters.buildOptions }} PLATFORM=$BUILD_NAME"
           echo "make $OPTIONS configure"
-          mkdir -p target
+          mkdir -p target/versions
           echo "test" > target/result.log
+          echo "11" > target/versions/version1.log
         displayName: 'Pre Step'
       - checkout: self
         #submodules: recursive
