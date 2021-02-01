@@ -11,8 +11,8 @@ jobs:
           [ -d target ] && sudo rm -rf target
           [ -d fsroot ] && sudo rm -rf fsroot
           # Make configure
-          OPTIONS="${{ buildOptions }} PLATFORM=$PLATFORM"
-          make $OPTIONS configure
+          OPTIONS="${{ parameters.buildOptions }} PLATFORM=$PLATFORM"
+          echo "make $OPTIONS configure"
         displayName: 'Pre Step'
       - checkout: self
         #submodules: recursive
