@@ -30,7 +30,7 @@ stages:
         # Clean up
         [ -d target ] && sudo rm -rf target
         [ -d fsroot ] && sudo rm -rf fsroot
-        rm -rf $(Pipeline.Workspace)/sonic-buildimage.* 2>/dev/null || true
+        rm -rf $(Pipeline.Workspace)/sonic-buildimage.*
       displayName: 'cleanup'
     - checkout: self
       #submodules: recursive
