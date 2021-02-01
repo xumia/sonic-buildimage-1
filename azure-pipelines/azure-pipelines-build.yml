@@ -26,8 +26,8 @@ jobs:
     postSteps:
       - script: |
           mkdir -p target/all_versions
-          ln -s target/versions target/all_versions/$(BUILD_NAME)
-        displayName: "Link versions"
+          cp -rf target/versions target/all_versions/$(BUILD_NAME)
+        displayName: "copy versions"
       - publish: $(System.DefaultWorkingDirectory)/target
         artifact: 'sonic-buildimage.$(BUILD_NAME)'
         displayName: "Archive sonic image"
