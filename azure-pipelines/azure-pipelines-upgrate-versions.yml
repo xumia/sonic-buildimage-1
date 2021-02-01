@@ -46,5 +46,8 @@ stages:
         do
         done
         git diff files/build/versions
-      displayName: "Upgrade Versions"
+      displayName: "Freeze Versions"
+    - publish: $(System.DefaultWorkingDirectory)/files/build/versions
+      artifact: 'sonic-buildimage.versions'
+      displayName: "Archive sonic versions"
     
