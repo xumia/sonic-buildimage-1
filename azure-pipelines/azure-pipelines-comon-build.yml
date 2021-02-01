@@ -2,7 +2,7 @@ parameters:
 - name: 'preSteps'
   type: stepList
   default: []
-- name: "postStep"
+- name: "postSteps"
   type: stepList
   default: 'none'
 - name: 'builds'
