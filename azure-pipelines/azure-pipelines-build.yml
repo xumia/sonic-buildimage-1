@@ -43,9 +43,6 @@ jobs:
         script: |
           make ${{ parameters.buildOptions }} target/sonic-mellanox.bin
           make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz target/docker-ptf-mlnx.gz
-      - name: innovium
-        script: |
-          make ${{ parameters.buildOptions }} target/sonic-innovium.bin
       - name: nephos
         script: |
           make ${{ parameters.buildOptions }} target/sonic-nephos.bin
