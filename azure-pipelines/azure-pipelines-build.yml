@@ -24,36 +24,28 @@ jobs:
     builds:
       - name: vs
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS ENABLE_SYNCD_RPC=y target/sonic-vs.bin
-          make $OPTIONS target/docker-sonic-vs.gz
+          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/sonic-vs.bin
+          make ${{ parameters.buildOptions }} target/docker-sonic-vs.gz
       - name: broadcom
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-aboot-broadcom.swi
+          make ${{ parameters.buildOptions }} target/sonic-aboot-broadcom.swi
       - name: barefoot
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-barefoot.bin target/sonic-aboot-barefoot.swi
+          make ${{ parameters.buildOptions }} target/sonic-barefoot.bin target/sonic-aboot-barefoot.swi
       - name: centec
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-centec.bin 
-          make $OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-centec-rpc.gz
+          make ${{ parameters.buildOptions }} target/sonic-centec.bin 
+          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-centec-rpc.gz
       - name: innovium
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-innovium.bin
+          make ${{ parameters.buildOptions }} target/sonic-innovium.bin
       - name: mellanox
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-mellanox.bin
-          make $OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz target/docker-ptf-mlnx.gz
+          make ${{ parameters.buildOptions }} target/sonic-mellanox.bin
+          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz target/docker-ptf-mlnx.gz
       - name: innovium
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-innovium.bin
+          make ${{ parameters.buildOptions }} target/sonic-innovium.bin
       - name: nephos
         script: |
-          OPTIONS="${{ parameters.buildOptions }}"
-          make $OPTIONS target/sonic-nephos.bin
+          make ${{ parameters.buildOptions }} target/sonic-nephos.bin
