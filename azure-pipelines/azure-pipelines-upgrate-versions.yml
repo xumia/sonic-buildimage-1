@@ -22,3 +22,10 @@ stages:
     OVERRIDE_BUILD_VARS: 'SKIP_INSTALLER_BUILD=y'
   jobs:
   - template: azure-pipelines-build.yml 
+- stage: UpgradeVersions
+  jobs:
+  - job: UpgradeVersions
+    steps:
+    - script: |
+        echo "test"
+      displayName: "Upgrade Versions"
