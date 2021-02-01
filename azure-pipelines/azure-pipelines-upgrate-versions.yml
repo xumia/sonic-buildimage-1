@@ -33,7 +33,6 @@ stages:
         rm -rf $(Pipeline.Workspace)/sonic-buildimage.*
       displayName: 'cleanup'
     - checkout: self
-      #submodules: recursive
       displayName: 'Checkout code'
     - download: current
       patterns: '**/versions-*'
