@@ -16,7 +16,7 @@ jobs:
         displayName: 'Checkout code'
       - script: |
           OPTIONS="${{ parameters.buildOptions }} PLATFORM=$BUILD_NAME"
-          echo "make $OPTIONS configure"
+          make $OPTIONS configure
         displayName: 'Make configure'
     postSteps:
       - publish: $(System.DefaultWorkingDirectory)/target
