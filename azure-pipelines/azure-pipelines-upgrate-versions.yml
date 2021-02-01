@@ -30,6 +30,8 @@ stages:
         # Clean up
         [ -d target ] && sudo rm -rf target
         [ -d fsroot ] && sudo rm -rf fsroot
+        exit 0
+      displayName: 'cleanup'
     - checkout: self
       #submodules: recursive
       displayName: 'Checkout code'
