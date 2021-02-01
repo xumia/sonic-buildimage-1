@@ -26,12 +26,8 @@ stages:
   jobs:
   - job: UpgradeVersions
     steps:
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'specific'
-        itemPattern: '**'
-        downloadPath: '$(System.ArtifactsDirectory)'
+    - download: current
+      patterns: '**'
     - script: |
         echo "test"
         find $(System.ArtifactsDirectory)
