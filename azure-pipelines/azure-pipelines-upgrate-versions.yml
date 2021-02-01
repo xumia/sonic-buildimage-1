@@ -12,12 +12,10 @@ schedules:
     include:
     - xumia/*
 
-pool:
-  vmImage: sonicbld
+pool: sonicbld
 
 stages:
 - stage: Build
-  pool: sonic-image-builder
   variables:
     BUILD_TIMESTAMP: $[format('{0:yyyyMMdd}.{0:HHmmss}', pipeline.startTime)]
     BUILD_NUMBER: $(Build.BuildId)
