@@ -19,8 +19,8 @@ jobs:
         displayName: 'Checkout code'
       - script: |
           mkdir -p target/versions
-          echo "test" > target/result.log
-          echo "11" > target/versions/version1.log
+          echo "test" > target/results-1.log
+          echo "11" > target/versions/versions-2.log
           find target
         displayName: 'Fake versions'
     postSteps:
