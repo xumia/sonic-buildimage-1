@@ -13,6 +13,8 @@ jobs:
           # Make configure
           OPTIONS="${{ parameters.buildOptions }} PLATFORM=$BUILD_NAME"
           echo "make $OPTIONS configure"
+          mkdir -p target
+          echo "test" > target/result.log
         displayName: 'Pre Step'
       - checkout: self
         #submodules: recursive
@@ -30,8 +32,7 @@ jobs:
           echo "Run script"
         buildSteps:
         - script: |
-            mkdir -p target
-            echo "BuildStep 1" > target/result.log
+            echo "BuildStep 1"
           displayName: "BuildStep 1"
         - script: |
             echo "BuildStep 2"
@@ -41,8 +42,7 @@ jobs:
           echo "Run script"
         buildSteps:
         - script: |
-            mkdir -p target
-            echo "BuildStep 1" > target/result.log
+            echo "BuildStep 1"
           displayName: "BuildStep 1"
         - script: |
             echo "BuildStep 2"
