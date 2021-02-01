@@ -30,6 +30,7 @@ stages:
       patterns: '**'
     - script: |
         echo "test"
+        ls -l .
         find $(System.ArtifactsDirectory)
         echo "ArtifactsDirectory=$(System.ArtifactsDirectory)"
       displayName: "Upgrade Versions"
