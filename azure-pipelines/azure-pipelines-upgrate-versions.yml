@@ -39,7 +39,7 @@ stages:
       patterns: '**'
     - script: |
         echo "test"
-        ls -l .
+        ls -l $(Pipeline.Workspace)
         echo "ArtifactsDirectory=$(Pipeline.Workspace)"
       displayName: "Upgrade Versions"
     
