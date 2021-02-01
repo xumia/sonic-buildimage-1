@@ -26,13 +26,19 @@ stages:
   jobs:
   - job: UpgradeVersions
     steps:
+    - script: |
+        # Clean up
+        [ -d target ] && sudo rm -rf target
+        [ -d fsroot ] && sudo rm -rf fsroot
+    - checkout: self
+      #submodules: recursive
+      displayName: 'Checkout code'
     - download: current
       patterns: '**'
     - script: |
         echo "test"
         ls -l .
         find target
-        find $(System.ArtifactsDirectory)
-        echo "ArtifactsDirectory=$(System.ArtifactsDirectory)"
+        echo "ArtifactsDirectory=$(System.Workspace)"
       displayName: "Upgrade Versions"
     
