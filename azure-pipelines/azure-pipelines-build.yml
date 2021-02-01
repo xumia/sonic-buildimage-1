@@ -32,7 +32,6 @@ jobs:
         - script: |
             echo "BuildStep 1"
           displayName: "BuildStep 1"
-        buildSteps:
         - script: |
             echo "BuildStep 2"
           displayName: "BuildStep 2"
@@ -43,7 +42,6 @@ jobs:
         - script: |
             echo "BuildStep 1"
           displayName: "BuildStep 1"
-        buildSteps:
         - script: |
             echo "BuildStep 2"
           displayName: "BuildStep 2"
