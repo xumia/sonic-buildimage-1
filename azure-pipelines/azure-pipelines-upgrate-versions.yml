@@ -31,6 +31,7 @@ stages:
     - script: |
         echo "test"
         ls -l .
+        find target
         find $(System.ArtifactsDirectory)
         echo "ArtifactsDirectory=$(System.ArtifactsDirectory)"
       displayName: "Upgrade Versions"
