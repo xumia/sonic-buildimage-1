@@ -10,7 +10,7 @@ schedules:
   displayName: Daily Build
   branches:
     include:
-    - *
+    - xumia/*
 
 pool:
   vmImage: sonic-image-builder
