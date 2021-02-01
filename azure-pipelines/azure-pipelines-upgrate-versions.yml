@@ -36,7 +36,7 @@ stages:
       #submodules: recursive
       displayName: 'Checkout code'
     - download: current
-      patterns: '*/versions/**'
+      patterns: '**/version*'
     - script: |
         echo "test"
         find $(Pipeline.Workspace)/sonic-buildimage.*
