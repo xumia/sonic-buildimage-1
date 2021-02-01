@@ -21,14 +21,8 @@ jobs:
     variables:
       BUILD_NAME: ${{ build.name }}
     steps:
-    - ${{ preStep }}
+    - ${{ parameters.preSteps }}
     - ${{ if ne(build.script, '') }}:
       - script: |
           ${{ build.script }}
         displayName: 'BuildScript'
-    - ${{ if ne(build.buildStep, '') }}:
-      - ${{ each buildStep in build.buildStep }}
-        - ${{ buildStep }}
-    - ${{ if ne(postStep, 'none') }}:
-      - ${{ each postStep in parameters.postSteps }}
-        - ${{ postStep }}
