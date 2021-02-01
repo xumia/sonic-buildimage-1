@@ -19,7 +19,7 @@ parameters:
   default: 1440
 jobs:
 - ${{ each build in parameters.builds }}:
-  - ${{ if or(eq(parameters.buildNames, ''), containsValue(parameters.buildNames, build.name)) }}
+  - ${{ if or(eq(parameters.buildNames, ''), containsValue(parameters.buildNames, build.name)) }}:
     - job: ${{ format('Build_{0}', build.name) }}
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
