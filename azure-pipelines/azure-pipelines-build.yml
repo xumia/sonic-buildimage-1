@@ -1,8 +1,7 @@
 parameters:
 - name: 'buildNames'
   type: object
-  default:
-    - broadcom
+  default: ''
 - name: 'buildOptions'
   type: string
   default: 'SONIC_CONFIG_BUILD_JOBS=4 INSTALL_DEBUG_TOOLS=y'
