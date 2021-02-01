@@ -39,7 +39,7 @@ stages:
       patterns: '**'
     - script: |
         echo "test"
-        ls -l $(Pipeline.Workspace)
+        find $(Pipeline.Workspace)/sonic-buildimage.*
         echo "ArtifactsDirectory=$(Pipeline.Workspace)"
       displayName: "Upgrade Versions"
     
