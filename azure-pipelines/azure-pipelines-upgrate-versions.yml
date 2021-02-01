@@ -30,7 +30,7 @@ stages:
       inputs:
         buildType: 'current'
         downloadType: 'specific'
-        itemPattern: 'versions/**'
+        itemPattern: '**'
         downloadPath: '$(System.ArtifactsDirectory)'
     - script: |
         echo "test"
