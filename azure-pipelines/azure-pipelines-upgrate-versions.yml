@@ -34,6 +34,7 @@ stages:
         downloadPath: '$(System.ArtifactsDirectory)'
     - script: |
         echo "test"
+        find $(System.ArtifactsDirectory)
         echo "ArtifactsDirectory=$(System.ArtifactsDirectory)"
       displayName: "Upgrade Versions"
     
