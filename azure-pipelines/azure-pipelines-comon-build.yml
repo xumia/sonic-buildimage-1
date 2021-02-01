@@ -4,13 +4,13 @@ parameters:
   default: []
 - name: "postSteps"
   type: stepList
-  default: 'none'
+  default: []
 - name: 'builds'
   type: object
   default:
   - name: 'none'
     script: ''
-    buildSteps: ''
+    buildSteps: []
 - name: 'timeoutInMinutes'
   type: 'number'
   default: 1440
@@ -26,3 +26,5 @@ jobs:
       - script: |
           ${{ build.script }}
         displayName: 'BuildScript'
+    - ${{ parameters.buildSteps }}
+    - ${{ parameters.postSteps }}
