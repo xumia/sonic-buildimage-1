@@ -26,5 +26,6 @@ jobs:
       - script: |
           ${{ build.script }}
         displayName: 'BuildScript'
-    - ${{ parameters.buildSteps }}
+    - ${{ if ne(build.script, '') }}:
+      - ${{ parameters.buildSteps }}
     - ${{ parameters.postSteps }}
