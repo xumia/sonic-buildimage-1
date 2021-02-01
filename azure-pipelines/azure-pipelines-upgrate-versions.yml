@@ -13,7 +13,7 @@ schedules:
     - xumia/*
 
 pool:
-  vmImage: sonic-image-builder
+  vmImage: sonicbld
 
 stages:
 - stage: Build
