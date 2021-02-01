@@ -1,12 +1,15 @@
 parameters:
+- name: 'buildNames'
+  type: object
+  default:
+    - broadcom
 - name: 'buildOptions'
   type: string
   default: 'SONIC_CONFIG_BUILD_JOBS=4 INSTALL_DEBUG_TOOLS=y'
 jobs:
 - template: azure-pipelines-comon-build.yml 
   parameters:
-    buildNames:
-      - broadcom
+    buildNames: ${{ parameters.buildNames }}
     preSteps:
       - script: |
           [ -d target ] && sudo rm -rf target
