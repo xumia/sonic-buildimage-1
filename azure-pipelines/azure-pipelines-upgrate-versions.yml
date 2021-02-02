@@ -40,10 +40,10 @@ stages:
         make freeze FREEZE_VERSION_OPTIONS=-r
         find files/build/versions 
         for artifact in $artifacts
+        do
           rm -rf target/versions
           cp -r $artifact/versions target/
           make freeze FREEZE_VERSION_OPTIONS="-a -d"
-        do
         done
         git diff files/build/versions
       displayName: "Freeze Versions"
