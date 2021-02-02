@@ -1,7 +1,11 @@
 parameters:
 - name: 'buildNames'
   type: object
-  default: ''
+  default:
+    - broadcom
+    - barefoot
+    - innovium
+    - nephos
 - name: 'buildOptions'
   type: string
   default: 'SONIC_CONFIG_BUILD_JOBS=1 INSTALL_DEBUG_TOOLS=y'
