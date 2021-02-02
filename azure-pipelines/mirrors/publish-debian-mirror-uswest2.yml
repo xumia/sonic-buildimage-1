@@ -66,19 +66,6 @@ stages:
     value: 'n'
   jobs:
   - template: ../templates/debian-mirror-publish-mirrors.yml
-- stage: Test
-  dependsOn:
-  - MigrateReplicaStage
-  variables:
-  - name: PublishToReplica
-    value: 'n'
-  - name: MigrateCdnReplica
-    value: $[ stageDependencies.MigrateReplicaStage.MigrateReplica.outputs['CheckVersion.MigrateCdnReplica'] ]
-  jobs:
-  - job: TestOnly
-    steps:
-    - bash: |
-        echo "MigrateCdnReplica=$(MigrateCdnReplica)"
 - stage: MigratePrimaryStage
   dependsOn:
   - MigrateReplicaStage
