@@ -33,7 +33,7 @@ jobs:
     builds:
       - name: vs
         script: |
-          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/sonic-vs.bin
+          make ${{ parameters.buildOptions }} target/sonic-vs.bin
           make ${{ parameters.buildOptions }} target/docker-sonic-vs.gz
       - name: broadcom
         script: |
@@ -44,14 +44,14 @@ jobs:
       - name: centec
         script: |
           make ${{ parameters.buildOptions }} target/sonic-centec.bin 
-          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-centec-rpc.gz
+          make ${{ parameters.buildOptions }} INSTALL_DEBUG_TOOLS= ENABLE_SYNCD_RPC=y target/docker-syncd-centec-rpc.gz
       - name: innovium
         script: |
           make ${{ parameters.buildOptions }} target/sonic-innovium.bin
       - name: mellanox
         script: |
           make ${{ parameters.buildOptions }} target/sonic-mellanox.bin
-          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz target/docker-ptf-mlnx.gz
+          make ${{ parameters.buildOptions }} INSTALL_DEBUG_TOOLS= ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz target/docker-ptf-mlnx.gz
       - name: nephos
         script: |
           make ${{ parameters.buildOptions }} target/sonic-nephos.bin
