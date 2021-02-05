@@ -15,9 +15,6 @@ parameters:
     variables: ''
     script: ''
     steps: []
-- name: 'jobVariables'
-  type: object
-  default: ''
 - name: 'scriptEnv'
   type: object
   default: ''
@@ -31,8 +28,6 @@ jobs:
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
         JOB_NAME: ${{ build.name }}
-        ${{ if ne(parameters.jobVariables, '') }}:
-          ${{ parameters.jobVariables }}
         ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
       steps:
