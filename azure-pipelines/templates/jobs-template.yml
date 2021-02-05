@@ -33,17 +33,17 @@ jobs:
         JOB_NAME: ${{ build.name }}
         ${{ if ne(parameters.scriptEnv, '') }}:
           ${{ parameters.jobVariables }}
-        ${{ if ne(job.variables, '') }}:
+        ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
       steps:
       - ${{ parameters.preSteps }}
-      - ${{ if ne(job.script, '') }}:
+      - ${{ if ne(build.script, '') }}:
         - script: |
             ${{ build.script }}
           env:
             ${{ if ne(parameters.scriptEnv, '') }}:
               ${{ parameters.scriptEnv }}
           displayName: 'JobScript'
-      - ${{ if ne(job.steps, '') }}:
+      - ${{ if ne(build.steps, '') }}:
         - ${{ build.steps }}
       - ${{ parameters.postSteps }}
