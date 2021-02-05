@@ -63,7 +63,7 @@ stages:
       - name: jessie_security
         variables:
           MIRROR_NAME: debian-security
-          MIRROR_FILESYSTEM: debian
+          MIRROR_FILESYSTEM: debian-security
           MIRROR_URL: 'http://security.debian.org/debian-security'
           MIRROR_DISTRIBUTIONS: 'jessie/updates'
           MIRROR_ARICHTECTURES: 'amd64,armhf'
