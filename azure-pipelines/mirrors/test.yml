@@ -7,28 +7,31 @@ trigger: none
 
 pool: sonic-mirror-build-2
 
-parameters:
-- name: 'platforms'
-  type: object
-  default:
-  - vs:
-    prestep:
-    targets: 'target/sonic-vs.bin'
-    options:
-    poststeps:
-    - bash:
-  - broadcom:
-- name: 'publishjob'
-  type: job
-  default:
-    job:
-    steps:
-    - bash: |
-        echo "test"
 stages:
 - stage: Build
   jobs:
   - template: ../templates/jobs-template.yml
     parameters:
+      preSteps:
+      - script: |
+          echo "prestep1"
+          echo "JobVar1=$JobVar1"
+          echo "ScriptEnv1=$ScriptEnv1"
+          echo "MIRROR_NAME=$MIRROR_NAME"
+      postSteps:
+      - script: |
+          echo "poststep1"
+      jobVariables:
+        JobVar1: var1
+        JobVar2: var2
+      scriptEnv:
+        ScriptEnv1: env1
       stepGroups:
       - name: test
+        jobVariables:
+          MIRROR_NAME: jessie
+          MIRROR_FILESYSTEM: debian
+          MIRROR_URL: 'http://deb.debian.org/debian'
+          MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
+          MIRROR_COMPONENTS: 'contrib,non-free,main'
+          MIRROR_ARICHTECTURES: 'amd64,armhf'
