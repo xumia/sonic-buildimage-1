@@ -23,6 +23,7 @@ stages:
           echo "JOB_NAME=$JOB_NAME"
           echo "TestNAME=$TestNAME"
           echo "TestNAME=$(TestNAME)"
+          echo "TESTNAME=$(TESTNAME)"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
           echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
