@@ -26,6 +26,8 @@ stages:
           echo "TestNAME=$TestNAME"
           echo "TestNAME=$(TestNAME)"
           echo "TESTNAME=$(TESTNAME)"
+          echo "MIRROR_COMPONENTS=$MIRROR_COMPONENTS"
+          echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
           echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
@@ -45,7 +47,6 @@ stages:
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://deb.debian.org/debian'
           MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
           MIRROR_ARICHTECTURES: 'amd64,armhf'
       - name: stretch
         variables:
@@ -53,23 +54,18 @@ stages:
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://deb.debian.org/debian'
           MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates,stretch-backports'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
-          MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
       - name: buster
         variables:
           MIRROR_NAME: buster
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://deb.debian.org/debian'
           MIRROR_DISTRIBUTIONS: 'buster,buster-updates,buster-backports'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
-          MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
       - name: jessie_security
         variables:
           MIRROR_NAME: debian-security
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://security.debian.org/debian-security'
           MIRROR_DISTRIBUTIONS: 'jessie/updates'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
           MIRROR_ARICHTECTURES: 'amd64,armhf'
       - name: stretch_security
         variables:
@@ -77,13 +73,9 @@ stages:
           MIRROR_FILESYSTEM: debian-security
           MIRROR_URL: 'http://security.debian.org/debian-security'
           MIRROR_DISTRIBUTIONS: 'stretch/updates'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
-          MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
       - name: buster_security
         variables:
           MIRROR_NAME: buster-security
           MIRROR_FILESYSTEM: debian-security
           MIRROR_URL: 'http://security.debian.org/debian-security'
           MIRROR_DISTRIBUTIONS: 'buster/updates'
-          MIRROR_COMPONENTS: 'contrib,non-free,main'
-          MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
