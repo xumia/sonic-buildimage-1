@@ -9,6 +9,9 @@ pool: sonic-mirror-build-2
 
 stages:
 - stage: Build
+  variables:
+    JobVar1: var1
+    JobVar2: var2
   jobs:
   - template: ../templates/jobs-template.yml
     parameters:
@@ -24,9 +27,6 @@ stages:
       postSteps:
       - script: |
           echo "poststep1"
-      jobVariables:
-        JobVar1: var1
-        JobVar2: var2
       scriptEnv:
         ScriptEnv1: env1
       stepGroups:
