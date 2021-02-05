@@ -31,7 +31,7 @@ jobs:
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
         JOB_NAME: ${{ build.name }}
-        ${{ if ne(parameters.scriptEnv, '') }}:
+        ${{ if ne(parameters.jobVariables, '') }}:
           ${{ parameters.jobVariables }}
         ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
