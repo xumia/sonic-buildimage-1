@@ -28,4 +28,7 @@ parameters:
 stages:
 - stage: Build
   jobs:
-  - template: ../templates/test-template.yml
+  - template: ../templates/jobs-template.yml
+    parameters:
+      stepGroups:
+      - name: test
