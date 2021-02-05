@@ -12,6 +12,7 @@ stages:
   variables:
     JobVar1: var1
     JobVar2: var2
+    TestNAME: test1
   jobs:
   - template: ../templates/jobs-template.yml
     parameters:
@@ -19,7 +20,7 @@ stages:
       - script: |
           echo "prestep1"
           echo "JobVar1=$JobVar1"
-          echo "JobVar2=$JobVar2"
+          echo "TestNAME=$TestNAME"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
           echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
