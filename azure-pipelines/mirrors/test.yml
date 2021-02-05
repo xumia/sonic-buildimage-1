@@ -30,6 +30,8 @@ stages:
         ScriptEnv1: env1
       stepGroups:
       - name: jessie
+        script: |
+          echo "ScriptEnv1=$ScriptEnv1"
         variables:
           MIRROR_NAME: jessie
           MIRROR_FILESYSTEM: debian
