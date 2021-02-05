@@ -12,6 +12,7 @@ parameters:
   type: object
   default:
   - name: 'none'
+    variables: ''
     script: ''
     steps: []
 - name: 'jobVariables'
@@ -32,6 +33,8 @@ jobs:
         JOB_NAME: ${{ job.name }}
         ${{ if ne(parameters.scriptEnv, '') }}:
           ${{ parameters.jobVariables }}
+        ${{ if ne(job.variables, '') }}:
+          ${{ job.variables }}
       steps:
       - ${{ parameters.preSteps }}
       - ${{ if ne(job.script, '') }}:
