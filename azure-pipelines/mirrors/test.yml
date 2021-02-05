@@ -18,6 +18,8 @@ stages:
           echo "JobVar1=$JobVar1"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
+          echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
+          echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
       postSteps:
       - script: |
           echo "poststep1"
@@ -40,6 +42,6 @@ stages:
           MIRROR_NAME: stretch
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://deb.debian.org/debian'
-          MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates'
+          MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates,stretch-backports'
           MIRROR_COMPONENTS: 'contrib,non-free,main'
-          MIRROR_ARICHTECTURES: 'amd64,armhf'
+          MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
