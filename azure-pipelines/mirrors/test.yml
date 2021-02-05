@@ -27,11 +27,19 @@ stages:
       scriptEnv:
         ScriptEnv1: env1
       stepGroups:
-      - name: test
-        jobVariables:
+      - name: jessie
+        variables:
           MIRROR_NAME: jessie
           MIRROR_FILESYSTEM: debian
           MIRROR_URL: 'http://deb.debian.org/debian'
           MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
+          MIRROR_COMPONENTS: 'contrib,non-free,main'
+          MIRROR_ARICHTECTURES: 'amd64,armhf'
+      - name: stretch
+        variables:
+          MIRROR_NAME: stretch
+          MIRROR_FILESYSTEM: debian
+          MIRROR_URL: 'http://deb.debian.org/debian'
+          MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates'
           MIRROR_COMPONENTS: 'contrib,non-free,main'
           MIRROR_ARICHTECTURES: 'amd64,armhf'
