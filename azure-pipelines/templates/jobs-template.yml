@@ -8,7 +8,7 @@ parameters:
 - name: "postSteps"
   type: stepList
   default: []
-- name: 'jobs'
+- name: 'stepGroups'
   type: object
   default:
   - name: 'none'
@@ -25,25 +25,25 @@ parameters:
   type: 'number'
   default: 1440
 jobs:
-- ${{ each job in parameters.jobs }}:
-  - ${{ if or(eq(parameters.jobNames, ''), containsValue(parameters.jobNames, job.name)) }}:
-    - job: ${{  job.name }}
+- ${{ each build in parameters.stepGroups }}:
+  - ${{ if or(eq(parameters.jobNames, ''), containsValue(parameters.jobNames, build.name)) }}:
+    - build: ${{  build.name }}
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
-        JOB_NAME: ${{ job.name }}
+        JOB_NAME: ${{ build.name }}
         ${{ if ne(parameters.scriptEnv, '') }}:
           ${{ parameters.jobVariables }}
         ${{ if ne(job.variables, '') }}:
-          ${{ job.variables }}
+          ${{ build.variables }}
       steps:
       - ${{ parameters.preSteps }}
       - ${{ if ne(job.script, '') }}:
         - script: |
-            ${{ job.script }}
+            ${{ build.script }}
           env:
             ${{ if ne(parameters.scriptEnv, '') }}:
               ${{ parameters.scriptEnv }}
           displayName: 'JobScript'
       - ${{ if ne(job.steps, '') }}:
-        - ${{ job.steps }}
+        - ${{ build.steps }}
       - ${{ parameters.postSteps }}
