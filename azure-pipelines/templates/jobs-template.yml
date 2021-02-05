@@ -27,7 +27,7 @@ parameters:
 jobs:
 - ${{ each build in parameters.stepGroups }}:
   - ${{ if or(eq(parameters.jobNames, ''), containsValue(parameters.jobNames, build.name)) }}:
-    - build: ${{  build.name }}
+    - job: ${{  build.name }}
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
         JOB_NAME: ${{ build.name }}
