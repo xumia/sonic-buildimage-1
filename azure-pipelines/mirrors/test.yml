@@ -13,6 +13,8 @@ stages:
     JobVar1: var1
     JobVar2: var2
     TestNAME: test1
+    MIRROR_COMPONENTS: 'contrib,non-free,main'
+    MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
   jobs:
   - template: ../templates/jobs-template.yml
     parameters:
