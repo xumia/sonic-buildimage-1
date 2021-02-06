@@ -34,6 +34,8 @@ stages:
           echo "TestNAME=$(TestNAME)"
           echo "TESTNAME=$(TESTNAME)"
           echo "MIRROR_COMPONENTS=$MIRROR_COMPONENTS"
+          echo "StorageAccountReplica=$(StorageAccountReplica)"
+          echo "StorageAccount=$(StorageAccount)"
           echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
