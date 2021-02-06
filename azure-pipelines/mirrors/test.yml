@@ -7,6 +7,13 @@ trigger: none
 
 pool: $(AGENT_POOL)
 
+variables:
+- group: SONiC-Azure-Key-Vault
+- group: Debian-Mirror-Common
+- template: ../templates/debian-mirror-variables.yml
+  parameters:
+    publishTo: $(PublishTo)
+
 stages:
 - stage: Build
   variables:
@@ -27,6 +34,8 @@ stages:
           echo "TestNAME=$(TestNAME)"
           echo "TESTNAME=$(TESTNAME)"
           echo "MIRROR_COMPONENTS=$MIRROR_COMPONENTS"
+          echo "StorageAccountReplica=$(StorageAccountReplica)"
+          echo "StorageAccount=$(StorageAccount)"
           echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
           echo "ScriptEnv1=$ScriptEnv1"
           echo "MIRROR_NAME=$MIRROR_NAME"
