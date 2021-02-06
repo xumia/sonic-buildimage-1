@@ -28,6 +28,11 @@ jobs:
       displayName: 'Pre-step'
     - script: |
         azure-pipelines/scripts/mirror/publish-debian-mirror-2.sh "$(CreateDB)" "GROUP_NAME"
+      env:
+        PASSPHRASE: $(sonic-gpg-passphrase)
+        GPG_KEY: $(sonic-gpg-enc-private-key)
+        UPDATE_MIRROR: $(UpdateMirror)
+        GPG_PUBLIC_KEY2: $(sonic-gpg-public-key-2)
       displayName: 'Publish Mirror'
     stepGroups:
     - name: jessie
