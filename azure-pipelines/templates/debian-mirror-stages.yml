@@ -8,6 +8,7 @@ stages:
   dependsOn: InitStage
   variables:
     PublishToReplica: y
+    UpdateMirror: y
     MIRROR_VERSION: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
   - template: debian-mirror-jobs-publish-mirror.yml
@@ -20,11 +21,9 @@ stages:
   condition: succeeded()
   variables:
     PublishToReplica: n
-    UpdateMirror: y
   jobs:
   - job: MigrateReplica
     steps:
-    - script: echo skip
     - template: ../templates/debian-mirror-migrate-replica.yml
 - stage: PublishToPrimaryStage
   dependsOn:
