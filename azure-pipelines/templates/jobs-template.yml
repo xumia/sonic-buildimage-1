@@ -30,7 +30,7 @@ jobs:
     - job: ${{  build.name }}
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
-        JOB_NAME: ${{ build.name }}
+        GROUP_NAME: ${{ build.name }}
         ${{ if ne(parameters.jobvariables, '') }}:
           ${{ parameters.jobVariables }}
         ${{ if ne(build.variables, '') }}:

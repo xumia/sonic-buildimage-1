@@ -15,8 +15,8 @@ jobs:
         nfsMountPoint: '/$(NFSName)'
     - script: |
         echo "pre-step"
-        MirrorNames=${{ join(',', parameters.stepGroups) }}
-        echo "MirrorNames=$MirrorNames"
+        #MirrorNames=${{ join(',', parameters.stepGroups) }}
+        echo "GROUP_NAME=$GROUP_NAME"
         #echo "$MirrorNames" > work/_aptly/mirror_names
       displayName: 'pre-step'
     - script: |
