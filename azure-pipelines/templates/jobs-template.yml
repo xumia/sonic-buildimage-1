@@ -17,7 +17,7 @@ parameters:
     steps: []
 - name: 'jobVariables'
   type: object
-  default: ''
+  default: {}
 - name: 'scriptEnv'
   type: object
   default: ''
@@ -31,10 +31,11 @@ jobs:
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
         GROUP_NAME: ${{ build.name }}
-        ${{ if ne(parameters.jobvariables, '') }}:
-          ${{ parameters.jobVariables }}
         ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
+        ${{ each para in parameters.jobvariables }}:
+          ${{ if not(containsValue(build.variables, para.key)) }}:
+            ${{ para.key }}: ${{ para.value }}
       steps:
       - ${{ parameters.preSteps }}
       - ${{ if ne(build.script, '') }}:
