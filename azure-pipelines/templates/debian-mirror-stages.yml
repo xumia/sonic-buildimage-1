@@ -25,7 +25,7 @@ stages:
   - job: MigrateReplica
     steps:
     - script: echo skip
-    #- template: ../templates/debian-mirror-migrate-replica.yml
+    - template: ../templates/debian-mirror-migrate-replica.yml
 - stage: PublishToPrimaryStage
   variables:
     PublishToReplica: n
@@ -47,7 +47,7 @@ stages:
   - job: MigratePrimary
     steps:
     - script: echo skip
-    #- template: ../templates/debian-mirror-migrate-primary.yml
+    - template: ../templates/debian-mirror-migrate-primary.yml
 - stage: CleanUp
   condition: always()
   jobs:
