@@ -12,16 +12,15 @@ variables:
 - group: Debian-Mirror-Common
 - name: publishTo
   value: 'useast'
-- template: ../templates/debian-mirror-variables.yml
 
 stages:
 - stage: Build
   variables:
-    JobVar1: var1
-    JobVar2: var2
-    TestNAME: test1
-    MIRROR_COMPONENTS: 'contrib,non-free,main'
-    MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
+  - template: ../templates/debian-mirror-variables.yml
+  - name: MIRROR_COMPONENTS
+    value: 'contrib,non-free,main'
+  - name: MIRROR_ARICHTECTURES
+    value: 'amd64,armhf,arm64'
   jobs:
   - template: ../templates/jobs-template.yml
     parameters:
