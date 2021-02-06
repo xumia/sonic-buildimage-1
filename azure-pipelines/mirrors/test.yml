@@ -5,85 +5,23 @@
 
 trigger: none
 
-pool: $(AGENT_POOL)
-
+pool: sonic-mirror-build-2
 variables:
 - group: SONiC-Azure-Key-Vault
+- group: SONiC-Mirror-US-East-1
 - group: Debian-Mirror-Common
-- name: publishTo
-  value: 'useast'
+- name: EnableNfs
+  value: 'y'
+- name: PublishToReplica
+  value: 'y'
+- name: StorageAccount
+  value: 'sonicstoragepublic2'
+- name: StorageAccountSasToken
+  value: $(sonicstoragepublic2-SasToken)
+- name: StorageAccountReplica
+  value: 'sonicstoragepublic3'
+- name: StorageAccountReplicaSasToken
+  value: $(sonicstoragepublic3-SasToken)
 
 stages:
-- stage: Build
-  variables:
-  - template: ../templates/debian-mirror-variables.yml
-  - name: MIRROR_COMPONENTS
-    value: 'contrib,non-free,main'
-  - name: MIRROR_ARICHTECTURES
-    value: 'amd64,armhf,arm64'
-  jobs:
-  - template: ../templates/jobs-template.yml
-    parameters:
-      preSteps:
-      - script: |
-          echo "prestep1"
-          echo "JobVar1=$JobVar1"
-          echo "JOB_NAME=$JOB_NAME"
-          echo "TestNAME=$TestNAME"
-          echo "TestNAME=$(TestNAME)"
-          echo "TESTNAME=$(TESTNAME)"
-          echo "MIRROR_COMPONENTS=$MIRROR_COMPONENTS"
-          echo "StorageAccountReplica=$(StorageAccountReplica)"
-          echo "StorageAccount=$(StorageAccount)"
-          echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
-          echo "ScriptEnv1=$ScriptEnv1"
-          echo "MIRROR_NAME=$MIRROR_NAME"
-          echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
-          echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
-      postSteps:
-      - script: |
-          echo "poststep1"
-      scriptEnv:
-        ScriptEnv1: env1
-      stepGroups:
-      - name: jessie
-        script: |
-          echo "ScriptEnv1=$ScriptEnv1"
-          echo "JobVar2=$JobVar2"
-        variables:
-          MIRROR_NAME: jessie
-          MIRROR_FILESYSTEM: debian
-          MIRROR_URL: 'http://deb.debian.org/debian'
-          MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
-          MIRROR_ARICHTECTURES: 'amd64,armhf'
-      - name: stretch
-        variables:
-          MIRROR_NAME: stretch
-          MIRROR_FILESYSTEM: debian
-          MIRROR_URL: 'http://deb.debian.org/debian'
-          MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates,stretch-backports'
-      - name: buster
-        variables:
-          MIRROR_NAME: buster
-          MIRROR_FILESYSTEM: debian
-          MIRROR_URL: 'http://deb.debian.org/debian'
-          MIRROR_DISTRIBUTIONS: 'buster,buster-updates,buster-backports'
-      - name: jessie_security
-        variables:
-          MIRROR_NAME: debian-security
-          MIRROR_FILESYSTEM: debian-security
-          MIRROR_URL: 'http://security.debian.org/debian-security'
-          MIRROR_DISTRIBUTIONS: 'jessie/updates'
-          MIRROR_ARICHTECTURES: 'amd64,armhf'
-      - name: stretch_security
-        variables:
-          MIRROR_NAME: stretch-security
-          MIRROR_FILESYSTEM: debian-security
-          MIRROR_URL: 'http://security.debian.org/debian-security'
-          MIRROR_DISTRIBUTIONS: 'stretch/updates'
-      - name: buster_security
-        variables:
-          MIRROR_NAME: buster-security
-          MIRROR_FILESYSTEM: debian-security
-          MIRROR_URL: 'http://security.debian.org/debian-security'
-          MIRROR_DISTRIBUTIONS: 'buster/updates'
+- template: ../templates/debian-mirror-stages.yml
