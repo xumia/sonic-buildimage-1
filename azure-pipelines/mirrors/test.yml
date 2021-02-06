@@ -7,6 +7,13 @@ trigger: none
 
 pool: $(AGENT_POOL)
 
+variables:
+- group: SONiC-Azure-Key-Vault
+- group: Debian-Mirror-Common
+- template: debian-mirror-variables.yml
+  parameters:
+    publishTo: $(publishTo)
+
 stages:
 - stage: Build
   variables:
