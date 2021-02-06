@@ -23,7 +23,7 @@ if ! touch $NFS_MOUNT_POINT/_tmp; then
     echo "Failed to create $NFS_MOUNT_POINT/_tmp" 1>&2
     exit 1
 fi
-if ! rm $NFS_MOUNT_POINT/_tmp; then
+if ! rm $NFS_MOUNT_POINT/_tmp && [ -f $NFS_MOUNT_POINT/_tmp ]; then
     echo "Failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
     exit 1
 fi
