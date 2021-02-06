@@ -1,5 +1,5 @@
 variables:
-- ${{ if eq('$(publishTo)', 'uswest2') }}:
+- ${{ if eq(variables['publishTo'], 'uswest2') }}:
   - group: SONiC-Mirror-US-West2-1
   - name: StorageAccount
     value: 'sonicstoragepublic0'
@@ -9,7 +9,7 @@ variables:
     value: 'sonicstoragepublic1'
   - name: StorageAccountReplicaSasToken
     value: $(sonicstoragepublic1-SasToken)
-- ${{ if eq('$(publishTo)', 'useast') }}:
+- ${{ if eq(variables['publishTo'], 'useast') }}:
   - group: SONiC-Mirror-US-East-1
   - name: StorageAccount
     value: 'sonicstoragepublic2'
