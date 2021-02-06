@@ -10,7 +10,7 @@ pool: $(AGENT_POOL)
 variables:
 - group: SONiC-Azure-Key-Vault
 - group: Debian-Mirror-Common
-- template: debian-mirror-variables.yml
+- template: ../templates/debian-mirror-variables.yml
   parameters:
     publishTo: $(PublishTo)
 
