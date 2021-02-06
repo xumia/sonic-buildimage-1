@@ -12,7 +12,7 @@ jobs:
     - template: debian-mirror-init-agent.yml
     - template: debian-mirror-init-storage.yml
       parameters:
-        mirrorName: $(MIRROR_NAME)
+        mirrorName: $(GROUP_NAME)
         nfsMountPoint: '/$(NFSName)'
     - script: |
         echo "pre-step"
@@ -40,39 +40,33 @@ jobs:
         echo "ScriptEnv1=$ScriptEnv1"
         echo "JobVar2=$JobVar2"
       variables:
-        MIRROR_NAME: jessie
         MIRROR_FILESYSTEM: debian
         MIRROR_URL: 'http://deb.debian.org/debian'
         MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
         MIRROR_ARICHTECTURES: 'amd64,armhf'
     - name: stretch
       variables:
-        MIRROR_NAME: stretch
         MIRROR_FILESYSTEM: debian
         MIRROR_URL: 'http://deb.debian.org/debian'
         MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates,stretch-backports'
     - name: buster
       variables:
-        MIRROR_NAME: buster
         MIRROR_FILESYSTEM: debian
         MIRROR_URL: 'http://deb.debian.org/debian'
         MIRROR_DISTRIBUTIONS: 'buster,buster-updates,buster-backports'
-    - name: jessie_security
+    - name: jessie-security
       variables:
-        MIRROR_NAME: debian-security
         MIRROR_FILESYSTEM: debian-security
         MIRROR_URL: 'http://security.debian.org/debian-security'
         MIRROR_DISTRIBUTIONS: 'jessie/updates'
         MIRROR_ARICHTECTURES: 'amd64,armhf'
-    - name: stretch_security
+    - name: stretch-security
       variables:
-        MIRROR_NAME: stretch-security
         MIRROR_FILESYSTEM: debian-security
         MIRROR_URL: 'http://security.debian.org/debian-security'
         MIRROR_DISTRIBUTIONS: 'stretch/updates'
-    - name: buster_security
+    - name: buster-security
       variables:
-        MIRROR_NAME: buster-security
         MIRROR_FILESYSTEM: debian-security
         MIRROR_URL: 'http://security.debian.org/debian-security'
         MIRROR_DISTRIBUTIONS: 'buster/updates'
