@@ -14,7 +14,7 @@ variables:
   value: 'useast'
 - template: ../templates/debian-mirror-variables.yml
   parameters:
-    publishTo: '$(PUBLISH_TO)'
+    publishTo: '$[variables.PUBLISH_TO]'
 
 stages:
 - stage: Build
