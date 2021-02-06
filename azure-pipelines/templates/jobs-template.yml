@@ -31,6 +31,7 @@ jobs:
       timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
       variables:
         GROUP_NAME: ${{ build.name }}
+        GROUP_NAMES: ${{ join(',', parameters.stepGroups.*.name ) }}
         ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
         ${{ each para in parameters.jobvariables }}:
