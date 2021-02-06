@@ -1,0 +1,84 @@
+parameters:
+- name: 'publishToReplica'
+  type: string
+  default: 'y'
+jobs:
+- template: jobs-template.yml
+  parameters:
+    jobVariables:
+      MIRROR_COMPONENTS: 'contrib,non-free,main'
+      MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
+    preSteps:
+    - template: debian-mirror-init-agent.yml
+    - template: debian-mirror-init-storage.yml
+      parameters:
+        mirrorName: ${{ mirrorName }}
+        nfsMountPoint: '/$(NFSName)'
+    - script: |
+        echo "pre-step"
+        MirrorNames=${{ join(',', parameters.mirrorNames) }}
+        echo "MirrorNames=$MirrorNames"
+        #echo "$MirrorNames" > work/_aptly/mirror_names
+      displayName: 'pre-step'
+    - script: |
+        echo "prestep1"
+        echo "JobVar1=$JobVar1"
+        echo "JOB_NAME=$JOB_NAME"
+        echo "TestNAME=$TestNAME"
+        echo "TestNAME=$(TestNAME)"
+        echo "TESTNAME=$(TESTNAME)"
+        echo "MIRROR_COMPONENTS=$MIRROR_COMPONENTS"
+        echo "StorageAccountReplica=$(StorageAccountReplica)"
+        echo "StorageAccount=$(StorageAccount)"
+        echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
+        echo "ScriptEnv1=$ScriptEnv1"
+        echo "MIRROR_NAME=$MIRROR_NAME"
+        echo "MIRROR_FILESYSTEM=$MIRROR_FILESYSTEM"
+        echo "MIRROR_ARICHTECTURES=$MIRROR_ARICHTECTURES"
+    postSteps:
+    - script: |
+        echo "poststep1"
+    scriptEnv:
+      ScriptEnv1: env1
+    stepGroups:
+    - name: jessie
+      script: |
+        echo "ScriptEnv1=$ScriptEnv1"
+        echo "JobVar2=$JobVar2"
+      variables:
+        MIRROR_NAME: jessie
+        MIRROR_FILESYSTEM: debian
+        MIRROR_URL: 'http://deb.debian.org/debian'
+        MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
+        MIRROR_ARICHTECTURES: 'amd64,armhf'
+    - name: stretch
+      variables:
+        MIRROR_NAME: stretch
+        MIRROR_FILESYSTEM: debian
+        MIRROR_URL: 'http://deb.debian.org/debian'
+        MIRROR_DISTRIBUTIONS: 'stretch,stretch-updates,stretch-backports'
+    - name: buster
+      variables:
+        MIRROR_NAME: buster
+        MIRROR_FILESYSTEM: debian
+        MIRROR_URL: 'http://deb.debian.org/debian'
+        MIRROR_DISTRIBUTIONS: 'buster,buster-updates,buster-backports'
+    - name: jessie_security
+      variables:
+        MIRROR_NAME: debian-security
+        MIRROR_FILESYSTEM: debian-security
+        MIRROR_URL: 'http://security.debian.org/debian-security'
+        MIRROR_DISTRIBUTIONS: 'jessie/updates'
+        MIRROR_ARICHTECTURES: 'amd64,armhf'
+    - name: stretch_security
+      variables:
+        MIRROR_NAME: stretch-security
+        MIRROR_FILESYSTEM: debian-security
+        MIRROR_URL: 'http://security.debian.org/debian-security'
+        MIRROR_DISTRIBUTIONS: 'stretch/updates'
+    - name: buster_security
+      variables:
+        MIRROR_NAME: buster-security
+        MIRROR_FILESYSTEM: debian-security
+        MIRROR_URL: 'http://security.debian.org/debian-security'
+        MIRROR_DISTRIBUTIONS: 'buster/updates'
