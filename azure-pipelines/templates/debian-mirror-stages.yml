@@ -4,7 +4,7 @@ stages:
   - job: InitJob
     steps:
     - template: debian-mirror-init.yml
-- stage: PublishToPrimaryStage
+- stage: PublishToReplicaStage
   variables:
     PublishToReplica: y
   jobs:
