@@ -1,5 +1,5 @@
 parameters:
-- name: publishTo
+- name: 'publishTo'
   type: string
   values:
   - uswest2
