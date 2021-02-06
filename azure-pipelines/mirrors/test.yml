@@ -9,7 +9,7 @@ pool: sonic-mirror-build-2
 variables:
 - group: SONiC-Azure-Key-Vault
 - group: Debian-Mirror-Common
-- group: SONiC-Mirror-US-East-1
+- group: SONiC-Mirror-US-East-1 
 - name: StorageAccount
   value: 'sonicstoragepublic2'
 - name: StorageAccountSasToken
