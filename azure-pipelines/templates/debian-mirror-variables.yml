@@ -1,0 +1,27 @@
+parameters:
+  publishTo:
+  type: string
+  values:
+  - uswest2
+  - useast
+variables:
+- ${{ if eq(parameters.publishTo, 'uswest2') }}
+  - group: SONiC-Mirror-US-West2-1
+  - name: StorageAccount
+    value: 'sonicstoragepublic0'
+  - name: StorageAccountSasToken
+    value: $(sonicstoragepublic0-SasToken)
+  - name: StorageAccountReplica
+    value: 'sonicstoragepublic1'
+  - name: StorageAccountReplicaSasToken
+    value: $(sonicstoragepublic1-SasToken)
+- ${{ if eq(parameters.publishTo, 'useast') }}
+  - group: SONiC-Mirror-US-East-1
+  - name: StorageAccount
+    value: 'sonicstoragepublic2'
+  - name: StorageAccountSasToken
+    value: $(sonicstoragepublic2-SasToken)
+  - name: StorageAccountReplica
+    value: 'sonicstoragepublic3'
+  - name: StorageAccountReplicaSasToken
+    value: $(sonicstoragepublic3-SasToken)  
