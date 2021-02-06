@@ -34,7 +34,7 @@ jobs:
         ${{ if ne(build.variables, '') }}:
           ${{ build.variables }}
         ${{ each para in parameters.jobvariables }}:
-          ${{ if not(containsValue(build.variables, para.key)) }}:
+          ${{ if eq(build.variables[para.key], '')) }}:
             ${{ para.key }}: ${{ para.value }}
       steps:
       - ${{ parameters.preSteps }}
