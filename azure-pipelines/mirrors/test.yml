@@ -5,7 +5,7 @@
 
 trigger: none
 
-pool: sonic-mirror-build-2
+pool: $(AGENT_POOL)
 
 stages:
 - stage: Build
