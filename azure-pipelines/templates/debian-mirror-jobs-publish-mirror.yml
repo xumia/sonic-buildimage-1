@@ -12,6 +12,7 @@ jobs:
     - template: debian-mirror-init-agent.yml
     - template: debian-mirror-init-storage.yml
       parameters:
+        mirrorName: $(MIRROR_NAME)
         nfsMountPoint: '/$(NFSName)'
     - script: |
         echo "pre-step"
