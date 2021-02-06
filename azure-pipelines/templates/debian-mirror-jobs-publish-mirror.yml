@@ -25,7 +25,7 @@ jobs:
         echo "MIRROR_VERSION=$MIRROR_VERSION"
         echo "GROUP_NAME=$GROUP_NAME"
         echo "GROUP_NAMES=$GROUP_NAMES"
-        echo "UpdateMirror=$UpdateMirror"
+        echo "UpdateMirror=$(UpdateMirror)"
         echo "$GROUP_NAMES" > work/_aptly/mirror_names
       displayName: 'Pre-step'
     - script: |
