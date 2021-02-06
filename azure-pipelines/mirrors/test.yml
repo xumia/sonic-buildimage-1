@@ -12,7 +12,7 @@ variables:
 - group: Debian-Mirror-Common
 - template: ../templates/debian-mirror-variables.yml
   parameters:
-    publishTo: '$(PublishTo)'
+    publishTo: '$(PUBLISH_TO)'
 
 stages:
 - stage: Build
