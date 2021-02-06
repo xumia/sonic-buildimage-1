@@ -30,7 +30,7 @@ stages:
   variables:
     PublishToReplica: n
   jobs:
-  - template: debian-mirror-stage-publish-mirror.yml
+  - template: debian-mirror-jobs-publish-mirror.yml
     parameters:
       publishToReplica: n
 - stage: MigratePrimaryStage
