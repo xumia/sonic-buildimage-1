@@ -254,12 +254,7 @@ publish_repos()
         echo "Skip to publish $name/$dist/$archs/$components, the latest version is $db_version"
         return
     fi
-    echo "db_version=$db_version"
-    echo "published_version=$published_version"
-    echo "version1:$STORAGE_MIRROR_DIR/$version_file_name"
-    echo "version2:$PUBLISH_VERSIONS_DIR/${name}-database-version"
-    echo "version3:$PUBLISH_VERSIONS_DIR/$version_file_name"
-    exit 1
+    echo "Publish the mirror: $name/$dist/$archs/$components, db_version=$db_version, published_version=$published_version"
 
     # Publish the aptly repo with retry
     echo "Publish repos: $repos"
