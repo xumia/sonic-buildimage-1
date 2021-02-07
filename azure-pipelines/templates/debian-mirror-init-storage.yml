@@ -68,7 +68,7 @@ steps:
 - bash: |
     WORKSPACE=${{ parameters.workspace }}
     PUBLISH_PATH=$WORKSPACE/publish
-    if [ "$PublishToReplica" == "y" ]; then
+    if [ "$(PublishToReplica)" == "y" ]; then
         export StorageAccount=$StorageAccountReplica
         export StorageAccountSasToken=$StorageAccountReplicaSasToken
     fi
@@ -78,10 +78,8 @@ steps:
     echo "ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH"
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
   env:
-    ${{ if ne(variables.PublishToReplica, 'y') }}:
-      StorageAccount: $(StorageAccount)
-      StorageAccountSasToken: $(StorageAccountSasToken)
-    ${{ if eq(variables.PublishToReplica, 'y') }}:
-      StorageAccountReplica: $(StorageAccountReplica)
-      StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
+    StorageAccount: $(StorageAccount)
+    StorageAccountSasToken: $(StorageAccountSasToken)
+    StorageAccountReplica: $(StorageAccountReplica)
+    StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
   displayName: 'Mount container to publish mirror'
