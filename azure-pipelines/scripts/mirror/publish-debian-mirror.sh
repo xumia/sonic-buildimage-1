@@ -215,7 +215,7 @@ update_repos()
 
             aptly -config $APTLY_CONFIG repo remove $repo $filter
         done < $PACKAGES_DENY_LIST
-        echo $MIRROR_VERSION > $STORAGE_MIRROR_DIR/version-${name}-${distname}
+        echo $MIRROR_VERSION > $STORAGE_MIRROR_DIR/version-${distname}
         echo $MIRROR_VERSION > $STORAGE_MIRROR_DIR/version
         SAVE_WORKSPACE=y
     done
@@ -245,9 +245,9 @@ publish_repos()
     local db_version=0
     local published_version=1
     local version_file_name=version-${name}-${distname}
-    [ -f $STORAGE_MIRROR_DIR/$version_file_name ] && db_version=$(cat $STORAGE_MIRROR_DIR/$version_file_name)
+    [ -f $STORAGE_MIRROR_DIR/version-${distname} ] && db_version=$(cat $STORAGE_MIRROR_DIR/version-${distname})
     [ -f $PUBLISH_VERSIONS_DIR/${name}-database-version ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/${name}-database-version)
-    [ -f $PUBLISH_VERSIONS_DIR/$version_file_name ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/$version_file_name)
+    [ -f $PUBLISH_VERSIONS_DIR/version-${name}-${distname} ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/version-${name}-${distname})
 
     # Check if the version has already published
     if [ "$db_version" == "$published_version" ]; then
