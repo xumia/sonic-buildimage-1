@@ -21,6 +21,7 @@ stages:
   condition: succeeded()
   variables:
     PublishToReplica: n
+    UpdateMirror: n
   jobs:
   - job: MigrateReplica
     steps:
@@ -45,7 +46,6 @@ stages:
   variables:
     PublishToReplica: n
     MigrateCdnReplica: y
-    UpdateMirror: n
   jobs:
   - job: MigratePrimary
     steps:
