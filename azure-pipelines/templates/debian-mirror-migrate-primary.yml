@@ -3,6 +3,6 @@ steps:
 - template: ../templates/debian-mirror-init-storage.yml
   parameters:
     nfsMountPoint: '/$(NFSName)'
-- template: ../templates/debian-mirror-migrate-cdn-replica.yml
+- template: ../templates/debian-mirror-migrate-cdn.yml
   parameters:
     cdnReplicaOriginPriority: '4'

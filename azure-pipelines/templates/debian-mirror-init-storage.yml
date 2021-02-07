@@ -5,9 +5,6 @@ parameters:
 - name: 'workspace'
   type: string
   default: 'work'
-- name: 'enableNfs'
-  type: string
-  default: 'y'
 - name: 'nfsMountPoint'
   type: string
   default: '/nfs_data'
@@ -31,6 +28,7 @@ steps:
     MIRROR_NAME=${{ parameters.mirrorName }}
     NFS_VOLUMN=$(NFSVolumn)
     NFS_MOUNT_POINT=${{ parameters.nfsMountPoint }}
+    [ -z "$NFS_MOUNT_POINT" ] && NFS_MOUNT_POINT=/nfs_data
     azure-pipelines/scripts/mirror/mount-nfs.sh "$NFS_MOUNT_POINT" "$NFS_VOLUMN"
     mkdir -p "$NFS_MOUNT_POINT/aptly"
     ln -s "$NFS_MOUNT_POINT/aptly" "$WORKSPACE/_aptly"
