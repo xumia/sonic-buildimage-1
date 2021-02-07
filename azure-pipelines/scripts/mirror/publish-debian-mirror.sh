@@ -6,28 +6,24 @@ MIRROR_NAME=$2
 WORK_DIR=work
 SOURCE_DIR=$(pwd)
 SAVE_WORKSPACE=n
-IS_DIRTY_VERSION=n
 APTLY_CONFIG=aptly-debian.conf
 PACKAGES_DENY_LIST=debian-packages-denylist.conf
-VERSION_FILE=_aptly/version
 ENCRIPTED_KEY_GPG=./encrypted_private_key.gpg
-DEBIAN_MIRRORS_CONFIG=azure-pipelines/config/debian-mirrors.config
-DATABASE_VERSION_FILENAME=${MIRROR_NAME}-databse-version
-DEBIAN_MIRROR_URL="https://deb.debian.org/debian"
-DEBINA_SECURITY_MIRROR_URL="http://security.debian.org/debian-security"
 export GNUPGHOME=gnupg
 GPG_FILE=$GNUPGHOME/mykey.gpg
-BLOBFUSE_METTRIC_DIR=_storage_data/metric
-BLOBFUSE_DB_DIR=_storage_data/aptly/$MIRROR_NAME/dbs
 
-MIRROR_CONFIG=$(grep -e "^$MIRROR_NAME\s" $DEBIAN_MIRRORS_CONFIG | tail -n 1)
-MIRROR_FILESYSTEM=$(echo $MIRROR_CONFIG | awk '{print $2}')
-MIRROR_URL=$(echo $MIRROR_CONFIG | awk '{print $3}')
-MIRROR_DISTRIBUTIONS=$(echo $MIRROR_CONFIG | awk '{print $4}')
-MIRROR_COMPONENTS=$(echo $MIRROR_CONFIG | awk '{print $5}')
-MIRROR_ARICHTECTURES=$(echo $MIRROR_CONFIG | awk '{print $6}')
+STORAGE_DATA=_storage_data
+STORAGE_METRIC=$STORAGE_DATA/metric
+STORAGE_MIRROR_DIR=$STORAGE_DATA/aptly/$MIRROR_NAME
+STORAGE_DB_DIR=$STORAGE_MIRROR_DIR/dbs
+STORAGE_DB_LATEST_VERSION=$STORAGE_DATA/aptly/$MIRROR_NAME/latest_version
+STORAGE_LATEST_VERSION=$STORAGE_DATA/aptly/latest_version
+STORAGE_BUILDS_DIR=$STORAGE_DATA/builds
+
+PUBLISH_VERSIONS_DIR=publish/versions
+
 FILESYSTEM="filesystem:$MIRROR_FILESYSTEM:"
-APTLIY_MIRROR_PATH=_storage_data/aptly/$MIRROR_NAME
+PUBLISHED_VERSIONS=published_versions
 
 cd $WORK_DIR
 
@@ -35,11 +31,6 @@ validate_input_variables()
 {
     if [ -z "$MIRROR_NAME" ]; then
         echo "DIST is empty" 1>&2
-        exit 1
-    fi
-
-    if [ -z "$MIRROR_CONFIG" ]; then
-        echo "The debian mirros config is empty, please check $DEBIAN_MIRRORS_CONFIG" 1>&2
         exit 1
     fi
 
@@ -64,25 +55,11 @@ validate_input_variables()
     fi  
 }
 
-check_dirty_version()
-{
-    local database_version=none
-    local publish_version=
-    local database_version_file=db/$DATABASE_VERSION_FILENAME
-    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
-    [ -f $database_version_file ] && database_version=$(cat $database_version_file)
-    [ -f $publish_version_file ] && publish_version=$(cat $publish_version_file)
-    local is_dirty_version=n
-    if [ "$database_version" != "$publish_version" ]; then
-        is_dirty_version=y
-    fi
-    echo $is_dirty_version
-}
-
 prepare_workspace()
 {
     echo "pwd=$(pwd)"
-    mkdir -p $BLOBFUSE_DB_DIR $BLOBFUSE_METTRIC_DIR
+    mkdir -p $STORAGE_DB_DIR $STORAGE_METRIC
+    rm -f $PUBLISHED_VERSIONS
     cp $SOURCE_DIR/azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
     cp $SOURCE_DIR/azure-pipelines/config/debian-packages-denylist.conf $PACKAGES_DENY_LIST
 
@@ -102,7 +79,7 @@ prepare_workspace()
     if [ "$CREATE_DB" == "y" ]; then
         return
     fi
-    local latest_db=$(ls -Ar $BLOBFUSE_DB_DIR/db-*.gz 2>/dev/null | head -n 1)
+    local latest_db=$(ls -Ar $STORAGE_DB_DIR/db-*.gz 2>/dev/null | head -n 1)
     if [ -z "$latest_db" ]; then
         #echo "Please create the aptly database and try again." 1>&2
         #exit 1
@@ -112,37 +89,15 @@ prepare_workspace()
 
     echo "The latest db file is $latest_db."
     tar -xzvf "$latest_db" -C .
-    IS_DIRTY_VERSION=$(check_dirty_version)
-    echo "IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
 }
 
 save_workspace()
 {
-    local package="$BLOBFUSE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
-    local database_version_file=db/$DATABASE_VERSION_FILENAME
-    local latest_database_version_file=$APTLIY_MIRROR_PATH/version
-    local publish_version_file=publish/versions/$DATABASE_VERSION_FILENAME
+    local package="$STORAGE_DB_DIR/db-$(date +%Y%m%d%H%M%S).tar.gz"
     local public_key_file_asc=publish/public_key.asc
     local public_key_file_gpg=publish/public_key.gpg
 
-    mkdir -p publish/versions
-    if [ "$IS_DIRTY_VERSION" == "y" ] && [ -f "$database_version_file" ]; then
-        cp "$database_version_file" "$publish_version_file"
-        if [ ! -z "$GPG_PUBLIC_KEY2" ]; then
-            echo "$GPG_PUBLIC_KEY2" > gpg_public_key2.asc
-            gpg --no-default-keyring --keyring=$GPG_FILE --import gpg_public_key2.asc
-        fi
-        gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
-        gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
-    fi
-
-    if [ -f "$database_version_file" ] && [ ! -f "$latest_database_version_file" ]; then
-        cp "$database_version_file" "$latest_database_version_file"
-    fi
-
     if [ "$SAVE_WORKSPACE" == "n" ]; then
-        cp "$database_version_file" "$publish_version_file"
-        cp "$database_version_file" "$latest_database_version_file"
         return
     fi
 
@@ -150,20 +105,22 @@ save_workspace()
         return
     fi
 
-    #local version=$(date +%Y%m%d%H%M%S-%N)
-    local version=$MIRROR_VERSION
-    echo "Saving the db version $version"
-    echo $version > $database_version_file
-    cp "$database_version_file" "$publish_version_file"
-    cp "$database_version_file" "$latest_database_version_file"
     gpg --no-default-keyring --keyring=$GPG_FILE --export -a > "$public_key_file_asc"
     gpg --no-default-keyring --keyring=$GPG_FILE --export > "$public_key_file_gpg"
     tar -czvf "$package" db
-    echo $version > $VERSION_FILE
     echo "Saving workspace to $package is complete"
 }
 
-update_repo()
+get_repo_name()
+{
+    local name=$1
+    local dist=$2
+    local component=$3
+    local distname=$(echo $dist | tr '/' '_')
+    echo "repo-${name}-${distname}-${component}" 
+}
+
+update_repos()
 {
     local name=$1
     local url=$2
@@ -171,23 +128,6 @@ update_repo()
     local archs=$4
     local components=$5
     local distname=$(echo $dist | tr '/' '_')
-    local version_file=$APTLIY_MIRROR_PATH/version
-    local dist_version_file=${version_file}-${distname}
-    local cur_db_version=$MIRROR_VERSION
-    local published_version=
-    [ -f $version_file ] && cur_db_version=$(cat $version_file)
-    if [ -f $dist_version_file ]; then
-        cur_db_version=$(cat $dist_version_file)
-    else
-        echo $cur_db_version > $dist_version_file
-    fi
-
-    # Check if the distribution has been published
-    [ -f publish/versions/$DATABASE_VERSION_FILENAME ] && published_version=$(cat publish/versions/$DATABASE_VERSION_FILENAME)
-    if [ "$CREATE_DB" != "y" ] && [ "$UPDATE_MIRROR" != "y" ] && [[ ! "$published_version" < "$cur_db_version" ]] ; then
-        echo "Skipped to publish $dist, the published version is $published_version, and current db version is $cur_db_version"
-        return
-    fi
 
     # Create the aptly mirrors if it does not exist
     local repos=
@@ -195,9 +135,8 @@ update_repo()
     [ "$CREATE_DB" == "y" ] && need_to_publish=y
     for component in $(echo $components | tr ',' ' '); do
         local mirror="mirror-${name}-${distname}-${component}"
-        local repo="repo-${name}-${distname}-${component}"
+        local repo=$(get_repo_name $name $distname $component)
         local logfile="${mirror}.log"
-        local current_url=$url
 
         # Create the aptly mirror if not existing
         if ! aptly -config $APTLY_CONFIG mirror show $mirror > /dev/null 2>&1; then
@@ -207,10 +146,6 @@ update_repo()
             fi
             WITH_SOURCES="-with-sources"
             [ "$dist" == "jessie" ] && WITH_SOURCES=""
-            if [ "$component" != "amd64" ]; then
-                current_url=$DEBIAN_MIRROR_URL
-                [[ "$current_url" == *security* ]] && current_url=$DEBINA_SECURITY_MIRROR_URL
-            fi
             aptly -config $APTLY_CONFIG -ignore-signatures -architectures="$archs" mirror create $WITH_SOURCES $mirror $url $dist $component
             SAVE_WORKSPACE=y
         fi
@@ -280,28 +215,48 @@ update_repo()
 
             aptly -config $APTLY_CONFIG repo remove $repo $filter
         done < $PACKAGES_DENY_LIST
+        echo $MIRROR_VERSION > $STORAGE_MIRROR_DIR/version-${name}-${distname}
+        echo $MIRROR_VERSION > $STORAGE_MIRROR_DIR/version
+        SAVE_WORKSPACE=y
     done
+}
 
-    # Check if there are any new packages to publish
-    echo "Start publish repos $dist need_to_publish=$need_to_publish IS_DIRTY_VERSION=$IS_DIRTY_VERSION"
-    [ "$need_to_publish" == "y" ] && SAVE_WORKSPACE=y
-    if [ "$need_to_publish" != "y" ] && [ "$IS_DIRTY_VERSION" == "n" ]; then
-        echo "Skip publish repos $dist"
-        return
-    fi
-
-    [ "$UPDATE_MIRROR" == "y" ] && echo $MIRROR_VERSION > $dist_version_file
-
-    # Set the publish options
+publish_repos()
+{
+    local name=$1
+    local dist=$2
+    local archs=$3
+    local components=$4
+    local distname=$(echo $dist | tr '/' '_')
     local options=
     [[ "$dist" == *-backports ]] && options="-notautomatic=yes -butautomaticupgrades=yes"
 
-    # Publish the aptly repo with retry
-    echo "Publish repos: $repos"
+    local repos=
+    for component in $(echo $components | tr ',' ' '); do
+        local repo=$(get_repo_name $name $distname $component)
+        repos="$repos $repo"
+    done
+
     local publish_dist=$distname
     local retry=5
     local publish_succeeded=n
     local wait_seconds=300
+
+    local db_version=0
+    local published_version=1
+    local version_file_name=version-{name}-${distname}
+    [ -f $STORAGE_MIRROR_DIR/$version_file_name ] && db_version=$(cat $STORAGE_MIRROR_DIR/$version_file_name)
+    [ -f $PUBLISH_VERSIONS_DIR/${name}-database-version ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/${name}-database-version)
+    [ -f $PUBLISH_VERSIONS_DIR/$version_file_name ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/$version_file_name)
+
+    # Check if the version has already published
+    if [ "$db_version" == "$published_version" ]; then
+        echo "Skip to publish $name/$dist/$archs/$components, the latest version is $db_version"
+        return
+    fi
+
+    # Publish the aptly repo with retry
+    echo "Publish repos: $repos"
     for ((i=1;i<=$retry;i++)); do
         echo "Try to publish $publish_dist $FILESYSTEM, retry step $i of $retry"
         if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
@@ -329,15 +284,32 @@ update_repo()
         exit 1
     fi
 
+    # Update the published version of the distribution
+    echo $db_version > $PUBLISH_VERSIONS_DIR/$version_file_name
+
     if [ ! -z "$PUBLISH_FLAG" ]; then
         touch "$PUBLISH_FLAG"
     fi
 }
 
-validate_input_variables
-prepare_workspace
-for distribution in $(echo $MIRROR_DISTRIBUTIONS | tr ',' ' '); do
-    echo "update repo for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES components=$MIRROR_COMPONENTS"
-    update_repo $MIRROR_NAME "$MIRROR_URL" $distribution "$MIRROR_ARICHTECTURES" "$MIRROR_COMPONENTS"
-done
-save_workspace
+
+main()
+{
+    validate_input_variables
+    prepare_workspace
+    for distribution in $(echo $MIRROR_DISTRIBUTIONS | tr ',' ' '); do
+        echo "update repos for url=$MIRROR_URL name=$MIRROR_NAME distribution=$distribution architectures=$MIRROR_ARICHTECTURES components=$MIRROR_COMPONENTS"
+        update_repos $MIRROR_NAME "$MIRROR_URL" $distribution "$MIRROR_ARICHTECTURES" "$MIRROR_COMPONENTS"
+        publish_repos $MIRROR_NAME $distribution "$MIRROR_ARICHTECTURES" "$MIRROR_COMPONENTS"
+    done
+
+    # Update the latest version of the distributions in the mirror
+    local version=$(sort $PUBLISHED_VERSIONS | tail -n 1)
+    if [ ! -z "$version" ]; then
+        echo $version > $PUBLISH_VERSIONS_DIR/${MIRROR_NAME}-databse-version
+        echo $version > $PUBLISH_VERSIONS_DIR/version-${MIRROR_NAME}
+    fi
+    save_workspace
+}
+
+main

@@ -3,18 +3,13 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+trigger: none
 
 pool: sonic-mirror-build-2
 variables:
 - group: SONiC-Azure-Key-Vault
-- group: SONiC-Mirror-US-East-1
 - group: Debian-Mirror-Common
-- name: EnableNfs
-  value: 'y'
-- name: PublishToReplica
-  value: 'y'
+- group: SONiC-Mirror-US-East-1 
 - name: StorageAccount
   value: 'sonicstoragepublic2'
 - name: StorageAccountSasToken
@@ -23,66 +18,6 @@ variables:
   value: 'sonicstoragepublic3'
 - name: StorageAccountReplicaSasToken
   value: $(sonicstoragepublic3-SasToken)
+
 stages:
-- stage: InitStage
-  jobs:
-  - job: InitJob
-    steps:
-    - template: ../templates/debian-mirror-init.yml
-- stage: PublishToReplicaStage
-  dependsOn: InitStage
-  variables:
-  - name: MirrorVersion
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
-  - name: PublishToReplica
-    value: 'y'
-  - name: UpdateMirror
-    value: 'y'
-  jobs:
-  - template: ../templates/debian-mirror-publish-mirrors.yml
-- stage: MigrateReplicaStage
-  dependsOn:
-  - InitStage
-  - PublishToReplicaStage
-  condition: succeeded()
-  variables:
-  - name: MirrorVersion
-    value: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
-  - name: PublishToReplica
-    value: 'n'
-  jobs:
-  - job: MigrateReplica
-    steps:
-    - template: ../templates/debian-mirror-migrate-replica.yml
-- stage: PublishToPrimaryStage
-  dependsOn:
-  - InitStage
-  - MigrateReplicaStage
-  condition: and(succeeded(), eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y'))
-  variables:
-  - name: PublishToReplica
-    value: 'n'
-  - name: UpdateMirror
-    value: 'n'
-  jobs:
-  - template: ../templates/debian-mirror-publish-mirrors.yml
-- stage: MigratePrimaryStage
-  dependsOn:
-  - MigrateReplicaStage
-  - PublishToPrimaryStage
-  condition: and(succeeded(), eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y'))
-  variables:
-  - name: PublishToReplica
-    value: 'n'
-  - name: MigrateCdnReplica
-    value: 'y'
-  jobs:
-  - job: MigratePrimary
-    steps:
-    - template: ../templates/debian-mirror-migrate-primary.yml
-- stage: CleanUp
-  condition: succeeded('InitStage')
-  jobs:
-  - job: CleanUp
-    steps:
-    - template: ../templates/debian-mirror-cleanup.yml
+- template: ../templates/debian-mirror-stages.yml
