@@ -61,14 +61,6 @@ steps:
     mkdir -p "$BLOBFUSE_MIRROR_PATH/pool"
     echo "ln -s $BLOBFUSE_APTLY_DATA $STORAGE_DATA_PATH"
     ln -s $BLOBFUSE_APTLY_DATA $STORAGE_DATA_PATH
-
-    if [ "$MIRROR_NAME" == "none" ]; then
-      echo "Skip to make soft link"
-      exit 0
-    fi
-    echo "ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH"
-    ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH
-    ln -s "$BLOBFUSE_MIRROR_APTLY" "$WORKSPACE/_aptly"
   env:
     StorageAccount: $(StorageAccount)
     StorageAccountSasToken: $(StorageAccountSasToken)
