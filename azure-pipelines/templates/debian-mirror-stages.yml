@@ -54,7 +54,7 @@ stages:
   dependsOn:
   - InitStage
   - MigratePrimaryStage
-  condition: succeeded('InitStage')
+  condition: always()
   jobs:
   - job: CleanUp
     steps:
