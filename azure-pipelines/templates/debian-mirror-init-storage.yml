@@ -68,6 +68,10 @@ steps:
 - bash: |
     WORKSPACE=${{ parameters.workspace }}
     PUBLISH_PATH=$WORKSPACE/publish
+    if [ "$PublishToReplica" == "y" ]; then
+        export StorageAccount=$StorageAccountReplica
+        export StorageAccountSasToken=$StorageAccountReplicaSasToken
+    fi
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
     mkdir -p $BLOBFUSE_WEB_PATH/debian
@@ -78,6 +82,6 @@ steps:
       StorageAccount: $(StorageAccount)
       StorageAccountSasToken: $(StorageAccountSasToken)
     ${{ if eq(variables.PublishToReplica, 'y') }}:
-      StorageAccount: $(StorageAccountReplica)
-      StorageAccountSasToken: $(StorageAccountReplicaSasToken)
+      StorageAccountReplica: $(StorageAccountReplica)
+      StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
   displayName: 'Mount container to publish mirror'
