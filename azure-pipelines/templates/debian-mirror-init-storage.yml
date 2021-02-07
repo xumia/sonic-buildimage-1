@@ -27,7 +27,6 @@ steps:
   displayName: 'Clean up workspace'
 - bash: |
     set -e
-    EnableNFS=${{ parameters.enableNfs }}
     WORKSPACE=${{ parameters.workspace }}
     MIRROR_NAME=${{ parameters.mirrorName }}
     NFS_VOLUMN=$(NFSVolumn)
@@ -36,7 +35,7 @@ steps:
     mkdir -p "$NFS_MOUNT_POINT/aptly"
     ln -s "$NFS_MOUNT_POINT/aptly" "$WORKSPACE/_aptly"
     if [ "$MIRROR_NAME" == "none" ]; then
-      echo "Skip to make soft link"
+      echo "Skip to make mirror soft link"
       exit 0
     fi
 
@@ -47,23 +46,15 @@ steps:
     echo "ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH"
     ln -s $NFS_MIRROR_PATH/pool $APTLY_POOL_PATH
     echo 'The mount nfs aptly pool is complete'
-  displayName: 'Mount and validate the NFS'
-  condition: eq('${{ parameters.EnableNFS }}', 'y')
+  displayName: 'Mount the NFS'
 - bash: |
     # Mount storage containers for the aptly db and/or pool of debian mirrors
     set -e
-    EnableNFS=${{ parameters.enableNfs }}
     WORKSPACE=${{ parameters.workspace }}
     MIRROR_NAME=${{ parameters.mirrorName }}
-    if [ -z "$StorageAccount" ]; then
-      echo "The stroage account not set" 1>&2
-      exit 1
-    fi
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data"
-
-    mkdir -p "$WORKSPACE"
     STORAGE_DATA_PATH=$WORKSPACE/_storage_data
     APTLY_POOL_PATH=$WORKSPACE/pool
     BLOBFUSE_MIRROR_APTLY=$BLOBFUSE_APTLY_DATA/aptly
@@ -77,42 +68,26 @@ steps:
       echo "Skip to make soft link"
       exit 0
     fi
-    if [ "$EnableNFS" != "y" ]; then
-      echo "Mount Aptly pool, EnableNFS=$EnableNFS"
-      echo "ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH"
-      ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH
-      ln -s "$BLOBFUSE_MIRROR_APTLY" "$WORKSPACE/_aptly"
-    fi
-    echo 'The mount storage container aptly is complete'
+    echo "ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH"
+    ln -s $BLOBFUSE_MIRROR_PATH/pool $APTLY_POOL_PATH
+    ln -s "$BLOBFUSE_MIRROR_APTLY" "$WORKSPACE/_aptly"
   env:
     StorageAccount: $(StorageAccount)
     StorageAccountSasToken: $(StorageAccountSasToken)
-  displayName: 'Mount stroage container to load aptly db and pool script'
+  displayName: 'Mount container to load aptly db and pool'
 - bash: |
-    # Mount the publish contianers for debian mirrors
     WORKSPACE=${{ parameters.workspace }}
     PUBLISH_PATH=$WORKSPACE/publish
-    PublishToReplica=$(PublishToReplica)
-    if [ "$PublishToReplica" == "y" ]; then
-        export StorageAccount=$StorageAccountReplica
-        export StorageAccountSasToken=$StorageAccountReplicaSasToken
-    fi
-    if [ -z "$StorageAccount" ]; then
-      echo "The stroage account not set" 1>&2
-      exit 1
-    fi
-    echo 'Mount storage containers for debian mirrors'
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
     azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
-
     mkdir -p $BLOBFUSE_WEB_PATH/debian
     echo "ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH"
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
-    echo 'The mount storage container web is complete'
   env:
-    StorageAccount: $(StorageAccount)
-    StorageAccountSasToken: $(StorageAccountSasToken)
-    StorageAccountReplica: $(StorageAccountReplica)
-    StorageAccountReplicaSasToken: $(StorageAccountReplicaSasToken)
-    
-  displayName: 'Mount stroage container to publish mirror script'
+    ${{ if ne($(PublishToReplica), 'y' }}:
+      StorageAccount: $(StorageAccount)
+      StorageAccountSasToken: $(StorageAccountSasToken)
+    ${{ if eq($(PublishToReplica), 'y' }}:
+      StorageAccount: $(StorageAccountReplica)
+      StorageAccountSasToken: $(StorageAccountReplicaSasToken)
+  displayName: 'Mount container to publish mirror'

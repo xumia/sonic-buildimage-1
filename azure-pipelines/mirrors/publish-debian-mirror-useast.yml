@@ -81,7 +81,7 @@ stages:
     steps:
     - template: ../templates/debian-mirror-migrate-primary.yml
 - stage: CleanUp
-  condition: always()
+  condition: succeeded('InitStage')
   jobs:
   - job: CleanUp
     steps:

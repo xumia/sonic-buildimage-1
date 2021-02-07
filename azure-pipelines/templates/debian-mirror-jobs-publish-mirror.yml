@@ -35,6 +35,7 @@ jobs:
         GPG_KEY: $(sonic-gpg-enc-private-key)
         UPDATE_MIRROR: $(UpdateMirror)
         GPG_PUBLIC_KEY2: $(sonic-gpg-public-key-2)
+      name: publish
       displayName: 'Publish Mirror'
     stepGroups:
     - name: jessie
