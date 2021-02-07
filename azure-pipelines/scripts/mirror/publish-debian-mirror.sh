@@ -258,7 +258,7 @@ publish_repos()
     echo "published_version=$published_version"
     echo "version1:$STORAGE_MIRROR_DIR/$version_file_name"
     echo "version2:$PUBLISH_VERSIONS_DIR/${name}-database-version"
-    echo "version3:$$PUBLISH_VERSIONS_DIR/$version_file_name"
+    echo "version3:$PUBLISH_VERSIONS_DIR/$version_file_name"
     exit 1
 
     # Publish the aptly repo with retry
@@ -312,7 +312,7 @@ main()
     # Update the latest version of the distributions in the mirror
     local version=$(sort $PUBLISHED_VERSIONS | tail -n 1)
     if [ ! -z "$version" ]; then
-        echo $version > $PUBLISH_VERSIONS_DIR/${MIRROR_NAME}-databse-version
+        echo $version > $PUBLISH_VERSIONS_DIR/${MIRROR_NAME}-database-version
         echo $version > $PUBLISH_VERSIONS_DIR/version-${MIRROR_NAME}
     fi
     save_workspace
