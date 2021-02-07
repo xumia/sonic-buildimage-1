@@ -82,10 +82,10 @@ steps:
     echo "ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH"
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
   env:
-    ${{ if ne($(PublishToReplica), 'y' }}:
+    ${{ if ne($(variables.PublishToReplica), 'y' }}:
       StorageAccount: $(StorageAccount)
       StorageAccountSasToken: $(StorageAccountSasToken)
-    ${{ if eq($(PublishToReplica), 'y' }}:
+    ${{ if eq($(variables.PublishToReplica), 'y' }}:
       StorageAccount: $(StorageAccountReplica)
       StorageAccountSasToken: $(StorageAccountReplicaSasToken)
   displayName: 'Mount container to publish mirror'
