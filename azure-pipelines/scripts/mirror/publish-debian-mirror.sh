@@ -60,6 +60,7 @@ prepare_workspace()
     echo "pwd=$(pwd)"
     mkdir -p $STORAGE_DB_DIR $STORAGE_METRIC
     rm -f $PUBLISHED_VERSIONS
+    touch $PUBLISHED_VERSIONS
     cp $SOURCE_DIR/azure-pipelines/config/aptly-debian.conf $APTLY_CONFIG
     cp $SOURCE_DIR/azure-pipelines/config/debian-packages-denylist.conf $PACKAGES_DENY_LIST
 
