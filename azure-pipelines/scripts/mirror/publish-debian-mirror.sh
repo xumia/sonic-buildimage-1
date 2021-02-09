@@ -245,9 +245,9 @@ publish_repos()
 
     local db_version=0
     local published_version=1
-    local version_file_name=version-${name}-${distname}
+    local published_version_file=$PUBLISH_VERSIONS_DIR/version-${name}-${distname}
     [ -f $STORAGE_MIRROR_DIR/version-${distname} ] && db_version=$(cat $STORAGE_MIRROR_DIR/version-${distname})
-    [ -f $PUBLISH_VERSIONS_DIR/version-${name}-${distname} ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/version-${name}-${distname})
+    [ -f $published_version_file ] && published_version=$(cat $published_version_file)
 
     # Check if the version has already published
     if [ "$db_version" == "$published_version" ]; then
@@ -286,7 +286,7 @@ publish_repos()
     fi
 
     # Update the published version of the distribution
-    echo $db_version > $PUBLISH_VERSIONS_DIR/$version_file_name
+    echo $db_version > $published_version_file
     echo $db_version >> $PUBLISHED_VERSIONS
 
     if [ ! -z "$PUBLISH_FLAG" ]; then
