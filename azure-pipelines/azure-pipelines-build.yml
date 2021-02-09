@@ -11,9 +11,7 @@ jobs:
     buildNames: ${{ parameters.buildNames }}
     preSteps:
       - script: |
-          [ -d target ] && sudo rm -rf target
-          [ -d fsroot ] && sudo rm -rf fsroot
-          exit 0
+          sudo rm -rf *
         displayName: 'Init'
       - checkout: self
         submodules: recursive
@@ -29,8 +27,7 @@ jobs:
     builds:
       - name: vs
         script: |
-          make ${{ parameters.buildOptions }} target/sonic-vs.bin
-          make ${{ parameters.buildOptions }} target/docker-sonic-vs.gz
+          make ${{ parameters.buildOptions }} target/target/sonic-vs.img.gz
       - name: broadcom
         script: |
           make ${{ parameters.buildOptions }} target/sonic-aboot-broadcom.swi
