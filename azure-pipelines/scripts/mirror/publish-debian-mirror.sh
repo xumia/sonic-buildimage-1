@@ -247,7 +247,6 @@ publish_repos()
     local published_version=1
     local version_file_name=version-${name}-${distname}
     [ -f $STORAGE_MIRROR_DIR/version-${distname} ] && db_version=$(cat $STORAGE_MIRROR_DIR/version-${distname})
-    [ -f $PUBLISH_VERSIONS_DIR/${name}-database-version ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/${name}-database-version)
     [ -f $PUBLISH_VERSIONS_DIR/version-${name}-${distname} ] && published_version=$(cat $PUBLISH_VERSIONS_DIR/version-${name}-${distname})
 
     # Check if the version has already published
