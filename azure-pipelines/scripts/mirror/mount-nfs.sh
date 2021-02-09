@@ -19,11 +19,12 @@ if ! mount | grep -q "$NFS_MOUNT_POINT"; then
 fi
 
 # Validate the permission
-if ! touch $NFS_MOUNT_POINT/_tmp; then
-    echo "Failed to create $NFS_MOUNT_POINT/_tmp" 1>&2
+TMP_FILE= $NFS_MOUNT_POINT/_tmp_$HOSTNAME
+if ! touch $TMP_FILE; then
+    echo "Failed to create $TMP_FILE" 1>&2
     exit 1
 fi
-if ! rm $NFS_MOUNT_POINT/_tmp && [ -f $NFS_MOUNT_POINT/_tmp ]; then
-    echo "Failed to remove $NFS_MOUNT_POINT/_tmp" 1>&2
+if ! rm $TMP_FILE; then
+    echo "Failed to remove $TMP_FILE" 1>&2
     exit 1
 fi
