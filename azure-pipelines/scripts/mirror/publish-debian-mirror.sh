@@ -245,8 +245,9 @@ publish_repos()
 
     local db_version=0
     local published_version=1
+    local db_version_file=$STORAGE_MIRROR_DIR/version-${distname}
     local published_version_file=$PUBLISH_VERSIONS_DIR/version-${name}-${distname}
-    [ -f $STORAGE_MIRROR_DIR/version-${distname} ] && db_version=$(cat $STORAGE_MIRROR_DIR/version-${distname})
+    [ -f $db_version_file ] && db_version=$(cat $db_version_file)
     [ -f $published_version_file ] && published_version=$(cat $published_version_file)
 
     # Check if the version has already published
@@ -254,6 +255,8 @@ publish_repos()
         echo "Skip to publish $name/$dist/$archs/$components, the latest version is $db_version"
         return
     fi
+
+    echo "db_version_file=$(realpath $db_version_file)"
     echo "Publish the mirror: $name/$dist/$archs/$components, db_version=$db_version, published_version=$published_version"
 
     # Publish the aptly repo with retry
