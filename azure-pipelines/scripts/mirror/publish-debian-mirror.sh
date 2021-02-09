@@ -288,6 +288,7 @@ publish_repos()
 
     # Update the published version of the distribution
     echo $db_version > $PUBLISH_VERSIONS_DIR/$version_file_name
+    echo $db_version >> $PUBLISHED_VERSIONS
 
     if [ ! -z "$PUBLISH_FLAG" ]; then
         touch "$PUBLISH_FLAG"
@@ -308,7 +309,6 @@ main()
     # Update the latest version of the distributions in the mirror
     local version=$(sort $PUBLISHED_VERSIONS | tail -n 1)
     if [ ! -z "$version" ]; then
-        echo $version > $PUBLISH_VERSIONS_DIR/${MIRROR_NAME}-database-version
         echo $version > $PUBLISH_VERSIONS_DIR/version-${MIRROR_NAME}
     fi
     save_workspace

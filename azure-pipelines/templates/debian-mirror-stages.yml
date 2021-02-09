@@ -21,7 +21,6 @@ stages:
   condition: succeeded()
   variables:
     PublishToReplica: n
-    UpdateMirror: n
   jobs:
   - job: MigrateReplica
     steps:
@@ -33,6 +32,7 @@ stages:
   condition: and(succeeded(), eq(stageDependencies.MigrateReplicaStage.outputs['MigrateReplica.CheckVersion.MigrateCdnReplica'], 'y'))
   variables:
     PublishToReplica: n
+    UpdateMirror: n
     MIRROR_VERSION: $[ stageDependencies.InitStage.InitJob.outputs['InitStep.MirrorVersion'] ]
   jobs:
   - template: debian-mirror-jobs-publish-mirror.yml
