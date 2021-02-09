@@ -27,7 +27,7 @@ jobs:
     builds:
       - name: vs
         script: |
-          make ${{ parameters.buildOptions }} target/target/sonic-vs.img.gz
+          make ${{ parameters.buildOptions }} target/sonic-vs.img.gz
       - name: broadcom
         script: |
           make ${{ parameters.buildOptions }} target/sonic-aboot-broadcom.swi
