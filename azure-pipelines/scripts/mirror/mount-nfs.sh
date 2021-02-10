@@ -19,7 +19,7 @@ if ! mount | grep -q "$NFS_MOUNT_POINT"; then
 fi
 
 # Validate the permission
-TMP_FILE= $NFS_MOUNT_POINT/_tmp_$HOSTNAME
+TMP_FILE=$NFS_MOUNT_POINT/_tmp_$HOSTNAME
 if ! touch $TMP_FILE; then
     echo "Failed to create $TMP_FILE" 1>&2
     exit 1
