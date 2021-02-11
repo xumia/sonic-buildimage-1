@@ -5,13 +5,19 @@ STORAGE_ACCOUNT=$2
 CONTAINER_NAME=$3
 STORAGE_ACCOUNT_SASTOKEN=$4
 TEMPPATH=$5
+REMOUNT=$6
 
 if [ -z "$STORAGE_ACCOUNT" ]; then
     echo "The storage account is empty" 2>&1
     exit 1
 fi
 
-if ! mount | grep -q "$MOUNTPOINT "; then
+if [ "$REMOUNT" == "y" ] && mountpoint $MOUNTPOINT; then
+   echo "umount $MOUNTPOINT"
+   sudo umount $MOUNTPOINT
+fi
+
+if ! mountpoint $MOUNTPOINT; then
     if [ ! -e $MOUNTPOINT ]; then
      sudo mkdir -p "$MOUNTPOINT"
      sudo chmod a+rw "$MOUNTPOINT"

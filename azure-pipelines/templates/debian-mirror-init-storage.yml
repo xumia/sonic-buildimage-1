@@ -52,7 +52,7 @@ steps:
     MIRROR_NAME=${{ parameters.mirrorName }}
     echo 'Mount storage container aptly for debian mirrors'
     BLOBFUSE_APTLY_DATA=/blobfuse-${StorageAccount}-data
-    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data"
+    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_APTLY_DATA" "$StorageAccount" "data" "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-data" y
     STORAGE_DATA_PATH=$WORKSPACE/_storage_data
     APTLY_POOL_PATH=$WORKSPACE/pool
     BLOBFUSE_MIRROR_APTLY=$BLOBFUSE_APTLY_DATA/aptly
@@ -73,7 +73,7 @@ steps:
         export StorageAccountSasToken=$StorageAccountReplicaSasToken
     fi
     BLOBFUSE_WEB_PATH=/blobfuse-${StorageAccount}-web
-    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web"
+    azure-pipelines/scripts/mirror/mount-storage.sh "$BLOBFUSE_WEB_PATH" "$StorageAccount" '$web' "$StorageAccountSasToken" "/data/blobfuse-${StorageAccount}-web" y
     mkdir -p $BLOBFUSE_WEB_PATH/debian
     echo "ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH"
     ln -s $BLOBFUSE_WEB_PATH/debian $PUBLISH_PATH
