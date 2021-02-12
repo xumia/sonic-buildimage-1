@@ -164,10 +164,10 @@ K8s_GCR_IO_PAUSE_VERSION = 3.2
 SONIC_ENABLE_IMAGE_SIGNATURE ?= n
 
 # PACKAGE_URL_PREFIX - the package url prefix
-PACKAGE_URL_PREFIX ?= https://packages.trafficmanager.net/public/packages
+PACKAGE_URL_PREFIX ?= https://replica1.packages.trafficmanager.net/public/packages
 
 # TRUSTED_GPG_URLS - the trusted gpgs, separated by comma
-TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,https://packages.microsoft.com/keys/microsoft.asc
+TRUSTED_GPG_URLS = https://replica1.packages.trafficmanager.net/debian/public_key.gpg,https://packages.microsoft.com/keys/microsoft.asc
 
 # SONIC_VERSION_CONTROL_COMPONENTS - Valid values: none|all|components..., the components consist of one or multiple: deb,py2,py3,web,git,docker, seperated by comma
 #   none  : disable the version control
