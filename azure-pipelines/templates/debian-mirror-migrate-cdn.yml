@@ -9,6 +9,7 @@ steps:
 - bash: |
     set -e
     migrate_cdn_replica=$(MigrateCdnReplica)
+    purgeContent=${{ parameters.purgeContent }}
     if [ "$migrate_cdn_replica" == 'n' ]; then
         echo "Skip migrate CDN endpoint"
         exit 0
