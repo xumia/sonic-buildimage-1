@@ -196,7 +196,7 @@ update_repos()
         # Create the aptly repo if not existing
         if ! aptly -config $APTLY_CONFIG repo show $repo > /dev/null 2>&1; then
             aptly -config $APTLY_CONFIG repo create $repo
-        elif [ "$has_error" == "n" ] && grep -q "Download queue: 0 items" $logfile; then
+        elif [ "$FORCE_PUBLISH" != "y" ] && [ "$has_error" == "n" ] && grep -q "Download queue: 0 items" $logfile; then
             continue
         fi
 
@@ -231,6 +231,8 @@ publish_repos()
     local distname=$(echo $dist | tr '/' '_')
     local options=
     [[ "$dist" == *-backports ]] && options="-notautomatic=yes -butautomaticupgrades=yes"
+    local publish_archs=$archs,source
+    [[ "$name"  == *jessie* ]] && publish_archs=$archs
 
     local repos=
     for component in $(echo $components | tr ',' ' '); do
@@ -251,9 +253,13 @@ publish_repos()
     [ -f $published_version_file ] && published_version=$(cat $published_version_file)
 
     # Check if the version has already published
-    if [ "$db_version" == "$published_version" ]; then
+    if [ "FORCE_PUBLISH" != "y" ] && [ "$db_version" == "$published_version" ]; then
         echo "Skip to publish $name/$dist/$archs/$components, the latest version is $db_version"
         return
+    fi
+
+    if [ "FORCE_PUBLISH" == "y" ]; then
+        echo "Force publish mirror"
     fi
 
     echo "db_version_file=$(realpath $db_version_file)"
@@ -261,11 +267,20 @@ publish_repos()
 
     # Publish the aptly repo with retry
     echo "Publish repos: $repos"
+    if [ "$FORCE_PUBLISH_DROP" == "y" ]; then
+        if aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
+            mv publish publish.bk
+            mkdir publish
+            aptly -config $APTLY_CONFIG publish drop -force-drop -skip-cleanup $publish_dist $FILESYSTEM
+            mv publish pulish.bk1
+            mv publish.bk publish
+        fi
+    fi
     for ((i=1;i<=$retry;i++)); do
         echo "Try to publish $publish_dist $FILESYSTEM, retry step $i of $retry"
         if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
             echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
-            if aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM; then
+            if aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$publish_archs -component=$components $repos $FILESYSTEM; then
                 publish_succeeded=y
                 break
             fi
