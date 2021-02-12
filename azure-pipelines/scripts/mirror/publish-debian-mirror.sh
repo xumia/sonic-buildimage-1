@@ -272,7 +272,7 @@ publish_repos()
             mv publish publish.bk
             mkdir publish
             aptly -config $APTLY_CONFIG publish drop -force-drop -skip-cleanup $publish_dist $FILESYSTEM
-            mv publish pulish.bk1
+            mv publish publish.bk1
             mv publish.bk publish
         fi
     fi
