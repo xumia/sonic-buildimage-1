@@ -279,7 +279,7 @@ publish_repos()
     for ((i=1;i<=$retry;i++)); do
         echo "Try to publish $publish_dist $FILESYSTEM, retry step $i of $retry"
         if ! aptly -config $APTLY_CONFIG publish show $publish_dist $FILESYSTEM > /dev/null 2>&1; then
-            echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$archs -component=$components $repos $FILESYSTEM"
+            echo "aptly -config $APTLY_CONFIG publish repo $options -passphrase=*** -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$publish_archs -component=$components $repos $FILESYSTEM"
             if aptly -config $APTLY_CONFIG publish repo $options -passphrase="$PASSPHRASE" -keyring=$GPG_FILE -distribution=$publish_dist -architectures=$publish_archs -component=$components $repos $FILESYSTEM; then
                 publish_succeeded=y
                 break
