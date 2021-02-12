@@ -27,6 +27,7 @@ steps:
     if [ "$purgeContent" == "y" ]; then
       echo "Purge the CDN content path /debian/debian/dist/*, it will take several miniutes"
       az cdn endpoint purge -g "$resource_group" -n "$endpoint_name" --profile-name sonicstoragepublic --content-paths '/debian/debian/dist/*'
+      az cdn endpoint purge -g "$resource_group" -n "$endpoint_name" --profile-name sonicstoragepublic --content-paths '/debian/debian-security/dist/*'
     fi
   env:
     ApplicationKey: '$(ApplicationKey)'
