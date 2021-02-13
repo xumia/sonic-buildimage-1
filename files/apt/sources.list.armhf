@@ -10,4 +10,4 @@ deb [arch=armhf] http://replica1.packages.trafficmanager.net/debian/debian buste
 deb-src [arch=armhf] http://replica1.packages.trafficmanager.net/debian/debian buster main contrib non-free
 deb [arch=armhf] http://replica1.packages.trafficmanager.net/debian/debian buster-updates main contrib non-free
 deb-src [arch=armhf] http://replica1.packages.trafficmanager.net/debian/debian buster-updates main contrib non-free
-deb [arch=armhf] http://ftp.debian.org/debian buster-backports main
+deb [arch=armhf] http://replica1.packages.trafficmanager.net/debian/debian buster-backports main
