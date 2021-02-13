@@ -1,5 +1,5 @@
 pipeline {
-    agent { node { label 'jenkins-worker-1' } }
+    agent { node { label 'jenkins-workers-slow' } }
 
     options {
         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '10'))

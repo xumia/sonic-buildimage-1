@@ -2,36 +2,58 @@
 
 cd sonic-buildimage
 
-echo "Building docker containers"
+echo "Building docker containers for $DISTRO"
 
 docker --version
 
 USER=`id -un`
-CONFIGURED_ARCH=amd64
 SLAVE_DIR=sonic-slave-$DISTRO
-CONFIGURED_ARCH=${CONFIGURED_ARCH} j2 ${SLAVE_DIR}/Dockerfile.j2 > ${SLAVE_DIR}/Dockerfile
-SLAVE_BASE_TAG=$(sha1sum ${SLAVE_DIR}/Dockerfile | awk '{print substr($1,0,11);}')
-SLAVE_TAG=$(cat ${SLAVE_DIR}/Dockerfile.user ${SLAVE_DIR}/Dockerfile | sha1sum | awk '{print substr($1,0,11);}')
 
-echo $USER
-echo $SLAVE_BASE_TAG
-echo $SLAVE_TAG
+build_and_push_docker()
+{
+    arch=$1
 
-BLDENV=$DISTRO make sonic-slave-build
+    echo "Build docker container for $DISTRO and $arch"
 
-docker images
+    if [ x$arch == x"amd64" ]; then
+        SLAVE_BASE_IMAGE=${SLAVE_DIR}
+    else
+        SLAVE_BASE_IMAGE=${SLAVE_DIR}-${arch}
+    fi
 
-mkdir -p target
+    tmpfile=$(mktemp)
 
-docker save sonic-slave-$DISTRO-$USER:$SLAVE_TAG | gzip -c > target/sonic-slave-$DISTRO.gz
+    echo $arch > .arch
 
-REGISTRY_PORT=443
-REGISTRY_SERVER=sonicdev-microsoft.azurecr.io
+    DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker BLDENV=$DISTRO make -f Makefile.work sonic-slave-build | tee $tmpfile
 
-docker tag sonic-slave-$DISTRO-$USER:$SLAVE_TAG local/sonic-slave-$DISTRO-$USER:latest
-docker tag sonic-slave-$DISTRO-$USER:$SLAVE_TAG $REGISTRY_SERVER:$REGISTRY_PORT/sonic-slave-$DISTRO-$USER:latest
-docker tag sonic-slave-$DISTRO:$SLAVE_BASE_TAG $REGISTRY_SERVER:$REGISTRY_PORT/sonic-slave-$DISTRO:latest
+    SLAVE_BASE_TAG=$(grep "^Checking sonic-slave-base image:" $tmpfile | awk -F ':' '{print $3}')
+    SLAVE_TAG=$(grep "^Checking sonic-slave image:" $tmpfile | awk -F ':' '{print $3}')
 
-docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
-docker push $REGISTRY_SERVER:$REGISTRY_PORT/sonic-slave-$DISTRO:latest
-docker push $REGISTRY_SERVER:$REGISTRY_PORT/sonic-slave-$DISTRO-$USER:latest
+    echo $USER
+    echo $SLAVE_BASE_TAG
+    echo $SLAVE_TAG
+
+    docker images
+
+    mkdir -p target
+
+    docker save $SLAVE_BASE_IMAGE-$USER:$SLAVE_TAG | gzip -c > target/$SLAVE_BASE_IMAGE.gz
+
+    REGISTRY_PORT=443
+    REGISTRY_SERVER=sonicdev-microsoft.azurecr.io
+
+    docker tag $SLAVE_BASE_IMAGE-$USER:$SLAVE_TAG local/$SLAVE_BASE_IMAGE-$USER:latest
+    docker tag $SLAVE_BASE_IMAGE-$USER:$SLAVE_TAG $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE-$USER:latest
+    docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE:latest
+    docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG
+
+    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
+    docker push $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE:latest
+    docker push $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG
+    docker push $REGISTRY_SERVER:$REGISTRY_PORT/$SLAVE_BASE_IMAGE-$USER:latest
+}
+
+for arch in amd64 arm64 armhf; do
+    build_and_push_docker $arch
+done

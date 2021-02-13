@@ -10,16 +10,15 @@ pipeline {
     }
 
     triggers {
-        pollSCM('H 2 * * *')
+        pollSCM('@midnight')
     }
 
     stages {
         stage('Prepare') {
             steps {
-                milestone(ordinal: 1, label: "BUILD_START_MILESTONE")
                 step([$class: 'WsCleanup'])
                 checkout([$class: 'GitSCM',
-                          branches: [[name: 'refs/heads/master']],
+                          branches: [[name: 'refs/heads/202012']],
                           extensions: [[$class: 'SubmoduleOption',
                                         disableSubmodules: false,
                                         parentCredentials: false,
@@ -34,21 +33,30 @@ pipeline {
 
         stage('Build') {
             steps {
+              lock(resource: "arm_build_${env.NODE_NAME}") {
                 sh '''#!/bin/bash -xe
-
-git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
-
-make configure PLATFORM=barefoot
-make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-barefoot.bin
-make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-aboot-barefoot.swi
-'''
+                      git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
+                      export DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker
+                      make configure PLATFORM=centec-arm64 PLATFORM_ARCH=arm64
+                      #Skip debug build until build time improvements can be made
+                      #make SONIC_BUILD_JOBS=4 INSTALL_DEBUG_TOOLS=y target/sonic-centec-arm64.bin
+                      #mv target/sonic-centec-arm64.bin target/sonic-centec-dbg.bin
+                      make SONIC_BUILD_JOBS=4 target/sonic-centec-arm64.bin || make SONIC_BUILD_JOBS=2 target/sonic-centec-arm64.bin || make SONIC_BUILD_JOBS=1 target/sonic-centec-arm64.bin
+                      # Cleanup for next build (dockerd and docker multi-arch artifacts)
+                      if sudo [ -f dockerfs/var/run/docker.pid ] ; then
+                          pid=`sudo cat dockerfs/var/run/docker.pid` ; sudo kill $pid
+                      fi
+                      sudo rm -rf ${DOCKER_DATA_ROOT_FOR_MULTIARCH}
+                   '''
+               }
             }
         }
 
     }
     post {
+
         success {
-            archiveArtifacts(artifacts: 'target/*.gz, target/debs/*.deb, target/sonic-*.bin, target/sonic-*.swi, target/python-wheels/*.whl, target/python-wheels/*.log, target/*.log, target/debs/*.log')
+            archiveArtifacts(artifacts: 'target/**')
         }
         fixed {
             slackSend(color:'#00FF00', message: "Build job back to normal: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
@@ -63,3 +71,4 @@ make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-aboot-barefoot.swi
         }
     }
 }
+
