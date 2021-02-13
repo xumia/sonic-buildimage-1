@@ -1,0 +1,9 @@
+applibs==1.mlnx.4.4.2308
+applibs-dev==1.mlnx.4.4.2308
+python-sdk-api==1.mlnx.4.4.2308
+sx-complib==1.mlnx.4.4.2308
+sx-complib-dev==1.mlnx.4.4.2308
+sx-gen-utils==1.mlnx.4.4.2308
+sx-gen-utils-dev==1.mlnx.4.4.2308
+sxd-libs==1.mlnx.4.4.2308
+sxd-libs-dev==1.mlnx.4.4.2308
