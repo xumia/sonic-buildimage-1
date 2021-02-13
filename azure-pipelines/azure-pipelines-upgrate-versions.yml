@@ -23,9 +23,7 @@ stages:
   - job: UpgradeVersions
     steps:
     - script: |
-        [ -d target ] && sudo rm -rf target
-        [ -d fsroot ] && sudo rm -rf fsroot
-        rm -rf $(Pipeline.Workspace)/sonic-buildimage.*
+        sudo rm -rf *
       displayName: 'cleanup'
     - checkout: self
       displayName: 'Checkout code'
