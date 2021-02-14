@@ -20,6 +20,7 @@ variables:
   value: $(sonicstoragepublic3-SasToken)
 
 stages:
+- stage: test
   jobs:
   - template: ../templates/jobs-template-test.yml
     parameters:
