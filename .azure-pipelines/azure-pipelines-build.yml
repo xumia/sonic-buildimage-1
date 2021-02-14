@@ -18,7 +18,7 @@ jobs:
     preSteps:
       - script: |
           containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
-          if [ ! -z "$containers" ];
+          if [ ! -z "$containers" ]; then
             docker container kill "$containers" || true
             sleep 5
           fi
