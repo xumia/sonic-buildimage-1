@@ -59,7 +59,7 @@ stages:
           MIRROR_DISTRIBUTIONS: 'jessie,jessie-updates'
           MIRROR_ARICHTECTURES: 'amd64,armhf'
       - name: stretch
-        extName: '.ext'
+        extName: '_ext'
         dependsOn: jessie
         variables:
           MIRROR_FILESYSTEM: debian
