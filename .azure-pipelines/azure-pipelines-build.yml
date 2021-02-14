@@ -8,6 +8,9 @@ parameters:
 - name: 'buildSlave'
   type: string
   default: 'n'
+- name: 'postSteps'
+  type: stepList
+  default: []
 jobs:
 - template: azure-pipelines-job-groups.yml
   parameters:
@@ -29,6 +32,7 @@ jobs:
           make ${{ parameters.buildOptions }} PLATFORM=$GROUP_NAME configure
         displayName: 'Make configure'
     postSteps:
+      - ${{ parameters.postSteps }}
       - publish: $(System.DefaultWorkingDirectory)/target
         artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)'
         displayName: "Archive sonic image"
