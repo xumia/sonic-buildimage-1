@@ -17,7 +17,9 @@ pool: sonicbld
 stages:
 - stage: Build
   jobs:
-  - template: azure-pipelines-build.yml 
+  - template: azure-pipelines-build.yml
+    parameters:
+      buildSlave: y
 - stage: UpgradeVersions
   jobs:
   - job: UpgradeVersions
