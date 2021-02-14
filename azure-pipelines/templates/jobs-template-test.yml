@@ -27,7 +27,7 @@ parameters:
 jobs:
 - ${{ each jobGroup in parameters.jobGroups }}:
   - ${{ if or(eq(parameters.jobFilter, ''), containsValue(parameters.jobFilter, jobGroup.name)) }}:
-    - job: ${{ replace(jobGroup.name, '-', '_') }}
+    - job: ${{ replace(format('{0}{1}', jobGroup.name, jobGroup.extName), '-', '_') }}
       ${{ each pair in jobGroup }}:
         ${{ if not(in(pair.key, 'job', 'name', 'variables', 'steps', 'script', 'scriptEnv')) }}:
           ${{ pair.key }}: ${{ pair.value }}
