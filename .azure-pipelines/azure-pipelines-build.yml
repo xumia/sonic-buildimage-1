@@ -17,9 +17,12 @@ jobs:
     jobFilters: ${{ parameters.jobFilters }}
     preSteps:
       - script: |
+          containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
+          if [ ! -z "$containers" ];
+            docker container kill "$containers" || true
+            sleep 5
+          fi
           if [ "${{ parameters.buildSlave }}" == "y" ]; then
-            containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
-            [ ! -z "$containers" ] && docker container kill "$containers" || true
             images=$(docker images 'sonic-slave-*' -a -q)
             [ ! -z "$images" ] && docker rmi -f "$images"
           fi
