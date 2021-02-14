@@ -19,12 +19,12 @@ jobs:
       - script: |
           containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
           if [ ! -z "$containers" ]; then
-            docker container kill "$containers" || true
+            docker container kill $containers || true
             sleep 5
           fi
           if [ "${{ parameters.buildSlave }}" == "y" ]; then
             images=$(docker images 'sonic-slave-*' -a -q)
-            [ ! -z "$images" ] && docker rmi -f "$images"
+            [ ! -z "$images" ] && docker rmi -f $images
           fi
           sudo rm -rf *
         displayName: 'Init'
