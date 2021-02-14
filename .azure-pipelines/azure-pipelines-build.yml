@@ -15,7 +15,10 @@ jobs:
     preSteps:
       - script: |
           if [ "${{ parameters.buildSlave }}" == "y" ]; then
-            docker rmi -f $(docker images 'sonic-slave-*' -a -q)
+            containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
+            [ ! -z "$containers" ] && docker container kill "$containers" || true
+            images=$(docker images 'sonic-slave-*' -a -q)
+            [ ! -z "$images" ] && docker rmi -f "$images"
           fi
           sudo rm -rf *
         displayName: 'Init'
@@ -49,10 +52,6 @@ jobs:
       - name: innovium
         script: |
           make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-innovium.bin
-      - name: innovium
-        extName: _rpc
-        script: |
-          make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/sonic-innovium.bin
       - name: mellanox
         script: |
           make ${{ parameters.buildOptions }} target/sonic-mellanox.bin
