@@ -20,9 +20,10 @@ variables:
   value: $(sonicstoragepublic3-SasToken)
 
 stages:
-- template: ../templates/jobs-template-test.yml
-  parameters:
-  jobVariables:
+  jobs:
+  - template: ../templates/jobs-template-test.yml
+    parameters:
+    jobVariables:
       MIRROR_COMPONENTS: 'contrib,non-free,main'
       MIRROR_ARICHTECTURES: 'amd64,armhf,arm64'
     preSteps:
