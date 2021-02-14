@@ -1,0 +1,55 @@
+parameters:
+- name: 'preSteps'
+  type: stepList
+  default: []
+- name: "postSteps"
+  type: stepList
+  default: []
+- name: 'jobGroups'
+  type: object
+  default:
+  - name: 'none'
+    variables: ''
+    script: ''
+    steps: []
+- name: 'jobVariables'
+  type: object
+  default: {}
+- name: 'scriptEnv'
+  type: object
+  default: ''
+- name: 'timeoutInMinutes'
+  type: 'number'
+  default: 1440
+- name: 'jobFilter'
+  type: object
+  default: ''
+jobs:
+- ${{ each jobGroup in parameters.jobGroupGroups }:
+  - ${{ if or(eq(parameters.jobFilter, ''), containsValue(parameters.jobFilter, jobGroup.name)) }}:
+    - job: ${{ replace(jobGroup.name, '-', '_') }}
+      ${{ each pair in jobGroup }:
+        ${{ if not(in(pair.key, 'job', 'name', 'variables', 'steps', 'script', 'scriptEnv')) }}:
+          ${{ pair.key }}: ${{ pair.value }}
+      ${{ if eq(jobGroup.timeoutInMinutes, '') }}:
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+      variables:
+        GROUP_NAME: ${{ jobGroup.name }}
+        GROUP_NAMES: ${{ join(',', parameters.jobGroups.*.name ) }}
+        ${{ if ne(jobGroup.variables, '') }}:
+          ${{ jobGroup.variables }}
+        ${{ each para in parameters.jobvariables }}:
+          ${{ if eq(jobGroup.variables[para.key], '') }}:
+            ${{ para.key }}: ${{ para.value }}
+      steps:
+      - ${{ parameters.preSteps }}
+      - ${{ if ne(jobGroup.script, '') }}:
+        - script: |
+            ${{ jobGroup.script }}
+          env:
+            ${{ if ne(parameters.scriptEnv, '') }}:
+              ${{ parameters.scriptEnv }}
+          displayName: 'JobScript'
+      - ${{ if ne(jobGroup.steps, '') }}:
+        - ${{ jobGroup.steps }}
+      - ${{ parameters.postSteps }}
