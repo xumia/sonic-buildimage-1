@@ -25,7 +25,7 @@ parameters:
   type: object
   default: ''
 jobs:
-- ${{ each jobGroup in parameters.jobGroupGroups }:
+- ${{ each jobGroup in parameters.jobGroupGroups }}:
   - ${{ if or(eq(parameters.jobFilter, ''), containsValue(parameters.jobFilter, jobGroup.name)) }}:
     - job: ${{ replace(jobGroup.name, '-', '_') }}
       ${{ each pair in jobGroup }:
