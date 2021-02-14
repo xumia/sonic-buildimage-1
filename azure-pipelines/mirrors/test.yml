@@ -51,7 +51,7 @@ stages:
           GPG_PUBLIC_KEY2: $(sonic-gpg-public-key-2)
         name: publish
         displayName: 'Publish Mirror'
-      stepGroups:
+      jobGroups:
       - name: jessie
         variables:
           MIRROR_FILESYSTEM: debian
