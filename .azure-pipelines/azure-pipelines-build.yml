@@ -14,10 +14,10 @@ jobs:
     jobFilters: ${{ parameters.jobFilters }}
     preSteps:
       - script: |
-          sudo rm -rf *
           if [ "${{ parameters.buildSlave }}" == "y" ]; then
             docker rmi -f $(docker images 'sonic-slave-*' -a -q)
           fi
+          sudo rm -rf *
         displayName: 'Init'
       - checkout: self
         submodules: recursive
