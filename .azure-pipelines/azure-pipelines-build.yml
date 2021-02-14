@@ -16,7 +16,7 @@ jobs:
       - script: |
           sudo rm -rf *
           if [ "${{ parameters.buildSlave }}" == "y" ]; then
-            docker rmi $(docker images 'sonic-slave-*' -a -q)
+            docker rmi -f $(docker images 'sonic-slave-*' -a -q)
           fi
         displayName: 'Init'
       - checkout: self
