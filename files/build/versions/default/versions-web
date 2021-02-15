@@ -8,9 +8,9 @@ http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1-1.debia
 http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_1.6.1.orig.tar.gz==16c0ae9902ae57be4a603a6ab1e86c53
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg-4.debian.tar.xz==bec40e0bda23a893e76843579c68d901
 http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==71044a49f4ab09c9bc10ed9862d22939
-http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==e047844e35943e1ffd644705999dcaf6
-http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==37eb2770e4a47968f07765e7045a1c27
-http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==10f776af33f12af1b10e176b977fbac7
+http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
+http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
+http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
 http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118-2+deb10u1.debian.tar.xz==5ed5360704d2addae3a0a08b5fdec438
 http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118-2+deb10u1.dsc==b83432bce17ce82303c8eb3bc263b2f8
 http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118.orig.tar.xz==12f0a53ac0579cb01404de3bc62224c3
