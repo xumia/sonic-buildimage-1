@@ -20,5 +20,4 @@ libswsscommon-dev==1.0.0
 libthrift-0.11.0==0.11.0-4
 libthrift-dev==0.11.0-4
 python-swsscommon==1.0.0
-syncd==1.0.0
 thrift-compiler==0.11.0-4
