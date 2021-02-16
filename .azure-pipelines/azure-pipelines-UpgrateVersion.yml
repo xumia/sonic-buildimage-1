@@ -61,6 +61,10 @@ stages:
           echo "Skipped to send the pull request, GIT_USER not set."
           exit 0
         fi
+        if [ ! -d "$HOME" ]; then
+          sudo mkdir -p $HOME
+          sudo chown -R $(id -un):$(id -gn) $HOME
+        fi
         BRANCH_NAME=repd/versions/$(Build.SourceBranchName)
         echo '#!/bin/bash' > git_env_password.sh
         echo 'echo $GIT_PASSWORD' >> git_env_password.sh
