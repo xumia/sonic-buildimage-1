@@ -26,7 +26,7 @@ jobs:
             images=$(docker images 'sonic-slave-*' -a -q)
             [ ! -z "$images" ] && docker rmi -f $images
           fi
-          sudo rm -rf *
+          sudo rm -rf $(ls -A1)
         displayName: 'Init'
       - checkout: self
         submodules: recursive

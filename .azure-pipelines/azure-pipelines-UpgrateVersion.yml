@@ -25,7 +25,7 @@ stages:
   - job: UpgradeVersions
     steps:
     - script: |
-        sudo rm -rf *
+        sudo rm -rf $(ls -A1)
       displayName: 'cleanup'
     - script: |
         # TODO: Move to vmss extension
