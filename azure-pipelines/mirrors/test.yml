@@ -43,7 +43,6 @@ stages:
         echo SourceBranchName=$(Build.SourceBranchName)
         mkdir -p files/build/versions
         echo 123 > files/build/versions/versions-test
-        exit 1
     - script: |
         if [ -z "$GIT_USER" ]; then
           echo "Skipped to send the pull request, GIT_USER not set."
