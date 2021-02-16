@@ -26,6 +26,7 @@ stages:
     steps:
     - script: |
         sudo rm -rf *
+        sudo rm -rf \.??*
       displayName: 'cleanup'
     - script: |
         # TODO: Move to vmss extension
