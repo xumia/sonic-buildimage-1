@@ -22,6 +22,55 @@ variables:
 stages:
 - stage: test
   jobs:
+  - job: Test
+    steps:
+    - script: |
+        sudo rm -rf *
+      displayName: 'cleanup'
+    - script: |
+        # TODO: Move to vmss extension
+        if [ -z "$(which gh)" ]; then
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+        fi
+      displayName: 'Install gh'
+    - checkout: self
+      displayName: 'Checkout code'
+    - script: |
+        echo RepoName=$(Build.Repository.Name)
+        mkdir -p files/build/versions
+        echo 123 > files/build/versions/versions-test
+        exit 1
+    - script: |
+        if [ -z "$GIT_USER" ]; then
+          echo "Skipped to send the pull request, GIT_USER not set."
+          exit 0
+        fi
+        BRANCH_NAME=repd/versions/$(Build.SourceBranchName)
+        echo '#!/bin/bash' > git_env_password.sh
+        echo 'echo $GIT_PASSWORD' >> git_env_password.sh
+        chmod a+x git_env_password.sh
+        export GIT_ASKPASS=./git_env_password.sh
+
+        git config user.name $GIT_USER
+        git config credential.https://github.com.username $GIT_USER
+        git add files/build/versions
+        git commit -m "Update SONiC version files"
+        [ -z "$GIT_REPO" ] && GIT_REPO=sonic-buildimage
+        git remote add remote https://github.com/$GIT_USER/$GIT_REPO
+        git push remote HEAD:$BRANCH_NAME -f
+        git branch -u remote/$BRANCH_NAME
+
+        UPGRADE_TAG="Auto-Version-Upgrade"
+        gh pr list -B master -R xumia/sonic-buildimage-1 -l "$UPGRADE_TAG"
+        OLD_PRS=$(gh pr list -B master -R xumia/sonic-buildimage-1 | cut -d$'\t' -f1)
+        for number in $OLD_PRS; do
+          echo number=$number
+        done
+        gh pr create -l "$UPGRADE_TAG" --title "Upgrade SONiC Versions" --body "Upgrade SONiC Versions" -R $(Build.Repository.Name)
+        exit 1
   - template: ../templates/jobs-template-test.yml
     parameters:
       jobVariables:
