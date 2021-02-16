@@ -40,6 +40,7 @@ stages:
       displayName: 'Checkout code'
     - script: |
         echo RepoName=$(Build.Repository.Name)
+        echo SourceBranchName=$(Build.SourceBranchName)
         mkdir -p files/build/versions
         echo 123 > files/build/versions/versions-test
         exit 1
@@ -64,13 +65,15 @@ stages:
         git branch -u remote/$BRANCH_NAME
 
         UPGRADE_TAG="Auto-Version-Upgrade"
-        gh pr list -B master -R xumia/sonic-buildimage-1 -l "$UPGRADE_TAG"
-        OLD_PRS=$(gh pr list -B master -R xumia/sonic-buildimage-1 | cut -d$'\t' -f1)
+        OLD_PRS=$(gh pr list -B $(Build.SourceBranchName) -R $(Build.Repository.Name) -l "$UPGRADE_TAG" | cut -d$'\t' -f1)
         for number in $OLD_PRS; do
           echo number=$number
         done
-        gh pr create -l "$UPGRADE_TAG" --title "Upgrade SONiC Versions" --body "Upgrade SONiC Versions" -R $(Build.Repository.Name)
-        exit 1
+        gh pr create -l "$UPGRADE_TAG" --title "Upgrade SONiC Versions" --body "Upgrade SONiC Versions" -B $(Build.SourceBranchName) -R $(Build.Repository.Name)
+      env:
+        GIT_USER: $(GIT_USER)
+        GIT_PASSWORD: $(GIT_PASSWORD)
+      displayName: 'Send Pull Request'
   - template: ../templates/jobs-template-test.yml
     parameters:
       jobVariables:
