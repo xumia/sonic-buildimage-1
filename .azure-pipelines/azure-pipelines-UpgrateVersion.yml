@@ -61,6 +61,11 @@ stages:
           echo "Skipped to send the pull request, GIT_USER not set."
           exit 0
         fi
+        GIT_STATUS=$(git status  --porcelain files/build/versions)
+        if [ -z "$GIT_STATUS" ]; then
+          echo "Skiipped to send the pull request, no version change in files/build/versions"
+          exit 0
+        fi
         if [ ! -d "$HOME" ]; then
           sudo mkdir -p $HOME
           sudo chown -R $(id -un):$(id -gn) $HOME
