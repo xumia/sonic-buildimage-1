@@ -58,7 +58,7 @@ jobs:
           make ${{ parameters.buildOptions }} ENABLE_SYNCD_RPC=y target/docker-syncd-centec-rpc.gz
       - name: innovium
         script: |
-          make SONIC_CONFIG_BUILD_JOBS=1 target/sonic-innovium.bin
+          make ${{ parameters.buildOptions }} SONIC_CONFIG_BUILD_JOBS=1 target/sonic-innovium.bin
       - name: mellanox
         script: |
           make ${{ parameters.buildOptions }} target/sonic-mellanox.bin
