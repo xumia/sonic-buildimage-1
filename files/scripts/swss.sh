@@ -110,14 +110,6 @@ start_peer_and_dependent_services() {
 stop_peer_and_dependent_services() {
     # if warm/fast start enabled or peer lock exists, don't stop peer service docker
     if [[ x"$WARM_BOOT" != x"true" ]] && [[ x"$FAST_BOOT" != x"true" ]]; then
-        if [[ ! -z $DEV ]]; then
-            /bin/systemctl stop ${PEER}@$DEV
-        else
-            /bin/systemctl stop ${PEER}
-        fi
-        for dep in ${DEPENDENT}; do
-            /bin/systemctl stop ${dep}
-        done
         for dep in ${MULTI_INST_DEPENDENT}; do
             if [[ ! -z $DEV ]]; then
                 /bin/systemctl stop ${dep}@$DEV
@@ -125,7 +117,14 @@ stop_peer_and_dependent_services() {
                 /bin/systemctl stop ${dep}
             fi
         done
-
+        for dep in ${DEPENDENT}; do
+            /bin/systemctl stop ${dep}
+        done
+        if [[ ! -z $DEV ]]; then
+            /bin/systemctl stop ${PEER}@$DEV
+        else
+            /bin/systemctl stop ${PEER}
+        fi
     fi
 }
 
@@ -147,7 +146,7 @@ start() {
         $SONIC_DB_CLI ASIC_DB FLUSHDB
         $SONIC_DB_CLI COUNTERS_DB FLUSHDB
         $SONIC_DB_CLI FLEX_COUNTER_DB FLUSHDB
-        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*'"
+        clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*', 'FG_ROUTE_TABLE*', 'BUFFER_POOL*', 'BUFFER_PROFILE*', '*MUX_CABLE_TABLE*'"
     fi
 
     # start service docker
