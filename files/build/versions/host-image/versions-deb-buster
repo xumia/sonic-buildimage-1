@@ -164,7 +164,7 @@ libsasl2-2==2.1.27+dfsg-1+deb10u1
 libsasl2-modules-db==2.1.27+dfsg-1+deb10u1
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u4
+libssl1.1==1.1.1d-0+deb10u5
 libswsscommon==1.0.0
 libsysfs2==2.1.0+repack-5
 libtac2==1.4.1-1
@@ -203,7 +203,7 @@ opennsl-modules==4.3.0.10-2
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u4
+openssl==1.1.1d-0+deb10u5
 pciutils==1:3.5.2-1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1
