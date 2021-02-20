@@ -39,7 +39,7 @@ stages:
           exit 0
         fi
         mkdir -p files/build/versions
-        echo test > files/build/versions/versions-test
+        echo test1 > files/build/versions/versions-test
         GIT_STATUS=$(git status  --porcelain files/build/versions)
         if [ -z "$GIT_STATUS" ]; then
           echo "Skiipped to send the pull request, no version change in files/build/versions"
