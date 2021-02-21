@@ -6,8 +6,7 @@
 trigger:
 - main
 
-pool:
-  vmImage: sonicbld
+pool: sonicbld
 
 steps:
 - script: echo Hello, world!
