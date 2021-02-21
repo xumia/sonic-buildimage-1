@@ -38,7 +38,7 @@ libdaemon0==0.14-7
 libdatrie1==0.2.12-2
 libdbi1==0.9.0-5
 libdbus-1-3==1.12.20-0+deb10u1
-libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u2
+libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u3
 libestr0==0.1.10-2.1
 libevent-2.1-6==2.1.8-stable-4
 libexpat1==2.2.6-2+deb10u1
@@ -60,9 +60,9 @@ libicu63==63.1-6+deb10u1
 libip4tc0==1.8.2-4
 libip6tc0==1.8.2-4
 libiptc0==1.8.2-4
-libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u2
-libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u2
-libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u2
+libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u3
+libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u3
+libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u3
 libjansson4==2.12-1
 libjemalloc2==5.1.0-3
 libjq1==1.5+dfsg-2+b1
@@ -72,8 +72,8 @@ libkeyutils1==1.6-6
 libkmod2==26-1
 libkrb5-3==1.17-3+deb10u1
 libkrb5support0==1.17-3+deb10u1
-libldap-2.4-2==2.4.47+dfsg-3+deb10u5
-libldap-common==2.4.47+dfsg-3+deb10u5
+libldap-2.4-2==2.4.47+dfsg-3+deb10u6
+libldap-common==2.4.47+dfsg-3+deb10u6
 liblognorm5==2.0.5-1
 liblua5.1-0==5.1.5-8.1+b2
 libmariadb3==1:10.3.27-0+deb10u1
@@ -119,7 +119,7 @@ libreadline7==7.0-5
 librrd-dev==1.7.1-2
 librrd8==1.7.1-2
 librtmp1==2.4+20151223.gitfa8646d.1-2
-libsaibcm==4.3.0.10-4
+libsaibcm==4.3.0.13-1
 libsaimetadata==1.0.0
 libsairedis==1.0.0
 libsasl2-2==2.1.27+dfsg-1+deb10u1
@@ -129,7 +129,7 @@ libsensors5==1:3.5.0-3
 libsodium23==1.0.17-1
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u4
+libssl1.1==1.1.1d-0+deb10u5
 libswsscommon==1.0.0
 libteam-utils==1.30-1
 libteam5==1.30-1
@@ -168,7 +168,7 @@ mysql-common==5.8+1.0.5
 ndisc6==1.0.4-1
 ndppd==0.2.5-4+deb10u1
 net-tools==1.60+git20180626.aebd88e-1
-openssl==1.1.1d-0+deb10u4
+openssl==1.1.1d-0+deb10u5
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1
 procps==2:3.3.15-2
