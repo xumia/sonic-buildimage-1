@@ -21,7 +21,7 @@ PyYAML==5.4.1
 redis==3.5.3
 redis-dump-load==1.1
 scandir==1.10.0
-singledispatch==3.4.0.3
+singledispatch==3.6.0
 six==1.12.0
 thrift==0.13.0
 typing==3.7.4.3

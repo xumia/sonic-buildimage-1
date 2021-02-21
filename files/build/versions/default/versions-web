@@ -11,9 +11,6 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==7104
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
-http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118-2+deb10u1.debian.tar.xz==5ed5360704d2addae3a0a08b5fdec438
-http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118-2+deb10u1.dsc==b83432bce17ce82303c8eb3bc263b2f8
-http://security.debian.org/debian-security/pool/updates/main/l/linux/linux_4.19.118.orig.tar.xz==12f0a53ac0579cb01404de3bc62224c3
 http://www.mellanox.com/downloads/MFT/mft-4.15.3-3-x86_64-deb.tgz==21caa3657b4100da3d08cf47961edc6f
 https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:61ac72e84956112656e2500701dd252c5d92f6e6==314a78da036bd5b54637cd17c54ccfd9
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
@@ -31,6 +28,9 @@ https://github.com/NephosInc/SONiC/raw/master/sai/libsainps_3.0.0_sai_1.5.0_06a6
 https://github.com/NephosInc/SONiC/raw/master/sdk/npx_diag==a444c876aaf2a8b4c99238f15fbc13a0
 https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py==628956b660575965429cec84b1778816
 https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.5/swagger-codegen-cli-2.4.5.jar==219f1453ff22482d9e080effbfa7fa81
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_4.19.152-1.debian.tar.xz==875d84b0edad0210c090195a8df4eb6c
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_4.19.152-1.dsc==e76d5deda89795939828c3b39b31d38f
+https://sonicstorage.blob.core.windows.net/debian-security/pool/updates/main/l/linux/linux_4.19.152.orig.tar.xz==e3afaa4ac1387449dec703da494dd991
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.debian.tar.xz==0a529cf8d1717b5c3dbe0c61b3512aa1
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4-1.dsc==b88b922d96688c948e90987fcaa3a2de
 https://sonicstorage.blob.core.windows.net/debian/pool/main/l/lldpd/lldpd_1.0.4.orig.tar.gz==33e8d58623f99184e4e709cbbfe45db3
@@ -42,8 +42,8 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
 https://sonicstorage.blob.core.windows.net/packages/20190307/bcmcmd?sv=2015-04-05&sr=b&sig=sUdbU7oVbh5exbXXHVL5TDFBTWDDBASHeJ8Cp0B0TIc%3D&se=2038-05-06T22%3A34%3A19Z&sp=r==b8aefc751bdf93218716bca6797460ff
 https://sonicstorage.blob.core.windows.net/packages/20190307/dsserve?sv=2015-04-05&sr=b&sig=lk7BH3DtW%2F5ehc0Rkqfga%2BUCABI0UzQmDamBsZH9K6w%3D&se=2038-05-06T22%3A34%3A45Z&sp=r==f9d4b815ebb9be9f755dedca8a51170d
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm-dev_4.3.0.10-4_amd64.deb?sv=2015-04-05&sr=b&sig=4tF26GxI6jmrcvRyCezQ7RL6qMjzip7SFf61eqy%2Bvf4%3D&se=2034-10-13T16%3A31%3A53Z&sp=r==bace85f76e0073324bf01e9516307039
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm_4.3.0.10-4_amd64.deb?sv=2015-04-05&sr=b&sig=nfseU56PACVqklQ4MC0HvZ7qt7Ou4loQMBA7jx8CSOY%3D&se=2034-10-13T16%3A31%3A22Z&sp=r==5f6358ccc822c9a930f5dd8c6fea980d
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm-dev_4.3.0.13-1_amd64.deb?sv=2015-04-05&sr=b&sig=twfshldM6GQEphfU%2BQ4xmJlGJkv2Sy7KU1F72RYYM0A%3D&se=2034-10-22T06%3A00%3A45Z&sp=r==84fd57e010281c66d2343b68bd10f7a2
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm_4.3.0.13-1_amd64.deb?sv=2015-04-05&sr=b&sig=e%2BBucofzEwCC%2BclqK1OeCi5YFpQAD4ID4FfODzszsuM%3D&se=2034-10-22T06%3A00%3A14Z&sp=r==d4f4fb23b955792d102351e23678eba8
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
 https://sonicstorage.blob.core.windows.net/packages/debian/smartmontools_6.6-1.debian.tar.xz?sv=2015-04-05&sr=b&sig=H0RFeC41MCvhTQCln85DuPLn5v2goozwz%2FB9sA9p5eQ%3D&se=2046-08-20T23%3A46%3A02Z&sp=r==47a284f4762f86ba24753ea75d85e6cb
