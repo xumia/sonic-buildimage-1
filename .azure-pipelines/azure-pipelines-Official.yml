@@ -10,7 +10,7 @@ schedules:
   displayName: Daily Build
   branches:
     include:
-    - xumia/*
+    - 202012
 
 pool: sonicbld
 

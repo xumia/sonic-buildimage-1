@@ -10,7 +10,7 @@ schedules:
   displayName: Weekly Build
   branches:
     include:
-    - xumia/*
+    - 202012
 
 pool: sonicbld
 
@@ -23,12 +23,10 @@ stages:
 - stage: UpgradeVersions
   jobs:
   - job: UpgradeVersions
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
     - script: |
-        sudo rm -rf $(ls -A1)
-      displayName: 'cleanup'
-    - script: |
-        # TODO: Move to vmss extension
         if [ -z "$(which gh)" ]; then
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
           sudo apt-add-repository https://cli.github.com/packages
