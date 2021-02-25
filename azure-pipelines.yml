@@ -15,6 +15,6 @@ jobs:
   - script: |
       echo Add other tasks to build, test, and deploy your project.
       echo See https://aka.ms/yaml
-      echo sleep 300 seconds
+      echo sleep 120 seconds
       sleep 120
     displayName: 'Run a multi-line script'
