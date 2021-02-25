@@ -55,7 +55,7 @@ stages:
       cache_mode: rcache
 
 - stage: Test
-  eq(variables.platform, 'vs')
+  condition: eq(variables.platform, 'vs')
   variables:
   - name: inventory
     value: veos_vtb
