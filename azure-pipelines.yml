@@ -7,12 +7,21 @@ trigger:
 - main
 
 pool: sonicbld
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+- job: Job1
+  steps:
+  - script: echo Hello, world!
+    displayName: 'Run a one-line script'
+  - script: |
+      echo Add other tasks to build, test, and deploy your project.
+      echo See https://aka.ms/yaml
+      echo sleep 300 seconds
+      sleep 300
+    displayName: 'Run a multi-line script'
+- job: Job2
+  steps:
+  - script: |
+      echo Add other tasks to build, test, and deploy your project.
+      echo See https://aka.ms/yaml
+      exit 1
+    displayName: 'Run a multi-line script'
