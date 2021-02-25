@@ -8,6 +8,7 @@ trigger:
     include:
       - master
       - 202012
+      - multiple_checkers_test
   paths:
     exclude:
       - .github
