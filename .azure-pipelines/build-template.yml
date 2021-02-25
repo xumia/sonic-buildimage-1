@@ -61,7 +61,7 @@ parameters:
 
 jobs:
 - job:
-  condition: eq(variables.PLATFORM, ${{ parameters.platform }})
+  condition: eq(variables.PLATFORM, '${{ parameters.platform }}')
   pool: ${{ parameters.pool }}
   displayName: ${{ parameters.platform }}
   timeoutInMinutes: ${{ parameters.timeout }}
