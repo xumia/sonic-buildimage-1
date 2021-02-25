@@ -26,6 +26,7 @@ steps:
     username=$(id -un)
     sudo chown -R $username.$username /data/sonic-vm
 
+    echo "Test PR"
     pushd /data/sonic-mgmt
     git remote update
     git reset --hard origin/master
