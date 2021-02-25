@@ -8,7 +8,6 @@ trigger:
     include:
       - master
       - 202012
-      - multiple_checkers_test
   paths:
     exclude:
       - .github
@@ -17,6 +16,7 @@ pr:
   branches:
     include:
       - master
+      - multiple_checkers_test
   paths:
     exclude:
       - .github
