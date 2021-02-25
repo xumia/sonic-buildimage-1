@@ -61,6 +61,7 @@ parameters:
 
 jobs:
 - job:
+  condition: eq(variables.platform, '${{ parameters.platform }}')
   pool: ${{ parameters.pool }}
   displayName: ${{ parameters.platform }}
   timeoutInMinutes: ${{ parameters.timeout }}
