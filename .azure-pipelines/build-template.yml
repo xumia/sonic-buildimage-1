@@ -110,7 +110,7 @@ jobs:
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin
       fi
     displayName: 'Build sonic image'
-  - template: cleanup.yml
   - publish: $(System.DefaultWorkingDirectory)/
     artifact: sonic-buildimage.${{ parameters.platform }}
     displayName: "Archive sonic image"
+  - template: cleanup.yml
