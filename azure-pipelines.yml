@@ -17,5 +17,6 @@ jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
     platform: ${{ variables['platform'] }}
+    platform_short: ${{ variables['platform_short'] }}
     cache_mode: wcache
     swi_image: true
