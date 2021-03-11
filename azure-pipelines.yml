@@ -16,7 +16,7 @@ pr: none
 jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
-    platform: '$[variables.platform]'
-    platform_short: '$[variables.platform]'
+    platform: "$(PLATFORM)"
+    platform_short: "$(PLATFORM)"
     cache_mode: wcache
     swi_image: true
