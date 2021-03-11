@@ -13,15 +13,11 @@ schedules:
 trigger: none
 pr: none
 
-parameters:
-  - name: TEST
-    type: string
-    default: $(platform)
-
 jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
-    platform: ${{ parameters.TEST }}
-    platform_short: ${{ parameters.TEST }}
+    platform: $(platform)
+    platform_short: $(platform)
+    job_name: "build"
     cache_mode: wcache
     swi_image: true
