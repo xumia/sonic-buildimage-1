@@ -21,6 +21,8 @@ stages:
   - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
       buildOptions: 'SONIC_CONFIG_BUILD_JOBS=1 SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+      jobFilters:
+      - vs
       postSteps:
       - script: |
           make freeze
