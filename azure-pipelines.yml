@@ -16,7 +16,7 @@ pr: none
 stages:
 - stage: Build
   jobs:
-  - template: azure-pipelines-build.yml
+  - template: .azurepipleins/azure-pipelines-build.yml
     parameters:
       buildOptions: 'SONIC_CONFIG_BUILD_JOBS=1 SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
       jobFilters: $(PLATFORM)
