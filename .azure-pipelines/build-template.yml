@@ -1,12 +1,6 @@
 parameters:
 - name: platform
   type: string
-  values:
-  - broadcom
-  - centec-arm64
-  - marvell-armhf
-  - mellanox
-  - vs
 
 - name: platform_arch
   type: string
@@ -18,12 +12,6 @@ parameters:
 
 - name: platform_short
   type: string
-  values:
-  - brcm
-  - centec-arm64
-  - marvell-armhf
-  - mlnx
-  - vs
 
 - name: cache_mode
   type: string
