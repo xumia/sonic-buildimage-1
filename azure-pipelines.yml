@@ -19,7 +19,7 @@ variables:
 jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
-    platform: $(TEST)
-    platform_short: $(TEST)
+    platform: ${{ variables.TEST }}
+    platform_short: ${{ variables.TEST }}
     cache_mode: wcache
     swi_image: true
