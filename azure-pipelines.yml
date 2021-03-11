@@ -12,7 +12,7 @@ schedules:
  
 trigger: none
 pr: none
- 
+
 jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
