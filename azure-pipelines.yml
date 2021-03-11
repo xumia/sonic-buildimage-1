@@ -13,10 +13,13 @@ schedules:
 trigger: none
 pr: none
 
+variables:
+  TEST: $(platform)
+
 jobs:
 - template: .azure-pipelines/build-template.yml
   parameters:
-    platform: $(platform)
-    platform_short: $(platform)
+    platform: $(TEST)
+    platform_short: $(TEST)
     cache_mode: wcache
     swi_image: true
