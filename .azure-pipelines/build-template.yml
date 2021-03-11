@@ -47,10 +47,17 @@ parameters:
   type: number
   default: 600
 
+- name: job_name
+  type: string
+  default: ''
+
 jobs:
 - job:
   pool: ${{ parameters.pool }}
-  displayName: ${{ parameters.platform }}
+  ${{ if ne(parameters.job_name, '') }}:
+    displayName: ${{ parameters.job_name }}
+  ${{ if eq(parameters.job_name, '') }}:
+    displayName: ${{ parameters.platform }}
   timeoutInMinutes: ${{ parameters.timeout }}
   steps:
   - template: cleanup.yml
