@@ -13,9 +13,6 @@ schedules:
 trigger: none
 pr: none
 
-variables:
-  TIMEOUTINMINUTES: 400
-
 pool: sonicbld
 
 stages:
@@ -24,7 +21,9 @@ stages:
   - job: job1
     timeoutInMinutes: $[ variables['TIMEOUTINMINUTES'] ]
     steps:
-      - script: echo abc
+      - script: |
+          sleep 120
+          echo abc
   - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
       buildOptions: 'SONIC_CONFIG_BUILD_JOBS=1 SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
