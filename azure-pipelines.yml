@@ -13,6 +13,9 @@ schedules:
 trigger: none
 pr: none
 
+variables:
+  TIMEOUTINMINUTES: 400
+
 pool: sonicbld
 
 stages:
