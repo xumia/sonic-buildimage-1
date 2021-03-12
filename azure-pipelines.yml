@@ -22,7 +22,7 @@ stages:
 - stage: Build
   jobs:
   - job: job1
-    timeoutInMinutes: $(TIMEOUTINMINUTES)
+    timeoutInMinutes: $[ variables['TIMEOUTINMINUTES']
     steps:
       - script: echo abc
   - template: .azure-pipelines/azure-pipelines-build.yml
