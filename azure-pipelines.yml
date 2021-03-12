@@ -16,7 +16,7 @@ pr: none
 pool: sonicbld
 
 variables:
-  TIMEOUTINMINUTES: 2
+  TIMEOUTINMINUTES: 1
 
 stages:
 - stage: Build
