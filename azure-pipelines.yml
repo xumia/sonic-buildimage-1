@@ -15,6 +15,9 @@ pr: none
 
 pool: sonicbld
 
+variables:
+  TIMEOUTINMINUTES: 2
+
 stages:
 - stage: Build
   jobs:
@@ -22,7 +25,7 @@ stages:
     timeoutInMinutes: $[ variables['TIMEOUTINMINUTES'] ]
     steps:
       - script: |
-          sleep 120
+          sleep 300
           echo abc
   - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
