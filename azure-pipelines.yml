@@ -16,6 +16,7 @@ stages:
   jobs:
   - template: .azure-pipelines/azure-pipelines-job-groups.yml
     parameters:
+      jobFilters: none
       preSteps:
       - script: |
           echo preStep
