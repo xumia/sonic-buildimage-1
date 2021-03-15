@@ -14,7 +14,7 @@ variables:
 stages:
 - stage: Build
   jobs:
-  - template: azure-pipelines-job-groups.yml
+  - template: .azure-pipelines/azure-pipelines-job-groups.yml
     parameters:
       preSteps:
       - script: |
