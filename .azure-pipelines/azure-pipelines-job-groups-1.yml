@@ -23,7 +23,7 @@ parameters:
 
 jobs:
 - ${{ each jobGroup in parameters.jobGroups }}:
-  - ${{ if or(eq(parameters.jobFilters, ''), containsValue(parameters.jobFilters, jobGroup.name)), endswith(variables['Build.DefinitionName'], format('.{0}{1}', jobGroup.name, jobGroup.extName)) }}:
+  - ${{ if or(eq(parameters.jobFilters, ''), containsValue(parameters.jobFilters, jobGroup.name)) }}:
     - job: ${{ replace(format('{0}{1}', jobGroup.name, jobGroup.extName), '-', '_') }}
       ${{ each pair in jobGroup }}:
         ${{ if not(in(pair.key, 'job', 'name', 'extName', 'variables', 'steps', 'script', 'scriptEnv')) }}:
