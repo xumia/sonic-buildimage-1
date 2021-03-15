@@ -2,14 +2,7 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-schedules:
-- cron: "0 8 * * *"
-  displayName: Daily midnight build
-  branches:
-    include:
-    - master
-  always: true
- 
+
 trigger: none
 pr: none
 
@@ -21,24 +14,23 @@ variables:
 stages:
 - stage: Build
   jobs:
-  - job: job1
-    ${{ if ne(variables.TIMEOUTINMINUTES, '' ) }}:
-      timeoutInMinutes: $[ variables['TIMEOUTINMINUTES'] ]
-    ${{ if eq(variables.TIMEOUTINMINUTES, '' ) }}:
-      timeoutInMinutes: 2
-    steps:
-      - script: |
-          sleep 300
-          echo abc
-  - template: .azure-pipelines/azure-pipelines-build.yml
+  - template: azure-pipelines-job-groups.yml
     parameters:
-      buildOptions: 'SONIC_CONFIG_BUILD_JOBS=1 SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
-      jobFilters:
-      - vs
+      preSteps:
+      - script: |
+          echo preStep
+        displayName: preStep
       postSteps:
       - script: |
-          make freeze
-          git status files/build/versions
-          git add files/build/versions
-          git diff HEAD files/build/versions
-        displayName: "Show git diff"
+          echo postStep
+        displayName: postStep
+      jobGroups:
+      - name: vs
+        script: |
+          echo vs
+      - name: broadcom
+        script: |
+          echo broadcom
+      - name: barefoot
+        script: |
+          echo barefoot
