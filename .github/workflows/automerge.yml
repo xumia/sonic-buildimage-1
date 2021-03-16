@@ -1,14 +1,13 @@
 # This workflow will merge pull requests automatically
 #
 
-
 name: automerge
 on:
   pull_request:
     types:
     - opened
     branches:
-    - '202012'
+    - 'master'
     paths-ignore:
     - '!files/build/versions/**'
   check_suite:
