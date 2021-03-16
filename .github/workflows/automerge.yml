@@ -9,11 +9,8 @@ on:
 jobs:
   automerge:
     runs-on: ubuntu-latest
+    if: github.event.check_suite.app.name == 'Azure Pipelines' &&  github.event.check_suite.conclusion == 'success'
     steps:
-    - name: print
-      run: |
-        echo "print info"
-        echo '${{ toJSON(github.event.check_suite) }}'
     - name: automerge
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
