@@ -1,2 +1,2 @@
 automerge:
-- all: ['files/build/versions/**/*']
+- all: ['files/build/**/*']
