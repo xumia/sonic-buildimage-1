@@ -3,18 +3,14 @@
 
 name: automerge
 on:
-  pull_request:
+  check_suite:
     types:
-    - opened
-    - reopened
+      - completed
     branches:
     - 'master'
     - 'xumia/202012'
     paths:
     - 'files/build/versions/**'
-  check_suite:
-    types:
-      - completed
 jobs:
   automerge:
     runs-on: ubuntu-latest
@@ -25,4 +21,6 @@ jobs:
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         MERGE_LABELS: ''
-        MERGE_METHOD: "squash"
+        MERGE_METHOD: 'squash'
+        MERGE_FILTER_AUTHOR: 'xumia'
+        MERGE_DELETE_BRANCH: true
