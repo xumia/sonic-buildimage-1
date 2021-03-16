@@ -9,7 +9,7 @@ on:
     - reopened
     branches:
     - 'master'
-    - '202012'
+    - 'xumia/202012'
     paths:
     - 'files/build/versions/**'
   check_suite:
