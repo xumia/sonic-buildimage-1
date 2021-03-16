@@ -3,26 +3,19 @@
 
 name: automerge
 on:
-  pull_request:
-    types:
-    - opened
-    - reopened
-    branches:
-    - 'master'
-    - 'xumia/202012'
-    paths:
-    - 'files/build/versions/**'
   check_suite:
     types:
       - completed
 jobs:
   automerge:
+    if: github.event.check_suite.app.name == 'azure-pipelines' &&  github.event.check_suite.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
     - name: automerge
-      if: github.event.pull_request.user.login == 'xumia'
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        MERGE_LABELS: ''
-        MERGE_METHOD: "squash"
+        MERGE_LABELS: 'automerge'
+        MERGE_METHOD: 'squash'
+        MERGE_FILTER_AUTHOR: 'xumia'
+        MERGE_DELETE_BRANCH: true
