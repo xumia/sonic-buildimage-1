@@ -1,0 +1,25 @@
+# This workflow will merge pull requests automatically
+#
+
+
+name: automerge
+on:
+  pull_request:
+    types:
+    - opened
+    branches:
+    - '202012'
+    paths-ignore:
+    - '!files/build/versions/**'
+  check_suite:
+    types:
+      - completed
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+    - name: automerge
+      if: github.event.pull_request.user.login == 'mssonicbld'
+      uses: 'pascalgn/automerge-action@v0.13.1'
+      env:
+        GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
