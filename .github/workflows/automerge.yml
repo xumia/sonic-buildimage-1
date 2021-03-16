@@ -8,14 +8,14 @@ on:
       - completed
 jobs:
   automerge:
-    if: github.ref == 'refs/heads/xumia/202012'
+    if: github.event.check_suite.app.name == 'azure-pipelines' &&  github.event.check_suite.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
     - name: automerge
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        MERGE_LABELS: 'automerge1'
+        MERGE_LABELS: 'automerge'
         MERGE_METHOD: 'squash'
         MERGE_FILTER_AUTHOR: 'xumia'
         MERGE_DELETE_BRANCH: true
