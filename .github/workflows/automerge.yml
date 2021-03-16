@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: automerge
-      if: github.event.pull_request.user.login == 'mssonicbld'
+      if: github.event.pull_request.user.login == 'xumia'
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
