@@ -15,7 +15,7 @@ jobs:
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        MERGE_LABELS: ''
+        MERGE_LABELS: 'automerge1'
         MERGE_METHOD: 'squash'
         MERGE_FILTER_AUTHOR: 'xumia'
         MERGE_DELETE_BRANCH: true
