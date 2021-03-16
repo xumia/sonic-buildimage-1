@@ -6,17 +6,12 @@ on:
   check_suite:
     types:
       - completed
-    branches:
-    - 'master'
-    - 'xumia/202012'
-    paths:
-    - 'files/build/versions/**'
 jobs:
   automerge:
+    if: github.ref == 'refs/heads/xumia/202012'
     runs-on: ubuntu-latest
     steps:
     - name: automerge
-      if: github.event.pull_request.user.login == 'xumia'
       uses: 'pascalgn/automerge-action@v0.13.1'
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
