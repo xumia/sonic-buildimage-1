@@ -12,7 +12,7 @@ on:
     - opened
     - reopened
     branches:
-    - '202012'
+    - 'xumia/202012'
     - 'master'
     paths:
     - 'files/build/versions/**'
