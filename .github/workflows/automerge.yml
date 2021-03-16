@@ -9,8 +9,8 @@ on:
     - reopened
     branches:
     - 'master'
-    paths-ignore:
-    - '!files/build/versions/**'
+    paths:
+    - 'files/build/versions/**'
   check_suite:
     types:
       - completed
