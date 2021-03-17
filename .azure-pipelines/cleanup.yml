@@ -11,4 +11,6 @@ steps:
         pid=`sudo cat dockerfs/var/run/docker.pid` ; sudo kill $pid
     fi
     sudo rm -rf $(ls -A1)
+    username=$(id -un)
+    sudo chown -R ${username}.${username} .
   displayName: "Clean Workspace"
