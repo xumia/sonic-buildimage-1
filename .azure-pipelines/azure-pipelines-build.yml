@@ -15,16 +15,6 @@ jobs:
 - template: build-template.yml
   parameters:
     jobFilters: ${{ parameters.jobFilters }}
-    preSteps:
-    - script: |
-        echo "PLATFORM=$(PLATFORM)"
-        if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q "^(vs|broadcom|mellanox)$"; then
-          CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM)"
-          echo "BUILD_OPTIONS=$(BUILD_OPTIONS)"
-          BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
-        fi
-        echo "BUILD_OPTIONS1=$(BUILD_OPTIONS)"
-      displayName: "Make build options"
     postSteps: ${{ parameters.postSteps }}
     jobGroups:
       - name: vs
