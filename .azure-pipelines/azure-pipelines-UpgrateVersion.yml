@@ -22,6 +22,16 @@ stages:
   - template: azure-pipelines-build.yml
     parameters:
       buildSlave: y
+      preSteps:
+      - script: |
+          containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
+          if [ ! -z "$containers" ]; then
+            docker container kill $containers || true
+            sleep 5
+          fi
+          images=$(docker images 'sonic-slave-*' -a -q)
+          [ ! -z "$images" ] && docker rmi -f $images
+        displayName: 'Cleanup sonic slave'
 - stage: UpgradeVersions
   jobs:
   - job: UpgradeVersions
@@ -47,12 +57,16 @@ stages:
         echo "artifacts$artifacts"
         cp -r $(Pipeline.Workspace)/sonic-buildimage.${default_platform}/versions target/
         make freeze FREEZE_VERSION_OPTIONS=-r
-        find files/build/versions 
-        for artifact in $artifacts
+        find files/build/versions
+        ordered_artifacts=$(echo "$artifacts" | grep -v -E "arm64|armhf" && echo "$artifacts" | grep -E "arm64|armhf")
+        for artifact in $ordered_artifacts
         do
+          [[ "$artifact" == *arm64* || "$artifact" == *armhf* ]] && continue
           rm -rf target/versions
           cp -r $artifact/versions target/
-          make freeze FREEZE_VERSION_OPTIONS="-a -d"
+          OPTIONS="-a -d"
+          [[ "$artifact" == *arm64* || "$artifact" == *arm64* ]] && OPTIONS="-d"
+          make freeze FREEZE_VERSION_OPTIONS="$OPTIONS"
         done
         git diff files/build/versions
       displayName: 'Freeze Versions'
