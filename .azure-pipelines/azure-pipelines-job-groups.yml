@@ -34,8 +34,6 @@ jobs:
         GROUP_NAME: ${{ jobGroup.name }}
         GROUP_EXTNAME: '${{ jobGroup.extName }}'
         GROUP_NAMES: ${{ join(',', parameters.jobGroups.*.name ) }}
-        TEST_BUILD_NAME: ${{ variables['Build.DefinitionName'] }}
-        TEST_GROUP_NAME: ${{ format('.{0}{1}', jobGroup.name, jobGroup.extName) }}
         ${{ if ne(jobGroup.variables, '') }}:
           ${{ jobGroup.variables }}
         ${{ each para in parameters.jobvariables }}:
