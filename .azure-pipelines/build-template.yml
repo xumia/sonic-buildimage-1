@@ -29,7 +29,7 @@ jobs:
       - template: cleanup.yml
       - ${{ parameters. preSteps }}
       - script: |
-          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q -v "^(vs|broadcom|mellanox)$"; then
+          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q "^(vs|broadcom|mellanox)$"; then
             CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM)"
             echo "BUILD_OPTIONS=$(BUILD_OPTIONS)"
             echo "BUILD_OPTIONS=$BUILD_OPTIONS"
