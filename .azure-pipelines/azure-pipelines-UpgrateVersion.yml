@@ -19,7 +19,8 @@ pool: sonicbld
 stages:
 - stage: Build
   variables:
-    VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+    CACHE_MODE: wcache
+    VERSION_CONTROL_OPTIONS: ''
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
