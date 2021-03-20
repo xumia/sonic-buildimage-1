@@ -20,7 +20,7 @@ stages:
 - stage: Build
   variables:
     CACHE_MODE: wcache
-    VERSION_CONTROL_OPTIONS: ''
+    VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS='
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
