@@ -7,6 +7,9 @@ parameters:
 - name: 'buildOptions'
   type: string
   default: 'SONIC_CONFIG_BUILD_JOBS=1'
+- name: 'preSteps'
+  type: stepList
+  default: []
 - name: 'postSteps'
   type: stepList
   default: []
@@ -16,6 +19,7 @@ jobs:
   parameters:
     jobFilters: ${{ parameters.jobFilters }}
     buildOptions: ${{ parameters.buildOptions }}
+    preSteps: ${{ parameters.preSteps }}
     postSteps: ${{ parameters.postSteps }}
     jobGroups:
       - name: vs
