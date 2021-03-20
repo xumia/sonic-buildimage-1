@@ -15,7 +15,6 @@ jobs:
 - template: build-template.yml
   parameters:
     jobFilters: ${{ parameters.jobFilters }}
-    preSteps: ${{ parameters. preSteps }}
     preSteps:
     - script: |
         support_cache_platforms=("vs" "broadcom" "mellanox")
