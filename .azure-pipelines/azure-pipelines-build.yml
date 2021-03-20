@@ -15,6 +15,7 @@ jobs:
 - template: build-template.yml
   parameters:
     jobFilters: ${{ parameters.jobFilters }}
+    buildOptions: ${{ parameters.buildOptions }}
     postSteps: ${{ parameters.postSteps }}
     jobGroups:
       - name: vs
