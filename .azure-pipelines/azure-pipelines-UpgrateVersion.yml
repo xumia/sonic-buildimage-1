@@ -18,10 +18,12 @@ pool: sonicbld
 
 stages:
 - stage: Build
+  variables:
+    VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
-      buildSlave: y
+      buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
       preSteps:
       - script: |
           containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
