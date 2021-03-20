@@ -26,8 +26,7 @@ stages:
   - template: azure-pipelines-build.yml
     parameters:
       buildOptions: $[variables.VERSION_CONTROL_OPTIONS] SONIC_BUILD_JOBS=$(nproc)
-      jobFilters:
-      - vs
+      jobFilters: none
       postSteps:
       - script: |
           make freeze
