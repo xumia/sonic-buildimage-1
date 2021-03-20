@@ -23,7 +23,7 @@ stages:
       VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
 
   jobs:
-  - template: .azure-pipelines/build-template.yml
+  - template: build-template.yml
     parameters:
       buildOptions: $[variables.VERSION_CONTROL_OPTIONS] SONIC_BUILD_JOBS=$(nproc)
       jobFilters: none
