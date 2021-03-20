@@ -17,44 +17,44 @@ jobs:
     jobFilters: ${{ parameters.jobFilters }}
     preSteps: ${{ parameters. preSteps }}
     preSteps:
-      - script: |
-          support_cache_platforms=("vs" "broadcom" "mellanox")
-          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q -v "^(vs|broadcom|mellanox)$"; then
-            CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
-            BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
-          fi
-        displayName: "Make build options"
+    - script: |
+        support_cache_platforms=("vs" "broadcom" "mellanox")
+        if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q -v "^(vs|broadcom|mellanox)$"; then
+          CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
+          BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
+        fi
+      displayName: "Make build options"
     postSteps: ${{ parameters.postSteps }}
     jobGroups:
-    - name: vs
-      script: |
-        make $(BUILD_OPTIONS) target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
-    - name: broadcom
-      script: |
-        make $(BUILD_OPTIONS) target/sonic-broadcom.bin target/sonic-aboot-broadcom.swi
-    - name: mellanox
-      script: |
-        make $(BUILD_OPTIONS) ENABLE_SYNCD_RPC=y all
-    - name: barefoot
-      script: |
-        make $(BUILD_OPTIONS) target/sonic-barefoot.bin target/sonic-aboot-barefoot.swi
-    - name: innovium
-      script: |
-        make $(BUILD_OPTIONS) SONIC_CONFIG_BUILD_JOBS=1 target/sonic-innovium.bin
-    - name: nephos
-      script: |
-        make $(BUILD_OPTIONS) target/sonic-nephos.bin
-    - name: marvell-armhf
-      pool: sonicbld_8c
-      timeoutInMinutes: 3600
-      variables:
-        PLATFORM_ARCH: armhf
-      script: |
-        make $(BUILD_OPTIONS) target/sonic-marvell-armhf.bin
-    - name: centec-arm64
-      pool: sonicbld_8c
-      timeoutInMinutes: 3600
-      variables:
-        PLATFORM_ARCH: arm64
-      script: |
-        make $(BUILD_OPTIONS) target/sonic-centec-arm64.bin
+      - name: vs
+        script: |
+          make $(BUILD_OPTIONS) target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
+      - name: broadcom
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-broadcom.bin target/sonic-aboot-broadcom.swi
+      - name: mellanox
+        script: |
+          make $(BUILD_OPTIONS) ENABLE_SYNCD_RPC=y all
+      - name: barefoot
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-barefoot.bin target/sonic-aboot-barefoot.swi
+      - name: innovium
+        script: |
+          make $(BUILD_OPTIONS) SONIC_CONFIG_BUILD_JOBS=1 target/sonic-innovium.bin
+      - name: nephos
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-nephos.bin
+      - name: marvell-armhf
+        pool: sonicbld_8c
+        timeoutInMinutes: 3600
+        variables:
+          PLATFORM_ARCH: armhf
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-marvell-armhf.bin
+      - name: centec-arm64
+        pool: sonicbld_8c
+        timeoutInMinutes: 3600
+        variables:
+          PLATFORM_ARCH: arm64
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-centec-arm64.bin
