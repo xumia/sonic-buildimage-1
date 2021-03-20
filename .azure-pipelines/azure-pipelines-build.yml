@@ -19,7 +19,7 @@ jobs:
     - script: |
         support_cache_platforms=("vs" "broadcom" "mellanox")
         if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM) | grep -E -q -v "^(vs|broadcom|mellanox)$"; then
-          CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
+          CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM)"
           BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
         fi
       displayName: "Make build options"
