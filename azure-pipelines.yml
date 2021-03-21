@@ -32,27 +32,24 @@ resources:
 stages:
 - stage: Build
   pool: sonicbld
+  variables:
+    CACHE_MODE: rcache
 
   jobs:
   - template: .azure-pipelines/build-template.yml
     parameters:
-      platform: broadcom
-      platform_short: brcm
-      cache_mode: rcache
-      sync_rpc_image: true
-
-  - template: .azure-pipelines/build-template.yml
-    parameters:
-      platform: mellanox
-      platform_short: mlnx
-      cache_mode: rcache
-      sync_rpc_image: true
-
-  - template: .azure-pipelines/build-template.yml
-    parameters:
-      platform: vs
-      platform_short: vs
-      cache_mode: rcache
+      buildOptions: USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ENABLE_DOCKER_BASE_PULL=y
+      jobGroups:
+      - name: vs
+        script: |
+          make $(BUILD_OPTIONS) target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
+      - name: broadcom
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-broadcom.bin target/sonic-aboot-broadcom.swi
+      - name: mellanox
+        script: |
+          make $(BUILD_OPTIONS) target/sonic-mellanox.bin
+          make $(BUILD_OPTIONS) ENABLE_SYNCD_RPC=y target/docker-syncd-mlnx-rpc.gz
 
 - stage: Test
   variables:
