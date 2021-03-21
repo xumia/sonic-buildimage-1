@@ -33,7 +33,9 @@ stages:
             sleep 5
           fi
           images=$(docker images 'sonic-slave-*' -a -q)
-          [ ! -z "$images" ] && docker rmi -f $images
+          if [ ! -z "$images" ]; then
+            docker rmi -f $images
+          fi
         displayName: 'Cleanup sonic slave'
 - stage: UpgradeVersions
   jobs:
