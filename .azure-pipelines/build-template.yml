@@ -22,9 +22,6 @@ parameters:
 
 - name: pool
   type: string
-  values:
-  - sonicbld
-  - sonicbld_8c
   default: sonicbld
 
 - name: dbg_image
