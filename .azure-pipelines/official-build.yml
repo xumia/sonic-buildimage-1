@@ -20,43 +20,9 @@ stages:
   jobs:
   - template: build-template.yml
     parameters:
-      platform: broadcom
-      platform_short: brcm
-      cache_mode: wcache
-      dbg_image: true
-      swi_image: true
-      raw_image: true
-      sync_rpc_image: true
-
-  - template: build-template.yml
-    parameters:
-      platform: mellanox
-      platform_short: mlnx
-      cache_mode: wcache
-      dbg_image: true
-      sync_rpc_image: true
-
-  - template: build-template.yml
-    parameters:
-      platform: vs
-      platform_short: vs
-      dbg_image: true
-      cache_mode: wcache
-
-  - template: build-template.yml
-    parameters:
       timeout: 3600
       platform: marvell-armhf
       platform_arch: armhf
       platform_short: marvell-armhf
       cache_mode: wcache
-      pool: sonicbld_8c
-
-  - template: build-template.yml
-    parameters:
-      timeout: 3600
-      platform: centec-arm64
-      platform_arch: arm64
-      platform_short: centec-arm64
-      cache_mode: wcache
-      pool: sonicbld_8c
+      pool: sonic-arm64-bld-2
