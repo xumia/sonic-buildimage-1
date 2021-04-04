@@ -8,8 +8,7 @@ schedules:
   displayName: Daily midnight build
   branches:
     include:
-    - master
-  always: true
+    - disable
 
 trigger: none
 pr: none
