@@ -5,7 +5,6 @@ import subprocess
 
 INIT_CFG_FILE_PATH = '/etc/sonic/init_cfg.json'
 
-
 with open(INIT_CFG_FILE_PATH) as init_cfg_file:
     init_cfg = json.load(init_cfg_file)
     if 'FEATURE' in init_cfg:
