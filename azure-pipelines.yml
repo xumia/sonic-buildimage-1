@@ -30,15 +30,3 @@ stages:
       - script: |
           sleep 300
           echo abc
-  - template: .azure-pipelines/azure-pipelines-build.yml
-    parameters:
-      buildOptions: 'SONIC_CONFIG_BUILD_JOBS=1 SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
-      jobFilters:
-      - vs
-      postSteps:
-      - script: |
-          make freeze
-          git status files/build/versions
-          git add files/build/versions
-          git diff HEAD files/build/versions
-        displayName: "Show git diff"
