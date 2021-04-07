@@ -22,11 +22,6 @@ stages:
 - stage: Build
   jobs:
   - job: job1
-    ${{ if ne(variables.TIMEOUTINMINUTES, '' ) }}:
-      timeoutInMinutes: $[ variables['TIMEOUTINMINUTES'] ]
-    ${{ if eq(variables.TIMEOUTINMINUTES, '' ) }}:
-      timeoutInMinutes: 2
     steps:
       - script: |
-          sleep 300
           echo abc
