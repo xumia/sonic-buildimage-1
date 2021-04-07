@@ -6,6 +6,7 @@ on:
   check_suite:
     types:
       - completed
+
 jobs:
   automerge:
     if: github.event.check_suite.app.name == 'Azure Pipelines' &&  github.event.check_suite.conclusion == 'success'
