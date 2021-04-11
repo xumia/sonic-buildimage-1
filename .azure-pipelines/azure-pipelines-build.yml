@@ -76,6 +76,7 @@ jobs:
           platform_rpc: nephos
     buildSteps:
       - bash: |
+          BUILD_OPTIONS="$BUILD_OPTIONS PLATFORM_ARCH=$(PLATFORM_ARCH)"
           if [ $(GROUP_NAME) == vs ]; then
             if [ $(dbg_image) == true ]; then
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz && mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
