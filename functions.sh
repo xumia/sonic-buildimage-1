@@ -54,6 +54,7 @@ sonic_get_version() {
     local describe=$(git describe --tags)
     local latest_tag=$(git describe --tags --abbrev=0)
     local branch_name=$(git rev-parse --abbrev-ref HEAD)
+    [ -n "$BRANCH_NAME" ] && branch_name=$BRANCH_NAME
     if [ -n "$(git status --untracked-files=no -s --ignore-submodules)" ]; then
         local dirty="-dirty-$BUILD_TIMESTAMP"
     fi
