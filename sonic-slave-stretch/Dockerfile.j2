@@ -8,8 +8,6 @@ FROM debian:stretch
 
 MAINTAINER gulv@microsoft.com
 
-TEST build failure
-
 COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
 
 RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ stretch main contrib non-free" >> /etc/apt/sources.list && \
