@@ -21,11 +21,11 @@ stages:
   jobs:
   - job: Build1
     steps:
-    - script:
+    - script: |
         echo build1
   - job: Build2
     steps:
-    - script:
+    - script: |
         echo build2
         echo build2.1
         exit 1
