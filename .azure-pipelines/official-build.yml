@@ -15,6 +15,7 @@ schedules:
 trigger: none
 pr: none
 
+
 stages:
 - stage: Build
 
