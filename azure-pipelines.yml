@@ -27,6 +27,7 @@ stages:
     steps:
     - script:
         echo build2
+        exit 1
 
 - stage: Test
   pool: sonicbld
