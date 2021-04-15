@@ -71,6 +71,10 @@ jobs:
     submodules: recursive
     displayName: 'Checkout code'
   - script: |
+      git branch -vv
+      echo "SourceBranchName=$(Build.SourceBranchName)"
+      git checkout -b $(Build.SourceBranchName)
+      git branch -vv
       git submodule foreach --recursive 'git clean -xfdf || true'
       git submodule foreach --recursive 'git reset --hard || true'
       git submodule foreach --recursive 'git remote update || true'
