@@ -29,6 +29,7 @@ stages:
         echo build2
         echo build2.1
         exit 1
+      displayName: Build2
 
 - stage: Test
   pool: sonicbld
