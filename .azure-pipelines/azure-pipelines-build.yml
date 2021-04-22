@@ -25,29 +25,29 @@ jobs:
       PLATFORM_ARCH: amd64
       BUILD_OPTIONS: ${{ parameters.buildOptions }}
       DOCKER_DATA_ROOT_FOR_MULTIARCH: /data/march/docker
-      dbg_image: false
-      swi_image: false
-      raw_image: false
-      sync_rpc_image: false
-      platform_rpc: false
+      dbg_image: "false"
+      swi_image: "false"
+      raw_image: "false"
+      sync_rpc_image: "false"
+      platform_rpc: "false"
     jobGroups:
       - name: vs
         variables:
-          dbg_image: true
+          dbg_image: "true"
       - name: barefoot
         variables:
-          swi_image: true
+          swi_image: "true"
       - name: broadcom
         variables:
-          dbg_image: true
-          swi_image: true
-          raw_image: true
-          sync_rpc_image: true
+          dbg_image: "true"
+          swi_image: "true"
+          raw_image: "true"
+          sync_rpc_image: "true"
           platform_rpc: brcm
       - name: centec
         variables:
-          dbg_image: true
-          sync_rpc_image: true
+          dbg_image: "true"
+          sync_rpc_image: "true"
           platform_rpc: centec
       - name: centec-arm64
         pool: sonicbld_8c
@@ -56,10 +56,10 @@ jobs:
           PLATFORM_ARCH: arm64
       - name: generic
         variables:
-          dbg_image: true
+          dbg_image: "true"
       - name: innovium
         variables:
-          swi_image: true
+          swi_image: "true"
       - name: marvell-armhf
         pool: sonicbld_8c
         timeoutInMinutes: 1800
@@ -67,13 +67,13 @@ jobs:
           PLATFORM_ARCH: armhf
       - name: mellanox
         variables:
-          dbg_image: true
-          sync_rpc_image: true
+          dbg_image: "true"
+          sync_rpc_image: "true"
           platform_rpc: mlnx
       - name: nephos
         variables:
-          dbg_image: true
-          sync_rpc_image: true
+          dbg_image: "true"
+          sync_rpc_image: "true"
           platform_rpc: nephos
     buildSteps:
       - bash: |
