@@ -1,0 +1,10 @@
+parameters:
+- name: 'jobs'
+  type: jobList
+  default: []
+
+stages:
+- ${{ each job in parameters.jobs }}:
+  - stage: job['job']
+    jobs:
+    - ${{ job }}
