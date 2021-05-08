@@ -3,14 +3,7 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-  branches:
-    include:
-      - master
-      - 202012
-  paths:
-    exclude:
-      - .github
+trigger: none
 
 pr:
   branches:
@@ -31,11 +24,21 @@ resources:
     endpoint: build
 
 stages:
+- stage: Fake
+  jobs:
+  - job:
+    pool:
+      vmImage: ubuntu-20.04
+    steps:
+    - script: |
+        echo exit
+        exit 1
+      displayName: Test
 - stage: Build
   pool: sonicbld
   variables:
     CACHE_MODE: rcache
-    ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
+    ${{ if eq(variables['System.PullRequest.TargetBranch'], '202012') }}:
       VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
   jobs:
   - template: .azure-pipelines/azure-pipelines-build.yml
