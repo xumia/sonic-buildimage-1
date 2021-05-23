@@ -61,7 +61,10 @@ jobs:
             platform_rpc: centec
 
         - name: centec-arm64
-          pool: sonicbld_8c
+          pool:
+            name: sonic-arm64-bld-3
+            demands:
+            - ARCH -equals arm64
           timeoutInMinutes: 2160
           variables:
             PLATFORM_ARCH: arm64
@@ -75,10 +78,14 @@ jobs:
             swi_image: yes
 
         - name: marvell-armhf
-          pool: sonicbld_8c
+          pool: 
+            name: sonic-arm64-bld-3
+            demands:
+            - ARCH -equals armhf
           timeoutInMinutes: 2160
           variables:
             PLATFORM_ARCH: armhf
+            HOST_ARCHS: armhf
 
         - name: mellanox
           variables:
