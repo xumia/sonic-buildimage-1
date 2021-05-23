@@ -51,11 +51,13 @@ comma := ,
 
 ifeq ($(shell uname -m), aarch64)
 COMPILE_HOST_ARCH := arm64
-else ifeq ($(shell uname -m), armv7l)
+else ifneq (,$(filter $(shell uname -m),armv7l armv8l))
 COMPILE_HOST_ARCH := armhf
 else
 COMPILE_HOST_ARCH := amd64
 endif
+
+COMPILE_HOST_ARCHS := $(COMPILE_HOST_ARCH) $(ADDITIONAL_COMPILE_HOST_ARCHS)
 
 
 ifeq ($(USER), root)
@@ -111,17 +113,12 @@ ifeq ($(ENABLE_DOCKER_BASE_PULL),)
 	override ENABLE_DOCKER_BASE_PULL = n
 endif
 
-ifeq ($(CONFIGURED_ARCH),amd64)
+ifneq (,$(filter $(CONFIGURED_ARCH),amd64 $(COMPILE_HOST_ARCHS)))
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
 MULTIARCH_QEMU_ENVIRON = n
 else
-ifeq ($(CONFIGURED_ARCH), $(COMPILE_HOST_ARCH))
-SLAVE_BASE_IMAGE = $(SLAVE_DIR)
-MULTIARCH_QEMU_ENVIRON = n
-else ifneq ($(CONFIGURED_ARCH),)
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)-march-$(CONFIGURED_ARCH)
 MULTIARCH_QEMU_ENVIRON = y
-endif
 endif
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 
@@ -281,7 +278,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
 .DEFAULT_GOAL :=  all
 
 %::
-ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 	@$(DOCKER_MULTIARCH_CHECK)
 ifneq ($(BLDENV), )
 	@$(DOCKER_SERVICE_MULTIARCH_CHECK)
@@ -356,7 +353,7 @@ reset :
 	    if [ $$ans == y ]; then
 	        echo "Resetting local repository. Please wait...";
 	        $(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) sudo rm -rf fsroot;
-	        if [[ "$(CONFIGURED_ARCH)" == "armhf" || "$(CONFIGURED_ARCH)" ==  "arm64" ]]; then
+	        if [ "$(MULTIARCH_QEMU_ENVIRON)" == y ] && [[ "$(CONFIGURED_ARCH)" == "armhf" || "$(CONFIGURED_ARCH)" ==  "arm64" ]]; then
 	            echo "Stopping march $(CONFIGURED_ARCH) docker"
 	            sudo kill -9 `sudo cat /var/run/march/docker.pid` || true
 	            sudo rm -f /var/run/march/docker.pid || true
