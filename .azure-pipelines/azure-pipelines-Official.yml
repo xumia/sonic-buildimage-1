@@ -6,14 +6,6 @@
 trigger: none
 pr: none
 
-schedules:
-- cron: "0 0 * * *"
-  displayName: Daily Build
-  branches:
-    include:
-    - 202012
-  always: true
-
 pool: sonicbld
 
 stages:
