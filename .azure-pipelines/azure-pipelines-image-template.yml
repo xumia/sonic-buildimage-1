@@ -46,7 +46,9 @@ jobs:
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           docker info
           j2 --help
-          ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure
+          set
+          echo "ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure"
+          make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure
         displayName: 'Make configure'
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
