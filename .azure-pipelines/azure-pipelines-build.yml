@@ -78,10 +78,7 @@ jobs:
             swi_image: yes
 
         - name: marvell-armhf
-          pool: 
-            name: sonic-arm64-bld-3
-            demands:
-            - ARCH -equals armhf
+          pool: sonicbld-armhf 
           timeoutInMinutes: 2160
           variables:
             PLATFORM_ARCH: armhf
