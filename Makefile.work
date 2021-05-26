@@ -311,11 +311,16 @@ else
 endif
 
 sonic-build-hooks:
+	echo "Building sonic-slave-base-build"
 	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
 	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
+	echo "Building sonic-slave-base-build finished"
 
 sonic-slave-base-build : sonic-build-hooks
+	echo "Building sonic-slave-base-build"
+	echo "starting to run $(OVERLAY_MODULE_CHECK)"
 	@$(OVERLAY_MODULE_CHECK)
+	echo "starting to run OVERLAY_MODULE_CHECK finished"
 	@echo Checking sonic-slave-base image: $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
