@@ -48,7 +48,7 @@ jobs:
           j2 --help
           set
           echo "ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure"
-          make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) -d -n configure
+          make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) -d configure
         displayName: 'Make configure'
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
