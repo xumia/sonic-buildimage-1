@@ -51,7 +51,7 @@ comma := ,
 
 ifeq ($(shell uname -m), aarch64)
 COMPILE_HOST_ARCH := arm64
-else ifneq (,$(filter $(shell uname -m),armv7l armv8l))
+else ifeq ($(shell uname -m | grep -qE "armv7l|armv8l" && echo y),y)
 COMPILE_HOST_ARCH := armhf
 else
 COMPILE_HOST_ARCH := amd64
@@ -113,6 +113,7 @@ ifeq ($(ENABLE_DOCKER_BASE_PULL),)
 	override ENABLE_DOCKER_BASE_PULL = n
 endif
 
+# The multiarch qemu will not be used when the arch is amd64 or the target arch the same as the building machine
 ifneq (,$(filter $(CONFIGURED_ARCH),amd64 $(COMPILE_HOST_ARCHS)))
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
 MULTIARCH_QEMU_ENVIRON = n
