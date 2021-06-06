@@ -104,7 +104,7 @@ stages:
               sudo chown -R ${username}.${username} .; \
               sudo chown -R ${username}.${username} $(System.DefaultWorkingDirectory)" EXIT
         pushd platform/vs/tests
-        sudo . /tmp/vent/bin/activate && py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber)
+        sudo bash -c "source $(test_venv)/bin/activate && py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber)"
       displayName: "Run vs tests"
 
     - task: PublishTestResults@2
