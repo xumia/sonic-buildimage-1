@@ -17,6 +17,7 @@ pr:
     include:
       - master
       - 202012
+      - 201911
   paths:
     exclude:
       - .github
@@ -52,6 +53,8 @@ stages:
     value: veos_vtb
   - name: testbed_file
     value: vtestbed.csv
+  - name: test_venv
+    value: /tmp/py2-test-virtualenv
 
   jobs:
   - job:
@@ -80,6 +83,14 @@ stages:
       displayName: "Download sonic-buildimage.vs artifact"
 
     - script: |
+        sudo apt install -y python3-virtualenv
+        sudo rm --rf $(test_venv)
+        virtualenv --python=/usr/bin/python2 $(test_venv)
+        . /tmp/vent/bin/activate
+        pip install pytest==4.6.2 attrs==19.1.0 exabgp==4.0.10 distro==1.5.0 docker==4.4.1 redis==3.3.4
+      displayName: "Install packages for vs test"
+
+    - script: |
         set -x
         sudo dpkg -i --force-confask,confnew ../sonic-swss-common.amd64.ubuntu20_04/libswsscommon_1.0.0_amd64.deb
         sudo dpkg -i ../sonic-swss-common.amd64.ubuntu20_04/python3-swsscommon_1.0.0_amd64.deb
@@ -93,7 +104,7 @@ stages:
               sudo chown -R ${username}.${username} .; \
               sudo chown -R ${username}.${username} $(System.DefaultWorkingDirectory)" EXIT
         pushd platform/vs/tests
-        sudo py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber)
+        sudo . /tmp/vent/bin/activate && py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber)
       displayName: "Run vs tests"
 
     - task: PublishTestResults@2
