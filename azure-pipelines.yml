@@ -84,7 +84,7 @@ stages:
 
     - script: |
         sudo apt install -y python3-virtualenv
-        sudo rm --rf $(test_venv)
+        sudo rm -rf $(test_venv)
         virtualenv --python=/usr/bin/python2 $(test_venv)
         source $(test_venv)/bin/activate
         pip install pytest==4.6.2 attrs==19.1.0 exabgp==4.0.10 distro==1.5.0 docker==4.4.1 redis==3.3.4
