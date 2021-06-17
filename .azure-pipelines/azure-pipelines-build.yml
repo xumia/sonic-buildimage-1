@@ -115,6 +115,10 @@ jobs:
             fi
             if [ $(sync_rpc_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-rpc.gz
+              if [ $PLATFORM_AZP == mellanox ]; then
+                make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/sonic-mellanox.bin
+                mv target/sonic-mellanox.bin target/sonic-mellanox-rpc.bin
+              fi
             fi
             make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).bin
           fi
