@@ -1,6 +1,8 @@
 {% set path = env('PLATFORM_PATH') %}
+[ ! -d {{ path }} ] && git clone {{ module.repo }} {{ path }};
+cd {{ path }};
 {% if module.ref is defined %}
-git clone {{ module.repo }} {{ path }} && cd {{ path }} && git checkout {{ module.ref }} && git submodule update --init --recursive
+git checkout {{ module.ref }} && git submodule update --init --recursive
 {% else %}
-git clone {{ module.repo }} {{ path }} && cd {{ path }} && git submodule update --init --recursive
+git submodule update --init --recursive
 {% endif %}

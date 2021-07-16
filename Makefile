@@ -8,6 +8,8 @@ PLATFORM_CHECKOUT := platform/checkout
 PLATFORM_CHECKOUT_FILE := $(PLATFORM_CHECKOUT)/$(PLATFORM).ini
 PLATFORM_CHECKOUT_CMD := $(shell if [ -f $(PLATFORM_CHECKOUT_FILE) ]; then PLATFORM_PATH=$(PLATFORM_PATH) j2 $(PLATFORM_CHECKOUT)/template.j2 $(PLATFORM_CHECKOUT_FILE); fi)
 
+.PHONY: $(PLATFORM_PATH)
+
 %::
 	@echo "+++ --- Making $@ --- +++"
 ifeq ($(NOJESSIE), 0)
