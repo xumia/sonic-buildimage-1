@@ -21,6 +21,13 @@ schedules:
 trigger: none
 pr: none
 
+resources:
+  repositories:
+  - repository: cisco-8000
+    type: github
+    name: Cisco-8000-sonic/platform-cisco-8000
+    endpoint: cisco-connection
+
 stages:
 - stage: Build
   pool: sonicbld

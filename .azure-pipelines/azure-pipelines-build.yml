@@ -22,6 +22,12 @@ jobs:
   parameters:
     jobFilters: ${{ parameters.jobFilters }}
     preSteps: ${{ parameters.preSteps }}
+    checkoutSteps:
+    - checkout: cisco-8000
+      submodules: recursive
+      path: s/platform/cisco-8000
+      condition: eq(variables.PLATFORM_AZP, 'cisco-8000')
+      displayName: 'Checkout cisco-8000'
     postSteps: ${{ parameters.postSteps }}
     jobVariables:
       PLATFORM_AZP: $(GROUP_NAME)
@@ -95,6 +101,9 @@ jobs:
             dbg_image: yes
             docker_syncd_rpc_image: yes
             platform_rpc: nephos
+
+        - name: cisco-8000
+          pool: sonic
 
     buildSteps:
       - bash: |
