@@ -28,6 +28,13 @@ jobs:
       path: s/platform/cisco-8000
       condition: eq(variables.PLATFORM_AZP, 'cisco-8000')
       displayName: 'Checkout cisco-8000'
+    - script: |
+        set -ex
+        echo "pwd=$(pwd)"
+        wget https://github.com/Cisco-8000-sonic/platform-cisco-8000/releases/download/v0.1/artifactory-v0.1.tar.gz -O target/artifactory-v0.1.tar.gz
+        tar xfz target/artifactory-v0.1.tar.gz -C platform/cisco-8000
+      condition: eq(variables.PLATFORM_AZP, 'cisco-8000')
+      displayName: 'Download cisco packages'
     postSteps: ${{ parameters.postSteps }}
     jobVariables:
       PLATFORM_AZP: $(GROUP_NAME)
