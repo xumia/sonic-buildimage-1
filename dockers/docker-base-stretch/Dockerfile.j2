@@ -1,11 +1,5 @@
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
-{% if CONFIGURED_ARCH == "armhf" %}
-FROM multiarch/debian-debootstrap:armhf-stretch
-{% elif CONFIGURED_ARCH == "arm64" %}
-FROM multiarch/debian-debootstrap:arm64-stretch
-{% else %}
-FROM debian:stretch
-{% endif %}
+FROM {{DOCKER_BASE_ARCH}}/debian:stretch
 
 # Clean documentation in FROM image
 RUN find /usr/share/doc -depth \( -type f -o -type l \) ! -name copyright | xargs rm || true

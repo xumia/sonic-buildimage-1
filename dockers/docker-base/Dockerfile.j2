@@ -1,10 +1,4 @@
-{% if CONFIGURED_ARCH == "armhf" %}
-FROM multiarch/debian-debootstrap:armhf-jessie
-{% elif CONFIGURED_ARCH == "arm64" %}
-FROM multiarch/debian-debootstrap:arm64-jessie
-{% else %}
-FROM debian:jessie
-{% endif %}
+FROM {{DOCKER_BASE_ARCH}}/debian:jessie
 
 ## Remove retired jessie-updates repo
 RUN sed -i '/http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
