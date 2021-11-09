@@ -1,0 +1,8 @@
+include $(PLATFORM_PATH)/sai.dep
+include $(PLATFORM_PATH)/tsingma-bsp.dep
+include $(PLATFORM_PATH)/libsaithrift-dev.dep
+include $(PLATFORM_PATH)/docker-syncd-centec.dep
+include $(PLATFORM_PATH)/docker-syncd-centec-rpc.dep
+include $(PLATFORM_PATH)/docker-saiserver-centec.dep
+include $(PLATFORM_PATH)/platform-modules-centec-e530.dep
+include $(PLATFORM_PATH)/one-image.dep
