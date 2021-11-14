@@ -786,12 +786,12 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 		if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && QUILT_PATCHES=../$(notdir $($*.gz_PATH)).patch quilt push -a; popd; fi
 		mkdir -p $($*.gz_PATH)/debs $(LOG)
 		mkdir -p $($*.gz_PATH)/files $(LOG)
-		mkdir -p $($*.gz_PATH)/python-debs/$(BLDENV) $(LOG)
-		mkdir -p $($*.gz_PATH)/python-wheels/$(BLDENV) $(LOG)
+		mkdir -p $($*.gz_PATH)/python-debs $(LOG)
+		mkdir -p $($*.gz_PATH)/python-wheels $(LOG)
 		sudo mount --bind $($*.gz_DEBS_PATH) $($*.gz_PATH)/debs $(LOG)
 		sudo mount --bind $($*.gz_FILES_PATH) $($*.gz_PATH)/files $(LOG)
-		sudo mount --bind $(PYTHON_DEBS_PATH) $($*.gz_PATH)/python-debs/$(BLDENV) $(LOG)
-		sudo mount --bind $(PYTHON_WHEELS_PATH) $($*.gz_PATH)/python-wheels/$(BLDENV) $(LOG)
+		sudo mount --bind $(PYTHON_DEBS_PATH) $($*.gz_PATH)/python-debs $(LOG)
+		sudo mount --bind $(PYTHON_WHEELS_PATH) $($*.gz_PATH)/python-wheels $(LOG)
 		# Export variables for j2. Use path for unique variable names, e.g. docker_orchagent_debs
 		$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_debs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DEPENDS),RDEPENDS))\n" | awk '!a[$$0]++'))
 		$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_pydebs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_PYTHON_DEBS)))\n" | awk '!a[$$0]++'))
