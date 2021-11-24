@@ -46,6 +46,7 @@ stages:
 
 - stage: Build
   pool: sonicbld
+  condition: always()
   variables:
     CACHE_MODE: rcache
     ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
