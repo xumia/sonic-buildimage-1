@@ -397,7 +397,7 @@ RUN apt-get install -y vim
 # Install rsyslog
 RUN apt-get install -y rsyslog
 
-RUN apt-get install -y libgtest-dev
+RUN apt-get install -y -t stretch-backports libgtest-dev googletest libgmock-dev
 RUN apt-get install -y libarchive13 librhash0
 RUN apt-get -t stretch-backports install -y libuv1
 # Install cmake/cmake-data 3.13.2-1_bpo9+1
