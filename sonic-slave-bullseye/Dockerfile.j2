@@ -394,7 +394,7 @@ RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confdef"
 RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confold"
 
 # For linux build
-Rf CONFIGURED_ARCH == "armhf" %}UN apt-get -y build-dep linux
+RUN apt-get -y build-dep linux
 
 # For gobgp and telemetry build
 {%- if INCLUDE_FIPS == "y" %}
