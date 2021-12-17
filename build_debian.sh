@@ -337,10 +337,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     rasdaemon
 fi
 
-if [ $INCLUDE_FIPS == y ]; then
-
-fi
-
 ## Set /etc/shadow permissions to -rw-------.
 sudo LANG=c chroot $FILESYSTEM_ROOT chmod 600 /etc/shadow
 
