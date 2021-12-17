@@ -400,7 +400,7 @@ RUN apt-get -y build-dep linux
 {%- if INCLUDE_FIPS == "y" %}
 RUN wget -O golang-go.deb 'https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/golang-1.15-go_1.15.15-1~deb11u1%2Bfips_{{ CONFIGURED_ARCH }}.deb' \
  && wget -O golang-src.deb 'https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/golang-1.15-src_1.15.15-1~deb11u1%2Bfips_{{ CONFIGURED_ARCH }}.deb' \
- && apt-get install -f golang-1.15 \
+ && apt-get install -y golang-1.15 \
  && dpkg -i golang-go.deb golang-src.deb \
  && rm golang-go.deb golang-src.deb
 {%- else -%}
