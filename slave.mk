@@ -93,7 +93,7 @@ ifneq ($(CONFIGURED_PLATFORM),generic)
 endif
 
 configure :
-	@mkdir -p $(DEBS_PATH)
+	@mkdir -p $(DEBS_PATH)/fips
 	@mkdir -p $(JESSIE_DEBS_PATH)
 	@mkdir -p $(STRETCH_DEBS_PATH)
 	@mkdir -p $(BUSTER_DEBS_PATH)
