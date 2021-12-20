@@ -590,6 +590,8 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noni
 {% endfor %}
 {% endif %}
 
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get --fix-broken install -y
+
 ## Run depmod command for target kernel modules
 sudo LANG=C chroot $FILESYSTEM_ROOT depmod -a {{kversion}}
 
