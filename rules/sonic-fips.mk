@@ -7,7 +7,7 @@ FIPS_PYTHON_VERSION = 3.9.2-1+fips
 FIPS_GOLANG_MAIN_VERSION = 1.15
 FIPS_GOLANG_VERSION = 1.15.15-1~deb11u2+fips
 BLDENV ?= $(shell lsb_release -cs)
-FIPS_URL_PREFIX = https://sonicstorage.blob.core.windows.net/public/fips/$(BLDENV)/$(FIPS_VERSION)
+FIPS_URL_PREFIX = https://sonicstorage.blob.core.windows.net/public/fips/$(BLDENV)/$(FIPS_VERSION)/$(CONFIGURED_ARCH)
 
 SYMCRYPT_OPENSSL_NAME = symcrypt-openssl
 SYMCRYPT_OPENSSL = fips/$(SYMCRYPT_OPENSSL_NAME)_$(FIPS_VERSION)_$(CONFIGURED_ARCH).deb
