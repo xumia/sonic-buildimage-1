@@ -133,7 +133,7 @@ endif
 endif
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 
-ifneq ($(PLATFORM_ARCH),amd64)
+ifeq ($(PLATFORM_ARCH),armhf)
     override INCLUDE_FIPS := n
 endif
 

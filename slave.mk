@@ -246,7 +246,7 @@ ifeq ($(CONFIGURED_PLATFORM),vs)
 export BUILD_MULTIASIC_KVM
 endif
 
-ifneq ($(PLATFORM_ARCH),amd64)
+ifeq ($(PLATFORM_ARCH),armhf)
     override INCLUDE_FIPS := n
 endif
 
