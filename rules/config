@@ -208,3 +208,10 @@ BUILD_MULTIASIC_KVM = n
 
 # INCLUDE_MUX - build docker-mux for dual ToR (Gemini)
 INCLUDE_MUX = y
+
+# ENABLE_FIPS - support FIPS, only for amd64 or arm64, armhf not supported yet
+ifeq ($(CONFIGURED_ARCH), armhf)
+ENABLE_FIPS ?= n
+else
+ENABLE_FIPS ?= y
+endif
