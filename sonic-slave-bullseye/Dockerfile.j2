@@ -400,6 +400,7 @@ RUN apt-get install -y golang-1.15
 RUN wget -O golang-go.deb 'https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/{{ CONFIGURED_ARCH }}/golang-1.15-go_1.15.15-1~deb11u2%2Bfips_{{ CONFIGURED_ARCH }}.deb' \
  && wget -O golang-src.deb 'https://sonicstorage.blob.core.windows.net/public/fips/bullseye/0.1/{{ CONFIGURED_ARCH }}/golang-1.15-src_1.15.15-1~deb11u2%2Bfips_{{ CONFIGURED_ARCH }}.deb' \
  && dpkg -i golang-go.deb golang-src.deb \
+ && ln -s /usr/lib/go-1.15 /usr/local/go \
  && rm golang-go.deb golang-src.deb
 {%- endif %}
 
