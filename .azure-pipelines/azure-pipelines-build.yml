@@ -78,7 +78,10 @@ jobs:
             dbg_image: yes
 
         - name: marvell-armhf
-          pool: sonicbld-armhf
+          pool:
+            name: sonicbld-armhf
+            demands:
+              - build.scope -equals test
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
