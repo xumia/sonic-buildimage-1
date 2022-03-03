@@ -68,7 +68,7 @@ stages:
         displayName: 'Setup cisco artifacts'
       - script: |
           set -ex
-          filename=$(find platform/cisco-8000 -name cisco-* -type f | head -n 1)
+          filename=$(find platform/cisco-8000/artifacts/sonic -name cisco-* -type f | head -n 1)
           if [ -z "$filename" ]; then
             echo "Cisco sai package not found" 1>&2
             exit 1
