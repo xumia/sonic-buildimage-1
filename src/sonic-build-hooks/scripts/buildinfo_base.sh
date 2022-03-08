@@ -231,11 +231,12 @@ acquire_apt_installation_lock()
             echo "Waiting dpkg lock for $wait_in_second, $i/$count, info: $lock_info" 1>&2
             sleep $wait_in_second
         else
+            # Create file in an atomic operation
             if (set -o noclobber; echo "$info">$DPKG_INSTALLTION_LOCK_FILE) &>/dev/null; then
                 result=y
                 break
             else
-                echo "Failed to creat lock Waiting dpkg lock for $wait_in_second, $i/$count, info: $lock_info" 1>&2
+                echo "Failed to creat lock, Waiting dpkg lock for $wait_in_second, $i/$count, info: $lock_info" 1>&2
                 sleep $wait_in_second
             fi
         fi

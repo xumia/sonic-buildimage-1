@@ -11,9 +11,10 @@ if [ -z "$REAL_COMMAND" ]; then
 fi
 
 INSTALL=$(check_apt_install)
+COMMAND_INFO="Locked by command: $REAL_COMMAND $@"
 if [ "$INSTALL" == y ]; then
     check_apt_version
-    lock_result=$(acquire_apt_installation_lock)
+    lock_result=$(acquire_apt_installation_lock "$COMMAND_INFO" )
     $REAL_COMMAND "$@"
     command_result=$?
     [ "$lock_result" == y ] && release_apt_installation_lock
