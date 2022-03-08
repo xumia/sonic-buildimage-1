@@ -1,0 +1,3 @@
+#!/bin/bash
+
+APT_REAL_COMMAND=$(get_command apt) ./apt-get "$@"
