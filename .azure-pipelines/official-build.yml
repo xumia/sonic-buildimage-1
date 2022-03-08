@@ -15,6 +15,9 @@ schedules:
 trigger: none
 pr: none
 
+variables:
+  VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web,git,docker'
+
 stages:
 - stage: Build
   pool: sonicbld
