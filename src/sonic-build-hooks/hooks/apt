@@ -1,3 +1,4 @@
 #!/bin/bash
 
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 APT_REAL_COMMAND=$(get_command apt) ./apt-get "$@"

@@ -3,8 +3,8 @@
 INSTALL=
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
-REAL_COMMAND=$(get_command apt-get)
-[ -n "$APT_REAL_COMMAND" ] && REAL_COMMAND=$APT_REAL_COMMAND
+REAL_COMMAND=$APT_REAL_COMMAND
+[ -z "$REAL_COMMAND" ] && REAL_COMMAND=$(get_command apt-get)
 if [ -z "$REAL_COMMAND" ]; then
     echo "The command apt-get does not exist." 1>&2
     exit 1
