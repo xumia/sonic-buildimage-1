@@ -541,7 +541,7 @@ fi
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 ## Convert initrd image to u-boot format
-if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]] && [ $CONFIGURED_PLATFORM != vs ]; then
     INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-${CONFIGURED_ARCH}
     if [[ $CONFIGURED_ARCH == armhf ]]; then
         INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-armmp
