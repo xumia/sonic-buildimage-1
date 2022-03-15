@@ -69,12 +69,14 @@ generate_kvm_image()
 generate_onie_installer_image()
 {
     # Copy platform-specific ONIE installer config files where onie-mk-demo.sh expects them
-    rm -rf ./installer/x86_64/platforms/
-    mkdir -p ./installer/x86_64/platforms/
+    local platforms_path=./installer/x86_64/platforms
+    [ "$CONFIGURED_ARCH" != "amd64" ] && platforms_path="./installer/$CONFIGURED_ARCH/platforms"
+    rm -rf $platforms_path
+    mkdir -p $platforms_path
     for VENDOR in `ls ./device`; do
         for PLATFORM in `ls ./device/$VENDOR`; do
             if [ -f ./device/$VENDOR/$PLATFORM/installer.conf ]; then
-                cp ./device/$VENDOR/$PLATFORM/installer.conf ./installer/x86_64/platforms/$PLATFORM
+                cp ./device/$VENDOR/$PLATFORM/installer.conf $platforms_path/$PLATFORM
             fi
 
         done
