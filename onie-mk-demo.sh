@@ -78,7 +78,7 @@ mkdir $tmp_installdir || clean_up 1
 cp -r $installer_dir/$arch/* $tmp_installdir || clean_up 1
 
 # Override the installer
-[ -d platform/$platform/installer/$arch ] && cp -rf platform/$platform/installer/$arch/* $tmp_installdir || clean_up 1
+[ -d platform/$machine/installer/$arch ] && cp -rf platform/$machine/installer/$arch/* $tmp_installdir
 
 cp onie-image.conf $tmp_installdir
 cp onie-image-*.conf $tmp_installdir
@@ -102,7 +102,7 @@ echo -n "."
 cp -r $* $tmp_installdir || clean_up 1
 echo -n "."
 [ -r "$platform_conf" ] && {
-    cp $platform_conf $tmp_installdir || clean_up 1
+    cp $platform_conf $tmp_installdir
 }
 echo "machine=$machine" > $tmp_installdir/machine.conf
 echo "platform=$platform" >> $tmp_installdir/machine.conf
