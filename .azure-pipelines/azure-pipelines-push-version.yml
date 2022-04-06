@@ -53,6 +53,13 @@ stages:
     - checkout: self
       clean: true
       displayName: 'Checkout code'
+    - script: |
+        echo "https://github.com/$GIT_USER/$GIT_REPO"
+        git remote delete remote || true
+        git remote add remote https://github.com/$GIT_USER/$GIT_REPO
+        git branch -D ${{ parameters.branchName }}
+        git checkout -b ${{ parameters.branchName }} remote/${{ parameters.branchName }}
+      displayName: "Check out branch"
     - task: DownloadPipelineArtifact@2
       inputs:
         source: 'specific'
@@ -61,11 +68,6 @@ stages:
         runId: '${{ parameters.runId }}'
         patterns: '**/versions-*'
     - script: |
-        echo "https://github.com/$GIT_USER/$GIT_REPO"
-        git rmeote delete remote || true
-        git remote add remote https://github.com/$GIT_USER/$GIT_REPO
-        git branch -D ${{ parameters.branchName }}
-        git checkout -b ${{ parameters.branchName }} remote/${{ parameters.branchName }}
         mkdir -p target
         default_platform=broadcom
         artifacts=$(find $(Pipeline.Workspace) -maxdepth 1 -type d -name 'sonic-buildimage.*' | grep -v "sonic-buildimage.${default_platform}")
@@ -117,7 +119,7 @@ stages:
       env:
         GIT_USER: $(GIT_USER)
         GIT_PASSWORD: $(GIT_PASSWORD)
-      displayName: 'Send Pull Request'
+      displayName: 'Push'
     - publish: $(System.DefaultWorkingDirectory)/files/build/versions
       artifact: 'sonic-buildimage.versions'
       displayName: 'Archive SONiC versions'
