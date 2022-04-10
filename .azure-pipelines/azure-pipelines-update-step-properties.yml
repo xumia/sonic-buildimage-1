@@ -8,7 +8,7 @@ parameters:
 steps:
 - ${{ each step in parameters.steps }}:
   - ${{ each pair in step }}:
-      ${{ if in(pair.key, parameters.properties) }}:
+      ${{ if ne(parameters.properties[pair.key], '') }}:
         ${{ pair.key }}: ${{ parameters.properties[pair.key] }}
       ${{ else }}:
         ${{ pair.key }}: ${{ pair.value }}
