@@ -55,7 +55,7 @@ jobs:
             - script: |
                 echo 'retryCountOnTaskFailure=${{ convertToJson(jobGroup.stepProperties.retryCountOnTaskFailure) }}'
                 echo 'key=${{ jobGroup.stepProperties.retryCountOnTaskFailure.key }}'
-                echo 'containsValue=${{ jobGroup.stepProperties["retryCountOnTaskFailure"] }}'
+                echo "containsValue=${{ jobGroup.stepProperties['retryCountOnTaskFailure'] }}"
               displayName: test1
           - ${{ parameters.preSteps }}
           - ${{ if ne(jobGroup.script, '') }}:
