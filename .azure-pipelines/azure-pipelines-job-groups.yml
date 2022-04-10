@@ -29,7 +29,7 @@ jobs:
   - ${{ if or(eq(parameters.jobFilters, ''), containsValue(parameters.jobFilters, jobGroup.name), endswith(variables['Build.DefinitionName'], format('.{0}{1}', jobGroup.name, jobGroup.extName))) }}:
     - job: ${{ replace(format('{0}{1}', jobGroup.name, jobGroup.extName), '-', '_') }}
       ${{ each pair in jobGroup }}:
-        ${{ if not(in(pair.key, 'job', 'name', 'extName', 'variables', 'steps', 'script', 'scriptEnv')) }}:
+        ${{ if not(in(pair.key, 'job', 'name', 'extName', 'variables', 'steps', 'script', 'scriptEnv', 'stepProperties')) }}:
           ${{ pair.key }}: ${{ pair.value }}
       ${{ if eq(jobGroup.timeoutInMinutes, '') }}:
         timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
@@ -43,15 +43,20 @@ jobs:
           ${{ if eq(jobGroup.variables[para.key], '') }}:
             ${{ para.key }}: ${{ para.value }}
       steps:
-      - ${{ parameters.preSteps }}
-      - ${{ if ne(jobGroup.script, '') }}:
-        - script: |
-            ${{ jobGroup.script }}
-          env:
-            ${{ if ne(parameters.scriptEnv, '') }}:
-              ${{ parameters.scriptEnv }}
-          displayName: 'JobScript'
-      - ${{ if ne(jobGroup.steps, '') }}:
-        - ${{ jobGroup.steps }}
-      - ${{ parameters.buildSteps }}
-      - ${{ parameters.postSteps }}
+      - template: azure-pipelines-update-step-properties.yml
+        parameters:
+          ${{ if ne(jobGroup.stepProperties, '') }}:
+            properties: ${{ jobGroup.stepProperties }}
+          steps:
+          - ${{ parameters.preSteps }}
+          - ${{ if ne(jobGroup.script, '') }}:
+            - script: |
+                ${{ jobGroup.script }}
+              env:
+                ${{ if ne(parameters.scriptEnv, '') }}:
+                  ${{ parameters.scriptEnv }}
+              displayName: 'JobScript'
+          - ${{ if ne(jobGroup.steps, '') }}:
+            - ${{ jobGroup.steps }}
+          - ${{ parameters.buildSteps }}
+          - ${{ parameters.postSteps }}

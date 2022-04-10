@@ -72,6 +72,8 @@ stages:
         timeoutInMinutes: 1200
         variables:
           PLATFORM_ARCH: armhf
+        stepProperties:
+          retryCountOnTaskFailure: 2
 
 - stage: Test
   dependsOn: BuildVS

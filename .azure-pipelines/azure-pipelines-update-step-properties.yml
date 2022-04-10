@@ -1,0 +1,14 @@
+parameters:
+- name: 'properties'
+  type: object
+  default: {}
+- name: 'steps'
+  type: stepList
+  default: []
+steps:
+- ${{ each step in parameters.steps }}:
+  - ${{ each pair in step }}:
+      ${{ if in(pair.key, parameters.properties) }}:
+        ${{ pair.key }}: ${{ parameters.properties[pair.key] }}
+      ${{ else }}:
+        ${{ pair.key }}: ${{ pair.value }}

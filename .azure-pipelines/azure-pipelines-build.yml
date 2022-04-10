@@ -69,6 +69,9 @@ jobs:
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
+          stepProperties:
+            retryCountOnTaskFailure: 2
+            
 
         - name: generic
           variables:
@@ -83,6 +86,8 @@ jobs:
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
+          stepProperties:
+            retryCountOnTaskFailure: 2
 
         - name: mellanox
           variables:

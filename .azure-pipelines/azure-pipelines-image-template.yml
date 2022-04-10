@@ -36,6 +36,7 @@ jobs:
         displayName: "Set cache options"
       - checkout: self
         submodules: recursive
+        retryCountOnTaskFailure: 1
         condition: eq(variables.SKIP_CHECKOUT, '') 
         displayName: 'Checkout code'
       - script: |
@@ -46,6 +47,7 @@ jobs:
           sudo apt-get install -y acl
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure
+        retryCountOnTaskFailure: 0
         displayName: 'Make configure'
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
