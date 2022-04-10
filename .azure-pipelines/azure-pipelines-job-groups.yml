@@ -49,14 +49,13 @@ jobs:
             properties: ${{ jobGroup.stepProperties }}
           steps:
           - script: |
-              echo "properties=${{ jobGroup.stepProperties }}"
               echo "properties=${{ convertToJson(jobGroup.stepProperties) }}"
             displayName: test
           - ${{ if containsValue(jobGroup.stepProperties, "retryCountOnTaskFailure") }}:
             - script: |
                 echo containsValue
               displayName: test1
-          - ${{ if containsValue("retryCountOnTaskFailure", jobGroup.stepProperties) }}:
+          - ${{ if in("retryCountOnTaskFailure", jobGroup.stepProperties) }}:
             - script: |
                 echo in
               displayName: test2
