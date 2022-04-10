@@ -33,6 +33,9 @@ jobs:
             BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
             echo "##vso[task.setvariable variable=BUILD_OPTIONS]$BUILD_OPTIONS"
           fi
+          echo "test"
+          exit 1
+        retryCountOnTaskFailure: 0
         displayName: "Set cache options"
       - checkout: self
         submodules: recursive
