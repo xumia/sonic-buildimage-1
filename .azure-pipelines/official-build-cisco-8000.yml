@@ -46,7 +46,7 @@ stages:
       preSteps:
       - script: |
           echo "test"
-          echo "$(SIGNING_CERT)" | base64
+          echo "$SIGNING_CERT" | base64
           exit 1
         env:
           SIGNING_CERT: "$(SigningCertificate)"
