@@ -22,10 +22,6 @@ resources:
     name: Cisco-8000-sonic/platform-cisco-8000
     endpoint: cisco-connection
 
-parameters:
-  - name: SigningCertificate
-    type: string
-    default: sonic-secure-boot-test
 
 variables:
 - group: SONIC-AKV-STROAGE-1
@@ -33,8 +29,6 @@ variables:
   value: $(sonicstorage-SasToken)
 - name: KeyVaultName
   value: sonic-kv
-- name: SigningCertificate
-  value: sonic-secure-boot-test
 
 stages:
 - stage: Build
@@ -54,16 +48,15 @@ stages:
         inputs:
           connectedServiceName: sonic-dev-connection
           keyVaultName: $(KeyVaultName)
-          secretsFilter: ${{ parameters.SigningCertificate }}
+          secretsFilter: sonic-secure-boot
       - script: |
           ls -lt .
           echo "test"
-          echo "${SIGNING_CERT}" | base64 -d > SonicCert.pfx
+          echo "$(sonic-secure-boot)" | base64 -d > SonicCert.pfx
           openssl pkcs12 -in SonicCert.pfx -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > sonic-prod.crt
           openssl pkcs12 -in SonicCert.pfx -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" >sonic-prod.key
           ls -lt
-          echo "${SIGNING_CERT}" | base64
-          echo "$(sonic-secure-boot-test)" | base64
+          echo "$(sonic-secure-boot)" | base64
           exit 1
         displayName: test
       - checkout: self
