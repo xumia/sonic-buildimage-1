@@ -49,7 +49,7 @@ stages:
         inputs:
           connectedServiceName: sonic-dev-connection
           keyVaultName: $(KeyVaultName)
-          secretsFilter: $(secretsFilter)
+          secretsFilter: $(SigningCertificate)
       - script: |
           ls -lt .
           echo "test"
