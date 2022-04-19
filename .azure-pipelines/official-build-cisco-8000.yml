@@ -33,6 +33,8 @@ variables:
   value: $(sonicstorage-SasToken)
 - name: KeyVaultName
   value: sonic-kv
+- name: SigningCertificate
+  value: sonic-secure-boot-test
 
 stages:
 - stage: Build
@@ -63,7 +65,7 @@ stages:
           echo "${SIGNING_CERT}" | base64
           exit 1
         env:
-          SIGNING_CERT: "$(${{ parameters.SigningCertificate }})"
+          SIGNING_CERT: "$($(SigningCertificate))"
         displayName: test
       - checkout: self
         submodules: recursive
