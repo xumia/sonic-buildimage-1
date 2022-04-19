@@ -44,15 +44,10 @@ stages:
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       preSteps:
-      - task: AzureKeyVault@2
-        inputs:
-          connectedServiceName: sonic-dev-connection
-          keyVaultName: $(KeyVaultName)
-          secretsFilter: sonic-secure-boot
+      - template: azure-pipelines-download-certificate.yml
       - script: |
-          ls -lt .
-          echo "test"
           echo "$(sonic-secure-boot)" | base64 -d > SonicCert.pfx
+          sudo ls /etc/certificates -lt
           openssl pkcs12 -in SonicCert.pfx -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > sonic-prod.crt
           openssl pkcs12 -in SonicCert.pfx -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" >sonic-prod.key
           ls -lt
