@@ -63,7 +63,7 @@ stages:
           openssl pkcs12 -in SonicCert.pfx -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" >sonic-prod.key
           ls -lt
           echo "${SIGNING_CERT}" | base64
-          echo "$(sonic-secure-boot-test) | base64
+          echo "$(sonic-secure-boot-test)" | base64
           exit 1
         env:
           SIGNING_CERT: "$[variables.$(SigningCertificate)]"
