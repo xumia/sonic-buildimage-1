@@ -10,10 +10,10 @@ parameters:
   default: sonic-secure-boot
 - name: privateKeyPath
   type: string
-  default: /etc/certificates/${{ parameters.certificateName }}-private.pem
+  default: /etc/certificates/sonic-secure-boot-private.pem
 - name: certificatePath
   type: string
-  default: /etc/certificates/${{ parameters.certificateName }}-public.pem
+  default: /etc/certificates/sonic-secure-boot-public.pem
 
 steps:
 - task: AzureKeyVault@2
