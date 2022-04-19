@@ -24,8 +24,11 @@ resources:
 
 variables:
 - group: SONIC-AKV-STROAGE-1
+- group: SONIC-KV
 - name: StorageSASKey
   value: $(sonicstorage-SasToken)
+- name: SigningCertificate
+  value: $(sonic-secure-boot-test)
 
 stages:
 - stage: Build
@@ -41,6 +44,13 @@ stages:
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       preSteps:
+      - script: |
+          echo "test"
+          echo "$(SIGNING_CERT)" | base64
+          exit 1
+        env:
+          SIGNING_CERT: "$(SigningCertificate)"
+        displayName: test
       - checkout: self
         submodules: recursive
         path: s
