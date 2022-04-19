@@ -24,14 +24,11 @@ resources:
 
 variables:
 - group: SONIC-AKV-STROAGE-1
-- group: SONIC-KV
 - name: StorageSASKey
   value: $(sonicstorage-SasToken)
-- name: SigningCertificate
-  value: $(sonic-secure-boot-test)
 - name: KeyVaultName
   value: sonic-kv
-- name: secretsFilter
+- name: SigningCertificate
   value: sonic-secure-boot-test
 
 stages:
