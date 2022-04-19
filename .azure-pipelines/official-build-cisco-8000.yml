@@ -56,6 +56,10 @@ stages:
       - script: |
           ls -lt .
           echo "test"
+          echo "$SIGNING_CERT" | base64 -d > SonicCert.pfx
+          openssl pkcs12 -in SonicCert.pfx -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > sonic-prod.crt
+          openssl pkcs12 -in SonicCert.pfx -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" >sonic-prod.key
+          ls -lt
           echo "$SIGNING_CERT" | base64
           exit 1
         env:
