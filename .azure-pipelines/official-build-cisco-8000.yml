@@ -52,7 +52,7 @@ stages:
         inputs:
           connectedServiceName: sonic-dev-connection
           keyVaultName: $(KeyVaultName)
-          secretsFilter: 'sonic-secure-boot*'
+          secretsFilter: $(secretsFilter)
       - script: |
           ls -lt .
           echo "test"
