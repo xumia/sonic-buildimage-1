@@ -65,8 +65,6 @@ stages:
           echo "${SIGNING_CERT}" | base64
           echo "$(sonic-secure-boot-test)" | base64
           exit 1
-        env:
-          SIGNING_CERT: "$[variables.$(SigningCertificate)]"
         displayName: test
       - checkout: self
         submodules: recursive
