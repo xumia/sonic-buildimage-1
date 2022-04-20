@@ -13,7 +13,7 @@ parameters:
   default: /etc/certificates/sonic-secure-boot-private.pem
 - name: certificatePath
   type: string
-  default: /etc/certificates/sonic-secure-boot-public.pem
+  default: $(Build.StagingDirectory)/sonic-secure-boot-public.pem
 
 steps:
 - task: AzureKeyVault@2
@@ -26,8 +26,10 @@ steps:
     TMP_FILE=$(mktemp)
     echo "$CERTIFICATE" | base64 -d > $TMP_FILE
     sudo mkdir -p /etc/certificates
-    openssl pkcs12 -in $TMP_FILE -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" | sudo tee ${{ parameters.privateKeyPath }} 1>/dev/null
-    openssl pkcs12 -in $TMP_FILE -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" | sudo tee ${{ parameters.certificatePath }} 1>/dev/null
+    # Save the public key
+    openssl pkcs12 -in $TMP_FILE -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > tee $(SIGNING_CERT)
+    # Save the private key
+    openssl pkcs12 -in $TMP_FILE -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" | sudo tee $(SIGNING_KEY) 1>/dev/null
     rm $TMP_FILE
   env:
     CERTIFICATE: $(${{ parameters.certificateName }})
