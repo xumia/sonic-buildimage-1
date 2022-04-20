@@ -32,7 +32,8 @@ variables:
 - name: SIGNING_KEY
   value: /etc/certificates/sonic-secure-boot-private.pem
 - name: SIGNING_CERT
-  value: $(Build.StagingDirectory)/sonic-secure-boot-public.pem
+  value: $(Build.StagingDirectory)/target/sonic-secure-boot-public.pem
+
 stages:
 - stage: Build
   pool: sonic
