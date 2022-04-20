@@ -25,6 +25,7 @@ steps:
     openssl pkcs12 -in $TMP_FILE -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > $(SIGNING_CERT)
     # Save the private key
     openssl pkcs12 -in $TMP_FILE -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" | sudo tee $(SIGNING_KEY) 1>/dev/null
+    ls -lt $(SIGNING_CERT) $(SIGNING_KEY)
     rm $TMP_FILE
   env:
     CERTIFICATE: $(${{ parameters.certificateName }})
