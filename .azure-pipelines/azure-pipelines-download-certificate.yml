@@ -21,6 +21,7 @@ steps:
     TMP_FILE=$(mktemp)
     echo "$CERTIFICATE" | base64 -d > $TMP_FILE
     sudo mkdir -p /etc/certificates
+    mkdir -p $(Build.StagingDirectory)/target
     # Save the public key
     openssl pkcs12 -in $TMP_FILE -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > $(SIGNING_CERT)
     # Save the private key
