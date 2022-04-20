@@ -17,6 +17,7 @@ steps:
     secretsFilter: ${{ parameters.certificateName }}
 
 - script: |
+    set -e
     TMP_FILE=$(mktemp)
     echo "$CERTIFICATE" | base64 -d > $TMP_FILE
     sudo mkdir -p /etc/certificates
