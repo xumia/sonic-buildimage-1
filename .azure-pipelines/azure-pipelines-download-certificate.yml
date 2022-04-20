@@ -8,12 +8,6 @@ parameters:
 - name: certificateName
   type: string
   default: sonic-secure-boot
-- name: privateKeyPath
-  type: string
-  default: /etc/certificates/sonic-secure-boot-private.pem
-- name: certificatePath
-  type: string
-  default: $(Build.StagingDirectory)/sonic-secure-boot-public.pem
 
 steps:
 - task: AzureKeyVault@2
