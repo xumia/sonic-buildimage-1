@@ -29,7 +29,10 @@ variables:
   value: $(sonicstorage-SasToken)
 - name: KeyVaultName
   value: sonic-kv
-
+- name: SIGNING_KEY
+  value: /etc/certificates/sonic-secure-boot-private.pem
+- name: SIGNING_CERT
+  value: $(Build.StagingDirectory)/sonic-secure-boot-public.pem
 stages:
 - stage: Build
   pool: sonic
