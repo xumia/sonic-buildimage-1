@@ -27,8 +27,8 @@ variables:
 - group: SONIC-AKV-STROAGE-1
 - name: StorageSASKey
   value: $(sonicstorage-SasToken)
-- name: KeyVaultName
-  value: sonic-kv
+- name: SONIC_ENABLE_SECUREBOOT_SIGNATURE
+  value: y
 - name: SIGNING_KEY
   value: /etc/certificates/sonic-secure-boot-private.pem
 - name: SIGNING_CERT
@@ -49,12 +49,7 @@ stages:
       preSteps:
       - template: azure-pipelines-download-certificate.yml
       - script: |
-          echo "$(sonic-secure-boot)" | base64 -d > SonicCert.pfx
-          sudo ls /etc/certificates -lt
-          openssl pkcs12 -in SonicCert.pfx -clcerts --nokeys -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN CERTIFICATE\)/\1/" > sonic-prod.crt
-          openssl pkcs12 -in SonicCert.pfx -nocerts -nodes -passin pass: | sed -z -e "s/.*\(-----BEGIN PRIVATE KEY\)/\1/" >sonic-prod.key
-          ls -lt
-          echo "$(sonic-secure-boot)" | base64
+          sudo ls -l $(SIGNING_KEY) $(SIGNING_CERT)
           exit 1
         displayName: test
       - checkout: self
