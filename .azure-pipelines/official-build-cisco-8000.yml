@@ -98,5 +98,10 @@ stages:
           StorageSASKey: $(StorageSASKey)
         condition: ne(variables['Build.Reason'], 'PullRequest')
         displayName: "Override cisco sai packages"
+      - script: |
+          echo "SONIC_ENABLE_SECUREBOOT_SIGNATURE := y" >> rules/config.user
+          echo "SIGNING_KEY := $(SIGNING_KEY)" >> rules/config.user
+          echo "SIGNING_CERT := $(SIGNING_CERT)" >> rules/config.user
+        displayName: "Enable secure boot signature"
       jobGroups:
       - name: cisco-8000
