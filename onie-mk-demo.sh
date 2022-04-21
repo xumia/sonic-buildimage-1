@@ -79,6 +79,11 @@ cp -r $installer_dir/$arch/* $tmp_installdir || clean_up 1
 cp onie-image.conf $tmp_installdir
 cp onie-image-*.conf $tmp_installdir
 
+# Set sonic fips config for the installer script
+if [ "$ENABLE_FIPS" == "y" ]; then
+    sed -ie '$aONIE_PLATFORM_EXTRA_CMDLINE_LINUX="$ONIE_PLATFORM_EXTRA_CMDLINE_LINUX sonic_fips=1"' $tmp_installdir/onie-image*.conf
+fi
+
 # Escape special chars in the user provide kernel cmdline string for use in
 # sed. Special chars are: \ / &
 EXTRA_CMDLINE_LINUX=`echo $EXTRA_CMDLINE_LINUX | sed -e 's/[\/&]/\\\&/g'`
