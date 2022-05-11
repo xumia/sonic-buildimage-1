@@ -33,6 +33,7 @@ steps:
     ignoreSslCertificateErrors: false
     useSameSourceVersion: false
     useCustomSourceVersion: false
+    branchToUse: "publish-artifacts"
     useSameBranch: false
     waitForQueuedBuildsToFinish: false
     storeInEnvironmentVariable: true
