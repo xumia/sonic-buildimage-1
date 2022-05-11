@@ -100,7 +100,7 @@ jobs:
     buildSteps:
       - bash: |
           set -ex
-          if [ $(GROUP_NAME) == vs ]; then
+          if [ $(GROUP_NAME) == broadcom ]; then
             if [ $(dbg_image) == yes ]; then
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz
               mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz

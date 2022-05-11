@@ -51,10 +51,10 @@ jobs:
       - task: DownloadPipelineArtifact@2
         inputs:
           source: specific
-          pipeline: 142
-          artifact: 'sonic-buildimage.vs'
+          pipeline: 138
+          artifact: 'sonic-buildimage.broadcom'
           runVersion: 'specific'
-          runId: 97764
+          runId: 95340
           patterns: **
           path: $(Build.ArtifactStagingDirectory)
         displayName: "Download artifacts"
