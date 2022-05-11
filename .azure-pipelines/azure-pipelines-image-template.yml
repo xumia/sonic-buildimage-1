@@ -69,7 +69,7 @@ jobs:
           mv $(Build.ArtifactStagingDirectory)/target/* ./target/
         displayName: "Move artifacts"
     postSteps:
-      - script: cp target -r $(Build.ArtifactStagingDirectory)/
+      - script: mv target $(Build.ArtifactStagingDirectory)/
         displayName: Copy Artifacts
         condition: always()
       - publish:  $(Build.ArtifactStagingDirectory)
