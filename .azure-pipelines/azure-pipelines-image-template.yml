@@ -66,8 +66,7 @@ jobs:
             exit 1
           fi
           ls $(Build.ArtifactStagingDirectory)
-          ls $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs
-          mv $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs/target/* ./target/
+          mv $(Build.ArtifactStagingDirectory)/target/* ./target/
         displayName: "Move artifacts"
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
