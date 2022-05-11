@@ -61,8 +61,8 @@ jobs:
         displayName: "Download artifacts"
       - script: |
           mkdir -p target
-          if [ "$(GROUP_NAME)" != vs ]; then
-            echo "The expect platform is vs, but $(GROUP_NAME)"
+          if [ "$(GROUP_NAME)" != broadcom ]; then
+            echo "The expect platform is broadcom, but $(GROUP_NAME)"
             exit 1
           fi
           ls $(Build.ArtifactStagingDirectory)
