@@ -48,6 +48,26 @@ jobs:
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure
         condition: false
         displayName: 'Make configure'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          source: specific
+          pipeline: 138
+          artifact: 'sonic-buildimage.broadcom'
+          runVersion: 'specific'
+          runId: 95340
+          patterns: **
+          path: $(Build.ArtifactStagingDirectory)
+        displayName: "Download artifacts"
+      - script: |
+          mkdir -p target
+          if [ "$(GROUP_NAME)" != vs ]; then
+            echo "The expect platform is vs, but $(GROUP_NAME)"
+            exit 1
+          fi
+          ls $(Build.ArtifactStagingDirectory)
+          ls $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs
+          mv $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs/target/* ./target/
+        displayName: "Move artifacts"
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
         displayName: Copy Artifacts
