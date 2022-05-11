@@ -45,18 +45,15 @@ steps:
     failTaskIfConditionsAreNotFulfilled: false
     buildParameters: ''
     templateParameters: |
-      pipelineContext: {
-        "buildId":"$(Build.BuildId)",
+      pipelineContext: {"buildId":"$(Build.BuildId)",
         "pipelineId":"$(System.DefinitionId)",
         "project": "$(System.TeamProject)",
         "branchName":"$(Build.SourceBranchName)"
       },
-      artifactContext: {
-        "artifactName":"${{ parameters.artifactName }}",
+      artifactContext: {"artifactName":"${{ parameters.artifactName }}",
         "artifactPatterns":"**"
       },
-      publishContext: {
-        "publishPrefix":"${{ parameters.publishPrefix }}",
+      publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
         "dockerImagePatterns":"target/*.tar.gz",
         "dockerTags":"$(docker_tags)",
