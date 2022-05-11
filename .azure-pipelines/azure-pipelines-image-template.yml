@@ -51,6 +51,7 @@ jobs:
       - task: DownloadPipelineArtifact@2
         inputs:
           source: 'specific'
+          project: 'build'
           pipeline: 138
           artifact: 'sonic-buildimage.broadcom'
           runVersion: 'specific'
