@@ -49,15 +49,12 @@ steps:
       pipelineContext: {"buildId":"$(Build.BuildId)",
         "pipelineId":"$(System.DefinitionId)",
         "project": "$(System.TeamProject)",
-        "branchName":"$(Build.SourceBranchName)"
-      },
+        "branchName":"$(Build.SourceBranchName)"},
       artifactContext: {"artifactName":"${{ parameters.artifactName }}",
-        "artifactPatterns":"**"
-      },
+        "artifactPatterns":"**"},
       publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
         "dockerImagePatterns":"target/*.tar.gz",
         "dockerTags":"$(docker_tags)",
         "version":"$(sonic_version)",
-        "latestTag":"$(latest_tag)"
-      }
+        "latestTag":"$(latest_tag)"}
