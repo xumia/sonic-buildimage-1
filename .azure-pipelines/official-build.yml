@@ -34,7 +34,8 @@ variables:
 
 stages:
 - stage: Build
-  pool: sonicbld
+  pool:
+    vmImage: 'ubuntu-20.04'
   variables:
   - name: CACHE_MODE
     value: wcache
