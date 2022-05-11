@@ -35,7 +35,7 @@ jobs:
           fi
         displayName: "Set cache options"
       - checkout: self
-        submodules: recursive
+        #submodules: recursive
         condition: eq(variables.SKIP_CHECKOUT, '') 
         displayName: 'Checkout code'
       - script: |
@@ -46,7 +46,28 @@ jobs:
           sudo apt-get install -y acl
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure
+        condition: false
         displayName: 'Make configure'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          source: specific
+          pipeline: 142
+          artifact: 'sonic-buildimage.vs'
+          runVersion: 'specific'
+          runId: 97764
+          patterns: **
+          path: $(Build.ArtifactStagingDirectory)
+        displayName: "Download artifacts"
+      - script: |
+          mkdir -p target
+          if [ "$(GROUP_NAME)" != vs ]; then
+            echo "The expect platform is vs, but $(GROUP_NAME)"
+            exit 1
+          fi
+          ls $(Build.ArtifactStagingDirectory)
+          ls $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs
+          mv $(Build.ArtifactStagingDirectory)/sonic-buildimage.vs/target/* ./target/
+        displayName: "Move artifacts"
     postSteps:
       - script: cp target -r $(Build.ArtifactStagingDirectory)/
         displayName: Copy Artifacts
@@ -58,6 +79,10 @@ jobs:
         condition: failed()
         artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)$(System.JobAttempt)'
         displayName: "Archive failed sonic image"
+      - template: trigger-publish-artifacts-build.yml
+        parameters:
+          artifactName: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)'
+          publishPrefix: '$(Build.DefinitionName)/$(Build.SourceBranchName)/$(GROUP_NAME)'
       - ${{ parameters.postSteps }}
       - template: cleanup.yml
     jobGroups: ${{ parameters.jobGroups }}
