@@ -58,7 +58,7 @@ steps:
       publishContext: {
         "publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
-        "dockerImagePatterns":"*.tar.gz",
+        "dockerImagePatterns":"target/*.tar.gz",
         "dockerTags":"$(docker_tags)",
         "version":"$(sonic_version)",
         "latestTag":"$(latest_tag)"
