@@ -56,7 +56,9 @@ jobs:
           artifact: 'sonic-buildimage.broadcom'
           runVersion: 'specific'
           runId: 98181
-          patterns: '**'
+          patterns: |
+              **/*-rpc.gz
+              **/*.bin
           path: '$(Build.ArtifactStagingDirectory)'
         displayName: "Download artifacts"
       - script: |
