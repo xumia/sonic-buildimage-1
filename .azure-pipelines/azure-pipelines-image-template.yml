@@ -57,9 +57,11 @@ jobs:
           runVersion: 'specific'
           runId: 98181
           patterns: |
-              **/*-rpc.gz
               **/*.bin
-              **/*.log
+              **/*.swi
+              **/*.raw
+              **/*-rpc.gz
+              **/python-saithrift*.deb
           path: '$(Build.ArtifactStagingDirectory)'
         displayName: "Download artifacts"
       - script: |
