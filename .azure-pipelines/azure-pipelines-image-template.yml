@@ -59,6 +59,7 @@ jobs:
           patterns: |
               **/*-rpc.gz
               **/*.bin
+              **/*.log
           path: '$(Build.ArtifactStagingDirectory)'
         displayName: "Download artifacts"
       - script: |
