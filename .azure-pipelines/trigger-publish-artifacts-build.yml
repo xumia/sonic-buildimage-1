@@ -28,7 +28,7 @@ steps:
     definitionIsInCurrentTeamProject: false
     teamProject: internal
     tfsServer: $(System.CollectionUri)
-    buildDefinition: 'publish-artifacts-test'
+    buildDefinition: 'publish-artifacts'
     queueBuildForUserThatTriggeredBuild: true
     ignoreSslCertificateErrors: false
     useSameSourceVersion: false
