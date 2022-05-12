@@ -33,7 +33,6 @@ steps:
     ignoreSslCertificateErrors: false
     useSameSourceVersion: false
     useCustomSourceVersion: false
-    #branchToUse: "publish-artifacts"
     useSameBranch: false
     waitForQueuedBuildsToFinish: false
     storeInEnvironmentVariable: true
@@ -51,7 +50,7 @@ steps:
         "project": "$(System.TeamProject)",
         "branchName":"$(Build.SourceBranchName)"},
       artifactContext: {"artifactName":"${{ parameters.artifactName }}",
-        "artifactPatterns":"**"},
+        "artifactPatterns":"*"},
       publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
         "dockerImagePatterns":"target/*-rpc.gz",
