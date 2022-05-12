@@ -54,7 +54,7 @@ steps:
         "artifactPatterns":"**"},
       publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
-        "dockerImagePatterns":"target/*.tar.gz",
+        "dockerImagePatterns":"target/*-rpc.gz",
         "dockerTags":"$(docker_tags)",
         "version":"$(sonic_version)",
         "latestTag":"$(latest_tag)"}

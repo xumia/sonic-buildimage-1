@@ -55,7 +55,7 @@ jobs:
           pipeline: 138
           artifact: 'sonic-buildimage.broadcom'
           runVersion: 'specific'
-          runId: 95340
+          runId: 98181
           patterns: '**'
           path: '$(Build.ArtifactStagingDirectory)'
         displayName: "Download artifacts"
