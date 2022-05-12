@@ -50,8 +50,7 @@ steps:
         "project": "$(System.TeamProject)",
         "branchName":"$(Build.SourceBranchName)"},
       artifactContext: {"artifactName":"${{ parameters.artifactName }}",
-        "artifactPatterns":"**/*-rpc.gz
-         **/*.bin"},
+        "artifactPatterns":"**/*-rpc.gz\n**/*.bin"},
       publishContext: {"publishPrefix":"${{ parameters.publishPrefix }}",
         "keepArtifactName":false,
         "dockerImagePatterns":"target/*-rpc.gz",
