@@ -350,6 +350,12 @@ extract_image() {
     ## Unzip the image except boot0 and dockerfs archive
     unzip -oq "$swipath" -x boot0 "$dockerfs" -d "$image_path"
 
+    ## Extrat the platform.tar.gz
+    info "Extracting platform.tar.gz"
+    mkdir -p $image_path/platform
+    tar xzf $image_path/platform.tar.gz -C $image_path/platform
+    rm -rf $image_path/platform.tar.gz
+
     ## detect rootfs type
     local mountstr="$(grep " $target_path " /proc/mounts)"
     local rootdev="$(echo $mountstr | cut -f1 -d' ')"

@@ -146,6 +146,9 @@ else
     unzip -op $ONIE_INSTALLER_PAYLOAD "$FILESYSTEM_DOCKERFS" | tar xz $TAR_EXTRA_OPTION -f - -C $demo_mnt/$image_dir/$DOCKERFS_DIR
 fi
 
+mkdir -p $demo_mnt/$image_dir/platform
+tar xzf $demo_mnt/$image_dir/platform.tar.gz -C $demo_mnt/$image_dir/platform
+rm -rf $demo_mnt/$image_dir/platform.tar.gz
 
 if [ "$install_env" = "onie" ]; then
     # Store machine description in target file system
