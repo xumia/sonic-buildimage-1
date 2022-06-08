@@ -350,7 +350,7 @@ extract_image() {
     ## Unzip the image except boot0 and dockerfs archive
     unzip -oq "$swipath" -x boot0 "$dockerfs" "platform.tar.gz" -d "$image_path"
 
-    ## Extrat the platform.tar.gz
+    ## Extract the platform.tar.gz
     info "Extracting platform.tar.gz"
     mkdir -p "$image_path/platform"
     unzip -oqp "$swipath" "platform.tar.gz" | tar xzf - -C "$image_path/platform" $TAR_EXTRA_OPTION
