@@ -21,7 +21,7 @@ generate_version_file()
     sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb-${IMAGE_DISTRO}-${CONFIGURED_ARCH}
 }
 
-if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ]; then
+if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ] || [ ! -d files/build/versions/host-base-image ]; then
     if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
         if [ $MULTIARCH_QEMU_ENVIRON == "y" ]; then
             # qemu arm bin executable for cross-building
