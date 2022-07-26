@@ -67,7 +67,8 @@ jobs:
             platform_rpc: centec
 
         - name: centec-arm64
-          pool: sonicbld-arm64
+          ${{ if not(contains(variables['Build.DefinitionName'], 'cross')) }}:
+            pool: sonicbld-arm64
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
@@ -81,7 +82,8 @@ jobs:
             dbg_image: yes
 
         - name: marvell-armhf
-          pool: sonicbld-armhf
+          ${{ if not(contains(variables['Build.DefinitionName'], 'cross')) }}:
+            pool: sonicbld-armhf
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
