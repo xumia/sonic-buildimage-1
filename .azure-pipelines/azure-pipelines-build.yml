@@ -16,6 +16,9 @@ parameters:
 - name: 'jobGroups'
   type: object
   default: ''
+- name: 'qemuOrCrossBuild'
+  type: boolean
+  default: false
 
 jobs:
 - template: azure-pipelines-image-template.yml
@@ -67,7 +70,7 @@ jobs:
             platform_rpc: centec
 
         - name: centec-arm64
-          ${{ if not(contains(variables['Build.DefinitionName'], 'cross')) }}:
+          ${{ if not(parameters.qemuOrCrossBuild) }}:
             pool: sonicbld-arm64
           timeoutInMinutes: 2880
           variables:
@@ -82,7 +85,7 @@ jobs:
             dbg_image: yes
 
         - name: marvell-armhf
-          ${{ if not(contains(variables['Build.DefinitionName'], 'cross')) }}:
+          ${{ if not(parameters.qemuOrCrossBuild) }}:
             pool: sonicbld-armhf
           timeoutInMinutes: 2880
           variables:
