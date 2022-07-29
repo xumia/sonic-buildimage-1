@@ -46,4 +46,3 @@ stages:
       jobFilters: none
       ${{ if contains(variables['Build.DefinitionName'], 'cross') }}:
         qemuOrCrossBuild: true
-        SONIC_SLAVE_DOCKER_DRIVER: 'vfs'
