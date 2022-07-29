@@ -39,7 +39,7 @@ jobs:
       docker_syncd_rpc_image: no
       syncd_rpc_image: no
       platform_rpc: no
-      ${{ if not(parameters.qemuOrCrossBuild) }}:
+      ${{ if parameters.qemuOrCrossBuild) }}:
         SONIC_SLAVE_DOCKER_DRIVER: 'vfs'
     ${{ if ne(parameters.jobGroups, '') }}:
       jobGroups: ${{ parameters.jobGroups }}
