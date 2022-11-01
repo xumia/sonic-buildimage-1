@@ -385,6 +385,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
                            ENABLE_FIPS=$(ENABLE_FIPS) \
                            SONIC_SLAVE_DOCKER_DRIVER=$(SONIC_SLAVE_DOCKER_DRIVER) \
+                           SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
