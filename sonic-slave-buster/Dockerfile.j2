@@ -379,10 +379,10 @@ RUN apt-get -y build-dep openssh
        RUN cp /bin/true /usr/bin/aspell
 
        # Upgrade cmake to support dbus-python build in armhf, but the latest version of cmake conflicts with libyang
-       RUN apt-get install -t buster-backports -y cmake>3.18.4 -f
+       RUN apt-get install -t buster-backports -y cmake=3.18.4-2+deb11u1~bpo10+1 cmake-data=3.18.4-2+deb11u1~bpo10+1
        RUN pip3 install --upgrade pip
        RUN pip3 install dbus-python
-       RUN apt-get install cmake=3.13.4-1 cmake-data=3.13.4-1 -f
+       RUN apt-get install -y cmake=3.13.4-1 cmake-data=3.13.4-1 --allow-downgrades
 {%- endif %}
 
 ## Config dpkg
