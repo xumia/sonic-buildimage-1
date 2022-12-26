@@ -40,7 +40,7 @@ stages:
   - name: CACHE_MODE
     value: wcache
   - name: VERSION_CONTROL_OPTIONS
-    value: none
+    value: 'SONIC_VERSION_CONTROL_COMPONENTS=none'
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
