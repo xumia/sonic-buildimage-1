@@ -29,6 +29,19 @@ resources:
 trigger: none
 pr: none
 
+parameters:
+- name: 'jobFilters'
+  type: object
+  default:
+  - vs
+  - barefoot
+  - broadcom
+  - centec
+  - centec-arm64
+  - generic
+  - marvell-armhf
+  - mellanox
+
 variables:
 - template: .azure-pipelines/template-variables.yml@buildimage
 
@@ -43,6 +56,6 @@ stages:
   - template: azure-pipelines-build.yml
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
-      jobFilters: none
+      jobFilters: ${{ parameters.jobFilters }}
       ${{ if contains(variables['Build.DefinitionName'], 'cross') }}:
         qemuOrCrossBuild: true
