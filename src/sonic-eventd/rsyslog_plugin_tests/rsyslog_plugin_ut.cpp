@@ -85,7 +85,7 @@ TEST(syslog_parser, matching_regex_timestamp) {
     event_params_t expectedDict;
     expectedDict["message"] = "test_message";
     expectedDict["other_data"] = "test_data";
-    expectedDict["timestamp"] = "2022-07-21T02:10:00.000000Z";
+    expectedDict["timestamp"] = "2023-07-21T02:10:00.000000Z";
 
     unique_ptr<SyslogParser> parser(new SyslogParser());
     parser->m_regexList = regexList;
@@ -186,7 +186,7 @@ TEST(syslog_parser, lua_code_valid_2) {
     expectedDict["ip"] = "10.10.24.216";
     expectedDict["major-code"] = "6";
     expectedDict["minor-code"] = "2";
-    expectedDict["timestamp"] = "2022-12-03T12:36:24.503424Z";
+    expectedDict["timestamp"] = "2023-12-03T12:36:24.503424Z";
 
     unique_ptr<SyslogParser> parser(new SyslogParser());
     parser->m_regexList = regexList;
@@ -254,12 +254,12 @@ TEST(timestampFormatter, changeTimestampFormat) {
     vector<string> timestampThree = { "Dec", "31", "23:59:59.000000" }; 
 
     string formattedTimestampOne = formatter->changeTimestampFormat(timestampOne);
-    EXPECT_EQ("2022-07-20T10:09:40.230874Z", formattedTimestampOne);
+    EXPECT_EQ("2023-07-20T10:09:40.230874Z", formattedTimestampOne);
 
     EXPECT_EQ("072010:09:40.230874", formatter->m_storedTimestamp);
 
     string formattedTimestampTwo = formatter->changeTimestampFormat(timestampTwo);
-    EXPECT_EQ("2022-01-01T00:00:00.000000Z", formattedTimestampTwo);
+    EXPECT_EQ("2023-01-01T00:00:00.000000Z", formattedTimestampTwo);
 
     formatter->m_storedTimestamp = "010100:00:00.000000";
     formatter->m_storedYear = "2025";
