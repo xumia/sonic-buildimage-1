@@ -1,9 +1,12 @@
 # SONiC make file
+.ONESHELL:
+SHELL = /bin/bash
+.SHELLFLAGS += -e
 
-NOJESSIE ?= 1
+LATEST_DISTRIBUTION = bullseye
+DISTRIBUTIONS = stretch buster $(LATEST_DISTRIBUTION)
+
 NOSTRETCH ?= 1
-NOBUSTER ?= 0
-NOBULLSEYE ?= 0
 
 override Q := @
 ifeq ($(QUIET),n)
@@ -13,21 +16,12 @@ override SONIC_OVERRIDE_BUILD_VARS += $(SONIC_BUILD_VARS)
 override SONIC_OVERRIDE_BUILD_VARS += Q=$(Q)
 export Q SONIC_OVERRIDE_BUILD_VARS
 
-ifeq ($(NOJESSIE),0)
-BUILD_JESSIE=1
-endif
-
-ifeq ($(NOSTRETCH),0)
-BUILD_STRETCH=1
-endif
-
-ifeq ($(NOBUSTER),0)
-BUILD_BUSTER=1
-endif
-
-ifeq ($(NOBULLSEYE),0)
-BUILD_BULLSEYE=1
-endif
+$(foreach dist, $(DISTRIBUTIONS), \
+  $(if $(shell echo $($(shell echo NO$(dist) | tr '[:lower:]' '[:upper:]')) | grep -iE "1|y"),, \
+    $(eval $(dist)_DEPENDS := $(dist_last)) \
+    $(if $(PARALLEL_BUILD_FOR_MUALT_DISTIBUTIONS),, $(eval dist_last := $(dist))) \
+    $(eval BUILD_DISTRIBUTIONS += $(dist)) \
+))
 
 PLATFORM_PATH := platform/$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))
 PLATFORM_CHECKOUT := platform/checkout
@@ -37,9 +31,6 @@ MAKE_WITH_RETRY := ./scripts/run_with_retry $(MAKE)
 
 %::
 	@echo "+++ --- Making $@ --- +++"
-ifeq ($(NOJESSIE), 0)
-	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) -f Makefile.work jessie
-endif
 ifeq ($(NOSTRETCH), 0)
 	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=stretch -f Makefile.work stretch
 endif
@@ -51,23 +42,12 @@ ifeq ($(NOBULLSEYE), 0)
 endif
 	BLDENV=bullseye $(MAKE) -f Makefile.work docker-cleanup
 
-jessie:
+$(DISTRIBUTIONS):
 	@echo "+++ Making $@ +++"
-ifeq ($(NOJESSIE), 0)
-	$(MAKE) -f Makefile.work jessie
-endif
-
-stretch:
-	@echo "+++ Making $@ +++"
-ifeq ($(NOSTRETCH), 0)
-	$(MAKE) -f Makefile.work stretch
-endif
-
-buster:
-	@echo "+++ Making $@ +++"
-ifeq ($(NOBUSTER), 0)
-	$(MAKE) -f Makefile.work buster
-endif
+	@if echo "$(BUILD_DISTRIBUTIONS)" | grep -q $@; then
+		echo "+++ Making $@ +++"
+		$(MAKE) -f Makefile.work $@
+	fi
 
 init:
 	@echo "+++ Making $@ +++"
@@ -90,8 +70,10 @@ $(PLATFORM_PATH):
 	@echo "+++ Cheking $@ +++"
 	$(PLATFORM_CHECKOUT_CMD)
 
-configure : $(PLATFORM_PATH)
-	$(call make_work, $@)
+$(addprefix configure/, $(BUILD_DISTRIBUTIONS)) : configure/% : $(PLATFORM_PATH) $$(addprefix configure/,$$($$*_DEPENDS))
+	$(MAKE) -f Makefile.work $@
+
+configure : $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
 
 clean reset showtag docker-cleanup sonic-slave-build sonic-slave-bash :
 	$(call make_work, $@)
