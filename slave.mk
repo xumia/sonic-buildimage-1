@@ -10,6 +10,8 @@ USER = $(shell id -un)
 UID = $(shell id -u)
 GUID = $(shell id -g)
 
+include rules/common
+
 ifeq ($(SONIC_IMAGE_VERSION),)
 	override SONIC_IMAGE_VERSION := $(shell export BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) && export BUILD_NUMBER=$(BUILD_NUMBER) && . functions.sh && sonic_get_version)
 endif
@@ -33,14 +35,41 @@ FILES_PATH = $(TARGET_PATH)/files/$(BLDENV)
 PYTHON_DEBS_PATH = $(TARGET_PATH)/python-debs/$(BLDENV)
 PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels/$(BLDENV)
 PROJECT_ROOT := $(shell pwd)
-JESSIE_DEBS_PATH = $(TARGET_PATH)/debs/jessie
-JESSIE_FILES_PATH = $(TARGET_PATH)/files/jessie
-STRETCH_DEBS_PATH = $(TARGET_PATH)/debs/stretch
-STRETCH_FILES_PATH = $(TARGET_PATH)/files/stretch
-BUSTER_DEBS_PATH = $(TARGET_PATH)/debs/buster
-BUSTER_FILES_PATH = $(TARGET_PATH)/files/buster
-BULLSEYE_DEBS_PATH = $(TARGET_PATH)/debs/bullseye
-BULLSEYE_FILES_PATH = $(TARGET_PATH)/files/bullseye
+
+$(foreach dist, $(DISTRIBUTIONS), $(eval $(dist)_upper := $(shell echo $(dist) | tr '[:lower:]' '[:upper:]')))
+
+# For all distributions
+$(foreach dist, $(DISTRIBUTIONS), \
+  $(eval dist_upper := $($(dist)_upper)) \
+  $(eval $(dist_upper)_DEBS_PATH := $(TARGET_PATH)/debs/$(dist)) \
+  $(eval $(dist_upper)_FILES_PATH := $(TARGET_PATH)/files/$(dist)) \
+)
+
+# For each of old distributions
+$(foreach dist, $(filter,$(LATEST_DISTRIBUTION),$(DISTRIBUTIONS)), \
+  $(eval dist_upper := $($(dist)_upper)) \
+  $(eval DOCKER_IMAGES := $(SONIC_$(dist_upper)_DOCKERS)) \
+  $(eval DOCKER_DBG_IMAGES := $(SONIC_(dist_upper)_DBG_DOCKERS)) \
+  $(eval $(dist_upper)_DOCKER_IMAGES := $(filter $(SONIC_$(dist_upper)_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))) \
+  $(eval $(dist_upper)_DBG_DOCKER_IMAGES := $(filter $(SONIC_$(dist_upper)_DBG_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))) \
+  $(eval $(dist)_DOCKER_IMAGES := $($(dist_upper)_DOCKER_IMAGES)) \
+  $(eval $(dist)_DBG_DOCKER_IMAGES := $($(dist_upper)_DBG_DOCKER_IMAGES)) \
+  $(eval DOCKER_IMAGES_OLD += $(SONIC_$(dist_upper)_DOCKERS)) \
+  $(eval DOCKER_DBG_IMAGES_OLD += $(SONIC_$(dist_upper)_DBG_DOCKERS)) \
+  $(if $(shell echo $(BLDENV) | grep $(LATEST_DISTRIBUTION)), \
+    $(eval DOCKER_LOAD_TARGETS += $(addsuffix -load,$(addprefix $(TARGET_PATH)/, $(SONIC_$(dist_upper)_DOCKERS)))) \
+  ) \
+)
+
+# For the latest distribution
+$(if $(shell echo $(BLDENV) | grep $(LATEST_DISTRIBUTION)), \
+  $(eval dist_upper := $($(BLDENV)_upper)) \
+  $(eval DOCKER_IMAGES := $(filter-out $(DOCKER_IMAGES_OLD), $(SONIC_DOCKER_IMAGES))) \
+  $(eval DOCKER_DBG_IMAGES := $(filter-out $(DOCKER_DBG_IMAGES_OLD), $(SONIC_DOCKER_DBG_IMAGES))) \
+  $(eval $(dist_upper)_DOCKER_IMAGES := $(DOCKER_IMAGES)) \
+  $(eval $(dist_upper)_DBG_DOCKER_IMAGES := $(DOCKER_DBG_IMAGES)) \
+)
+
 DBG_IMAGE_MARK = dbg
 DBG_SRC_ARCHIVE_FILE = $(TARGET_PATH)/sonic_src.tar.gz
 BUILD_WORKDIR = /sonic
@@ -61,16 +90,13 @@ ifeq ($(CONFIGURED_ARCH),arm64)
 endif
 endif
 
-IMAGE_DISTRO := bullseye
+IMAGE_DISTRO := $(LATEST_DISTRIBUTION)
 IMAGE_DISTRO_DEBS_PATH = $(TARGET_PATH)/debs/$(IMAGE_DISTRO)
 IMAGE_DISTRO_FILES_PATH = $(TARGET_PATH)/files/$(IMAGE_DISTRO)
 
-# Python 2 packages will not be available in Bullseye
-ifeq ($(BLDENV),bullseye)
+# Python 2 packages is only available in old distributions
 ENABLE_PY2_MODULES = n
-else
-ENABLE_PY2_MODULES = y
-endif
+$(if $(filter $(BLDENV),stretch buster,$(eval ENABLE_PY2_MODULES = y))
 
 export BUILD_NUMBER
 export BUILD_TIMESTAMP
@@ -104,16 +130,14 @@ ifneq ($(CONFIGURED_PLATFORM),generic)
 	$(Q)exit 1
 endif
 
+
+
 configure :
-	$(Q)mkdir -p $(JESSIE_DEBS_PATH)
-	$(Q)mkdir -p $(STRETCH_DEBS_PATH)
-	$(Q)mkdir -p $(BUSTER_DEBS_PATH)
-	$(Q)mkdir -p $(BULLSEYE_DEBS_PATH)
+	$(Q)$(foreach dist, $(DISTRIBUTIONS), \
+	  mkdir -p $($($(dist)_upper)_DEBS_PATH); \
+	  mkdir -p $($($(dist)_upper)_FILES_PATH); \
+	)
 	$(Q)mkdir -p $(FILES_PATH)
-	$(Q)mkdir -p $(JESSIE_FILES_PATH)
-	$(Q)mkdir -p $(STRETCH_FILES_PATH)
-	$(Q)mkdir -p $(BUSTER_FILES_PATH)
-	$(Q)mkdir -p $(BULLSEYE_FILES_PATH)
 	$(Q)mkdir -p $(PYTHON_DEBS_PATH)
 	$(Q)mkdir -p $(PYTHON_WHEELS_PATH)
 	$(Q)mkdir -p $(DPKG_ADMINDIR_PATH)
@@ -963,43 +987,6 @@ SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES))
 
 DOCKER_IMAGES_FOR_INSTALLERS := $(sort $(foreach installer,$(SONIC_INSTALLERS),$($(installer)_DOCKERS)))
 
-$(foreach DOCKER_IMAGE,$(SONIC_JESSIE_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(JESSIE_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_JESSIE_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(JESSIE_FILES_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_JESSIE_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(JESSIE_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_JESSIE_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(JESSIE_FILES_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_STRETCH_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(STRETCH_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_STRETCH_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(STRETCH_FILES_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_STRETCH_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(STRETCH_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_STRETCH_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(STRETCH_FILES_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_BUSTER_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(BUSTER_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_BUSTER_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(BUSTER_FILES_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_BUSTER_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_DEBS_PATH := $(BUSTER_DEBS_PATH)))
-$(foreach DOCKER_IMAGE,$(SONIC_BUSTER_DBG_DOCKERS), $(eval $(DOCKER_IMAGE)_FILES_PATH := $(BUSTER_FILES_PATH)))
-
-ifeq ($(BLDENV),jessie)
-	DOCKER_IMAGES := $(SONIC_JESSIE_DOCKERS)
-	DOCKER_DBG_IMAGES := $(SONIC_JESSIE_DBG_DOCKERS)
-	JESSIE_DOCKER_IMAGES = $(filter $(SONIC_JESSIE_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))
-	JESSIE_DBG_DOCKER_IMAGES = $(filter $(SONIC_JESSIE_DBG_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))
-else
-ifeq ($(BLDENV),stretch)
-	DOCKER_IMAGES := $(SONIC_STRETCH_DOCKERS)
-	DOCKER_DBG_IMAGES := $(SONIC_STRETCH_DBG_DOCKERS)
-	STRETCH_DOCKER_IMAGES = $(filter $(SONIC_STRETCH_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))
-	STRETCH_DBG_DOCKER_IMAGES = $(filter $(SONIC_STRETCH_DBG_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS))
-else
-ifeq ($(BLDENV),buster)
-	DOCKER_IMAGES := $(SONIC_BUSTER_DOCKERS)
-	DOCKER_DBG_IMAGES := $(SONIC_BUSTER_DBG_DOCKERS)
-	BUSTER_DOCKER_IMAGES = $(filter $(SONIC_BUSTER_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS) $(SONIC_PACKAGES_LOCAL))
-	BUSTER_DBG_DOCKER_IMAGES = $(filter $(SONIC_BUSTER_DBG_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS) $(EXTRA_DOCKER_TARGETS) $(SONIC_PACKAGES_LOCAL))
-else
-	DOCKER_IMAGES = $(filter-out $(SONIC_JESSIE_DOCKERS) $(SONIC_STRETCH_DOCKERS) $(SONIC_BUSTER_DOCKERS),$(SONIC_DOCKER_IMAGES))
-	DOCKER_DBG_IMAGES = $(filter-out $(SONIC_JESSIE_DBG_DOCKERS) $(SONIC_STRETCH_DBG_DOCKERS) $(SONIC_BUSTER_DBG_DOCKERS), $(SONIC_DOCKER_DBG_IMAGES))
-endif
-endif
-endif
-
 $(foreach IMAGE,$(DOCKER_IMAGES), $(eval $(IMAGE)_DEBS_PATH := $(DEBS_PATH)))
 $(foreach IMAGE,$(DOCKER_IMAGES), $(eval $(IMAGE)_FILES_PATH := $(FILES_PATH)))
 $(foreach IMAGE,$(DOCKER_DBG_IMAGES), $(eval $(IMAGE)_DEBS_PATH := $(DEBS_PATH)))
@@ -1166,14 +1153,6 @@ DOCKER_LOAD_TARGETS = $(addsuffix -load,$(addprefix $(TARGET_PATH)/, \
 		      $(SONIC_SIMPLE_DOCKER_IMAGES) \
 		      $(DOCKER_IMAGES) \
 		      $(DOCKER_DBG_IMAGES)))
-
-ifeq ($(BLDENV),bullseye)
-DOCKER_LOAD_TARGETS += $(addsuffix -load,$(addprefix $(TARGET_PATH)/, \
-		      $(SONIC_JESSIE_DOCKERS) \
-		      $(SONIC_STRETCH_DOCKERS) \
-		      $(SONIC_BUSTER_DOCKERS)))
-
-endif
 
 $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TARGET_PATH)/$$*.gz
 	$(HEADER)
@@ -1539,14 +1518,9 @@ clean :: .platform clean-logs clean-versions $$(SONIC_CLEAN_DEBS) $$(SONIC_CLEAN
 
 all : .platform $$(addprefix $(TARGET_PATH)/,$$(SONIC_ALL))
 
-buster : $$(addprefix $(TARGET_PATH)/,$$(BUSTER_DOCKER_IMAGES)) \
-          $$(addprefix $(TARGET_PATH)/,$$(BUSTER_DBG_DOCKER_IMAGES))
 
-stretch : $$(addprefix $(TARGET_PATH)/,$$(STRETCH_DOCKER_IMAGES)) \
-          $$(addprefix $(TARGET_PATH)/,$$(STRETCH_DBG_DOCKER_IMAGES))
-
-jessie : $$(addprefix $(TARGET_PATH)/,$$(JESSIE_DOCKER_IMAGES)) \
-         $$(addprefix $(TARGET_PATH)/,$$(JESSIE_DBG_DOCKER_IMAGES))
+$(DISTRIBUTION) : % : $$(addprefix $(TARGET_PATH)/,$$($$($$*_upper)_DOCKER_IMAGES)) \
+          $$(addprefix $(TARGET_PATH)/,$$($$($$*_upper)_DBG_DOCKER_IMAGES))
 
 ###############################################################################
 ## Standard targets  
