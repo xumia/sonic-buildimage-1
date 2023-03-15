@@ -96,7 +96,7 @@ IMAGE_DISTRO_FILES_PATH = $(TARGET_PATH)/files/$(IMAGE_DISTRO)
 
 # Python 2 packages is only available in old distributions
 ENABLE_PY2_MODULES = n
-$(if $(filter $(BLDENV),stretch buster,$(eval ENABLE_PY2_MODULES = y))
+$(if $(filter $(BLDENV),stretch buster),$(eval ENABLE_PY2_MODULES = y))
 
 export BUILD_NUMBER
 export BUILD_TIMESTAMP
