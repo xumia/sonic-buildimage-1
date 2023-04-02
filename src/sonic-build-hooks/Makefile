@@ -2,8 +2,8 @@ SONIC_BUILD_HOOKS = sonic-build-hooks
 SONIC_BUILD_HOOKS_VERSION = 1.0
 SONIC_BUILD_HOOKS_PACKAGE = $(SONIC_BUILD_HOOKS)_$(SONIC_BUILD_HOOKS_VERSION)_all.deb
 
-BUILDINFO_DIR = buildinfo
-TMP_DIR = tmp
+BUILDINFO_DIR = buildinfo/$(DISTRO)
+TMP_DIR = tmp/$(DISTRO)
 SYMBOL_LINKS_SRC_DIR = ../../usr/local/share/buildinfo/scripts
 SYMBOL_LINKS = symlink_build_hooks post_run_buildinfo pre_run_buildinfo collect_version_files post_run_cleanup
 SONIC_BUILD_HOOKS_TARGET = $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS_PACKAGE)

@@ -71,7 +71,8 @@ $(PLATFORM_PATH):
 	$(PLATFORM_CHECKOUT_CMD)
 
 $(addprefix configure/, $(BUILD_DISTRIBUTIONS)) : configure/% : $(PLATFORM_PATH) $$(addprefix configure/,$$($$*_DEPENDS))
-	$(MAKE) -f Makefile.work $@
+	$(MAKE) BLDENV=$@ -f Makefile.work sonic-slave-build
+	@if [ $@ == $(LATEST_DISTRIBUTION) ]; then $(MAKE) BLDENV=$@ -f Makefile.work configure
 
 configure : $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
 

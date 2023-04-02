@@ -73,7 +73,7 @@ fi
 
 # Copy the build info config
 mkdir -p ${BUILDINFO_PATH}
-cp -rf src/sonic-build-hooks/buildinfo/* $BUILDINFO_PATH
+cp -rf src/sonic-build-hooks/buildinfo/$DISTRO/* $BUILDINFO_PATH
 
 # Generate the version lock files
 scripts/versions_manager.py generate -t "$BUILDINFO_VERSION_PATH" -n "$IMAGENAME" -d "$DISTRO" -a "$ARCH"

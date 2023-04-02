@@ -2,9 +2,9 @@
 
 BUILDINFO_PATH=src/sonic-build-hooks
 
-BUILDINFO_CONFIG=$BUILDINFO_PATH/buildinfo/config/buildinfo.config
+BUILDINFO_CONFIG=$BUILDINFO_PATH/buildinfo/${DISTRO}/config/buildinfo.config
 
-mkdir -p $BUILDINFO_PATH/buildinfo/config
+mkdir -p $BUILDINFO_PATH/buildinfo/${DISTRO}/config
 
 echo "export PACKAGE_URL_PREFIX=$PACKAGE_URL_PREFIX" > $BUILDINFO_CONFIG
 echo "export SONIC_VERSION_CONTROL_COMPONENTS=$SONIC_VERSION_CONTROL_COMPONENTS" >> $BUILDINFO_CONFIG
