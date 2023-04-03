@@ -3,8 +3,9 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-LATEST_DISTRIBUTION = bullseye
-DISTRIBUTIONS = stretch buster $(LATEST_DISTRIBUTION)
+.SECONDEXPANSION:
+
+include rules/common
 
 NOSTRETCH ?= 1
 
@@ -22,6 +23,7 @@ $(foreach dist, $(DISTRIBUTIONS), \
     $(if $(PARALLEL_BUILD_FOR_MUALT_DISTIBUTIONS),, $(eval dist_last := $(dist))) \
     $(eval BUILD_DISTRIBUTIONS += $(dist)) \
 ))
+export BUILD_DISTRIBUTIONS
 
 PLATFORM_PATH := platform/$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))
 PLATFORM_CHECKOUT := platform/checkout
@@ -29,7 +31,8 @@ PLATFORM_CHECKOUT_FILE := $(PLATFORM_CHECKOUT)/$(PLATFORM).ini
 PLATFORM_CHECKOUT_CMD := $(shell if [ -f $(PLATFORM_CHECKOUT_FILE) ]; then PLATFORM_PATH=$(PLATFORM_PATH) j2 $(PLATFORM_CHECKOUT)/template.j2 $(PLATFORM_CHECKOUT_FILE); fi)
 MAKE_WITH_RETRY := ./scripts/run_with_retry $(MAKE)
 
-%::
+#%::
+test1:
 	@echo "+++ --- Making $@ --- +++"
 ifeq ($(NOSTRETCH), 0)
 	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=stretch -f Makefile.work stretch
@@ -73,6 +76,9 @@ $(PLATFORM_PATH):
 $(addprefix configure/, $(BUILD_DISTRIBUTIONS)) : configure/% : $(PLATFORM_PATH) $$(addprefix configure/,$$($$*_DEPENDS))
 	$(MAKE) BLDENV=$@ -f Makefile.work sonic-slave-build
 	@if [ $@ == $(LATEST_DISTRIBUTION) ]; then $(MAKE) BLDENV=$@ -f Makefile.work configure
+
+test :
+	echo $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
 
 configure : $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
 
