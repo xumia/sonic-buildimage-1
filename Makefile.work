@@ -540,6 +540,8 @@ SONIC_BUILD_INSTRUCTION :=  $(MAKE) \
                            MIRROR_SECURITY_URLS=$(MIRROR_SECURITY_URLS) \
                            GZ_COMPRESS_PROGRAM=$(GZ_COMPRESS_PROGRAM) \
                            MIRROR_SNAPSHOT=$(MIRROR_SNAPSHOT) \
+                           BUILD_DISTRIBUTIONS="$(BUILD_DISTRIBUTIONS)" \
+                           LATEST_DISTRIBUTION=$(LATEST_DISTRIBUTION) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
