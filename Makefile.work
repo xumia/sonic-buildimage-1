@@ -271,7 +271,7 @@ $(docker run --rm -v $(DOCKER_ROOT)\:/mount alpine sh -c 'rm -rf /mount/')
 $(mkdir -p $(DOCKER_ROOT))
 
 ifeq ($(DOCKER_BUILDER_WORKDIR),)
-override DOCKER_BUILDER_WORKDIR := "/sonic"
+override DOCKER_BUILDER_WORKDIR := /sonic
 endif
 
 # Create the overlay work directory for sonic slave container
@@ -283,7 +283,7 @@ endif
 DOCKER_BUILDER_LOWER_WORKDIR = /sonic-lower
 DOCKER_BUILDER_OVERLAY_DIR = $(PWD)/fs.overlay.$(BLDENV)
 $(shell mkdir -p $(DOCKER_BUILDER_OVERLAY)/work $(DOCKER_BUILDER_OVERLAY)/upper)
-DOCKER_OVERLAY_MOUNT_OPTION = --mount type=volume,dst=$(DOCKER_BUILDER_WORKDIR),volume-driver=local,volume-opt=type=overlay,"volume-opt=o=lowerdir=$(PWD),upperdir=$(DOCKER_BUILDER_OVERLAY)/upper,workdir=$(DOCKER_BUILDER_OVERLAY)/work",volume-opt=device=overlay --mount type=bind,source=$(PWD)/target,target=/sonic/target
+DOCKER_OVERLAY_MOUNT_OPTION = --mount type=volume,dst=$(DOCKER_BUILDER_WORKDIR),volume-driver=local,volume-opt=type=overlay,\"volume-opt=o=lowerdir=$(PWD),upperdir=$(DOCKER_BUILDER_OVERLAY_DIR)/upper,workdir=$(DOCKER_BUILDER_OVERLAY_DIR)/work\",volume-opt=device=overlay --mount type=bind,source=$(PWD)/target,target=/sonic/target
 endif
 
 ifeq ($(DOCKER_BUILDER_MOUNT),)
