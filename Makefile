@@ -17,13 +17,13 @@ override SONIC_OVERRIDE_BUILD_VARS += $(SONIC_BUILD_VARS)
 override SONIC_OVERRIDE_BUILD_VARS += Q=$(Q)
 export Q SONIC_OVERRIDE_BUILD_VARS
 
+$(foreach dist, $(DISTRIBUTIONS), $(eval $(dist)_upper := $(shell echo $(dist) | tr '[:lower:]' '[:upper:]')))
 $(foreach dist, $(DISTRIBUTIONS), \
   $(if $(shell echo $($(shell echo NO$(dist) | tr '[:lower:]' '[:upper:]')) | grep -iE "1|y"),, \
     $(eval $(dist)_DEPENDS := $(dist_last)) \
     $(if $(PARALLEL_BUILD_FOR_MUALT_DISTIBUTIONS),, $(eval dist_last := $(dist))) \
     $(eval BUILD_DISTRIBUTIONS += $(dist)) \
 ))
-export BUILD_DISTRIBUTIONS
 
 PLATFORM_PATH := platform/$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))
 PLATFORM_CHECKOUT := platform/checkout
@@ -31,26 +31,24 @@ PLATFORM_CHECKOUT_FILE := $(PLATFORM_CHECKOUT)/$(PLATFORM).ini
 PLATFORM_CHECKOUT_CMD := $(shell if [ -f $(PLATFORM_CHECKOUT_FILE) ]; then PLATFORM_PATH=$(PLATFORM_PATH) j2 $(PLATFORM_CHECKOUT)/template.j2 $(PLATFORM_CHECKOUT_FILE); fi)
 MAKE_WITH_RETRY := ./scripts/run_with_retry $(MAKE)
 
-#%::
-test1:
-	@echo "+++ --- Making $@ --- +++"
-ifeq ($(NOSTRETCH), 0)
-	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=stretch -f Makefile.work stretch
-endif
-ifeq ($(NOBUSTER), 0)
-	$(MAKE_WITH_RETRY) EXTRA_DOCKER_TARGETS=$(notdir $@) BLDENV=buster -f Makefile.work buster
-endif
-ifeq ($(NOBULLSEYE), 0)
-	$(MAKE_WITH_RETRY) BLDENV=bullseye -f Makefile.work $@
-endif
-	BLDENV=bullseye $(MAKE) -f Makefile.work docker-cleanup
+#%: $(BUILD_DISTRIBUTIONS)
+%::
+	@echo "+++ --- Making $@ --- +++t0"
+	@echo "+++ --$(BUILD_DISTRIBUTIONS)"
+	@if echo "$(BUILD_DISTRIBUTIONS)" | grep -q $(LATEST_DISTRIBUTION); then \
+		$(MAKE_WITH_RETRY) BLDENV=$(LATEST_DISTRIBUTION) -f Makefile.work $@; \
+	fi
+	BLDENV=$(LATEST_DISTRIBUTION) $(MAKE) -f Makefile.work docker-cleanup
+
+$(addprefix target/%, .bin .raw .swi): $(BUILD_DISTRIBUTIONS)
+	@if echo "$(BUILD_DISTRIBUTIONS)" | grep -q $(LATEST_DISTRIBUTION); then
+		$(MAKE_WITH_RETRY) BLDENV=$(LATEST_DISTRIBUTION) -f Makefile.work $@
+	fi
+	BLDENV=$(LATEST_DISTRIBUTION) $(MAKE) -f Makefile.work docker-cleanup
 
 $(DISTRIBUTIONS):
-	@echo "+++ Making $@ +++"
-	@if echo "$(BUILD_DISTRIBUTIONS)" | grep -q $@; then
-		echo "+++ Making $@ +++"
-		$(MAKE) -f Makefile.work $@
-	fi
+	@echo "+++ Making $@ +++t01"
+	$(MAKE_WITH_RETRY) BLDENV=$@ -f Makefile.work $@
 
 init:
 	@echo "+++ Making $@ +++"
@@ -61,10 +59,7 @@ init:
 #
 define make_work
 	@echo "+++ Making $@ +++"
-	$(if $(BUILD_JESSIE),$(MAKE) -f Makefile.work $@,)
-	$(if $(BUILD_STRETCH),BLDENV=stretch $(MAKE) -f Makefile.work $@,)
-	$(if $(BUILD_BUSTER),BLDENV=buster $(MAKE) -f Makefile.work $@,)
-	$(if $(BUILD_BULLSEYE),BLDENV=bullseye $(MAKE) -f Makefile.work $@,)
+	$(foreach dist, $(DISTRIBUTIONS),$(if $(BUILD_$($(dist)_upper)),BLDENV=$(dist) $(MAKE) -f Makefile.work $@,))
 endef
 
 .PHONY: $(PLATFORM_PATH)
@@ -73,14 +68,13 @@ $(PLATFORM_PATH):
 	@echo "+++ Cheking $@ +++"
 	$(PLATFORM_CHECKOUT_CMD)
 
-$(addprefix configure/, $(BUILD_DISTRIBUTIONS)) : configure/% : $(PLATFORM_PATH) $$(addprefix configure/,$$($$*_DEPENDS))
-	$(MAKE) BLDENV=$@ -f Makefile.work sonic-slave-build
-	@if [ $@ == $(LATEST_DISTRIBUTION) ]; then $(MAKE) BLDENV=$@ -f Makefile.work configure
+$(addprefix configure/, $(BUILD_DISTRIBUTIONS)) : configure/% : $(PLATFORM_PATH) # $$(addprefix configure/,$$($$*_DEPENDS))
+	echo "+++ Cheking $@ +++t1"
+	$(MAKE) BLDENV=$* -f Makefile.work sonic-slave-build
 
-test :
-	echo $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
-
-configure : $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
+configure: $(addprefix configure/, $(BUILD_DISTRIBUTIONS))
+	echo "+++ Make configure"
+	@$(MAKE) BLDENV=$(LATEST_DISTRIBUTION) -f Makefile.work configure
 
 clean reset showtag docker-cleanup sonic-slave-build sonic-slave-bash :
 	$(call make_work, $@)

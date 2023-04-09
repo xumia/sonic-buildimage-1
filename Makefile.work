@@ -121,15 +121,7 @@ else
 TARGET_BOOTLOADER = uboot
 endif
 
-ifeq ($(BLDENV), bullseye)
-SLAVE_DIR = sonic-slave-bullseye
-else ifeq ($(BLDENV), buster)
-SLAVE_DIR = sonic-slave-buster
-else ifeq ($(BLDENV), stretch)
-SLAVE_DIR = sonic-slave-stretch
-else
-SLAVE_DIR = sonic-slave-jessie
-endif
+SLAVE_DIR = sonic-slave-$(BLDENV)
 
 # Define a do-nothing target for rules/config.user so that when
 # the file is missing, make won't try to rebuld everything.
@@ -278,17 +270,30 @@ $(shell [ -f $(DOCKER_LOCKFILE_SAVE) ] || (touch $(DOCKER_LOCKFILE_SAVE) && chmo
 $(docker run --rm -v $(DOCKER_ROOT)\:/mount alpine sh -c 'rm -rf /mount/')
 $(mkdir -p $(DOCKER_ROOT))
 
-ifeq ($(DOCKER_BUILDER_MOUNT),)
-override DOCKER_BUILDER_MOUNT := "$(PWD):/sonic"
-endif
-
 ifeq ($(DOCKER_BUILDER_WORKDIR),)
 override DOCKER_BUILDER_WORKDIR := "/sonic"
+endif
+
+# Create the overlay work directory for sonic slave container
+DOCKER_BUILDER_LOWER_WORKDIR = $(DOCKER_BUILDER_WORKDIR)
+ifeq ($(DOCKER_BUILDER_OVERLAY),y)
+ifneq ($(DOCKER_BUILDER_MOUNT),)
+$(error "Please not specify DOCKER_BUILDER_MOUNT, when DOCKER_BUILDER_OVERLAY is y")
+endif
+DOCKER_BUILDER_LOWER_WORKDIR = /sonic-lower
+DOCKER_BUILDER_OVERLAY_DIR = $(PWD)/fs.overlay.$(BLDENV)
+$(shell mkdir -p $(DOCKER_BUILDER_OVERLAY)/work $(DOCKER_BUILDER_OVERLAY)/upper)
+DOCKER_OVERLAY_MOUNT_OPTION = --mount type=volume,dst=$(DOCKER_BUILDER_WORKDIR),volume-driver=local,volume-opt=type=overlay,"volume-opt=o=lowerdir=$(PWD),upperdir=$(DOCKER_BUILDER_OVERLAY)/upper,workdir=$(DOCKER_BUILDER_OVERLAY)/work",volume-opt=device=overlay --mount type=bind,source=$(PWD)/target,target=/sonic/target
+endif
+
+ifeq ($(DOCKER_BUILDER_MOUNT),)
+override DOCKER_BUILDER_MOUNT := "$(PWD):$(DOCKER_BUILDER_LOWER_WORKDIR)"
 endif
 
 DOCKER_RUN := docker run --rm=true --privileged --init \
     -v $(DOCKER_BUILDER_MOUNT) \
     -v "$(DOCKER_LOCKDIR):$(DOCKER_LOCKDIR)" \
+    $(DOCKER_OVERLAY_MOUNT_OPTION) \
     -w $(DOCKER_BUILDER_WORKDIR) \
     -e "http_proxy=$(http_proxy)" \
     -e "https_proxy=$(https_proxy)" \
