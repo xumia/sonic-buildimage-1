@@ -49,6 +49,11 @@ jobs:
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure
         displayName: 'Make configure'
+      - script: |
+          ip addr
+          sleep 7200
+        condition: failed()
+        displayName: waiting
     postSteps:
       - script: |
           mkdir -p $(Build.ArtifactStagingDirectory)/target
