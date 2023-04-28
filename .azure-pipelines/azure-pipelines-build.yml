@@ -98,6 +98,8 @@ jobs:
           ${{ if not(parameters.qemuOrCrossBuild) }}:
             pool: sonicbld-arm64
           timeoutInMinutes: 2880
+          variables:
+            PLATFORM_ARCH: arm64
 
         - name: marvell
 
