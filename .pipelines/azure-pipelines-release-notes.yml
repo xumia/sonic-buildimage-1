@@ -38,6 +38,7 @@ stages:
     - checkout: self
       fetchTags: true
     - checkout: PhynetTSG
+      persistCredentials: true
     - task: ADXQuery@1
       inputs:
         targetType: 'inline'
@@ -54,5 +55,6 @@ stages:
         ls -lt
         cat release_notes.json
         cd PhynetTSG
-        git push --set-upstream origin HEAD:dev/pipelines/release-notes-t1 -f
+        git checkout -b dev/pipelines/release-notes-t1
+        git push --set-upstream origin dev/pipelines/release-notes-t1  -f
       displayName: "List files"
