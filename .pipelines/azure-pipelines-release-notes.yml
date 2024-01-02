@@ -41,7 +41,8 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          print A="Hello"
+          print A="Hello";
+          print B="Hello";
         kustoUrls: 'https://sonic.westus2.kusto.windows.net:443?DatabaseName=internal'
         customAuth: true
         connectedServiceName: 'SONiCDataExplorer'
@@ -50,4 +51,5 @@ stages:
         OutputFile: 'release_notes.json'
     - script: |
         ls -lt
+        cat release_notes.json
       displayName: "List files"
