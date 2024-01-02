@@ -56,6 +56,6 @@ stages:
         ls -lt
         cat release_notes.json
         cd Networking-acs-buildimage
-        git checkout -b dev/pipelines/release-notes-t1
-        git push --set-upstream origin dev/pipelines/release-notes-t1  -f
+        git checkout -b sonic/release-notes-t1
+        git push --set-upstream origin sonic/release-notes-t1  -f
       displayName: "List files"
