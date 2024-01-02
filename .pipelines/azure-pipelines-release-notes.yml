@@ -34,6 +34,8 @@ stages:
   jobs:
   - job: Publish
     steps:
+    - checkout: self
+      fetchTags: true
     - checkout: PhynetTSG
     - task: ADXQuery@1
       inputs:
@@ -44,5 +46,8 @@ stages:
         customAuth: true
         connectedServiceName: 'SONiCDataExplorer'
         minThreshold: '0'
-        maxThreshold: '0'
+        maxThreshold: '100'
         OutputFile: 'release_notes.json'
+    - script: |
+        ls -lt
+      displayName: "List files"
