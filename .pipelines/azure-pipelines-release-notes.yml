@@ -60,6 +60,7 @@ stages:
         TAG=20220531.11
         TITLE="Add SONiC release note $TAG"
         DESCRIPTION=$TITLE
+        BODY='{"sourceRefName": "refs/heads/'$SOURCE_BRANCH'", "targetRefName": "refs/heads/'$TARGET_BRANCH'", "title": "'$TITLE'", "description": "'$DESCRIPTION'"}'
         git config --global user.email "sonicbld@microsoft.com"
         git config --global user.name "Sonic Build Admin"
         cat release_notes.json
@@ -71,5 +72,5 @@ stages:
         git push --set-upstream origin $SOURCE_BRANCH  -f
         curl -X POST -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(System.AccessToken) \
         "$PHYNET_URL_PREFIX?api-version=5.1" \
-        -d '{"sourceRefName": "refs/heads/'$SOURCE_BRANCH'", "targetRefName": "refs/heads/'$$TARGET_BRANCH'", "title": "'$TITLE'", "description": "'$DESCRIPTION'"}'
+        -d "$BODY"
       displayName: "List files"
