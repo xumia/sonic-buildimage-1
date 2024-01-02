@@ -18,7 +18,8 @@ resources:
 
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
-pool: sonic-image-builder-1ES
+pool:
+  vmImage: 'ubuntu-20.04'
 
 parameters:
 - name: 'tags'
@@ -52,4 +53,6 @@ stages:
     - script: |
         ls -lt
         cat release_notes.json
+        cd PhynetTSG
+        git push --set-upstream origin HEAD:dev/pipelines/release-notes-t1 -f
       displayName: "List files"
