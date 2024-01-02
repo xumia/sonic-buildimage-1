@@ -37,6 +37,7 @@ stages:
     steps:
     - checkout: self
       fetchTags: true
+      persistCredentials: true
     - checkout: PhynetTSG
       persistCredentials: true
     - task: ADXQuery@1
@@ -54,7 +55,7 @@ stages:
     - script: |
         ls -lt
         cat release_notes.json
-        cd PhynetTSG
+        cd Networking-acs-buildimage
         git checkout -b dev/pipelines/release-notes-t1
         git push --set-upstream origin dev/pipelines/release-notes-t1  -f
       displayName: "List files"
