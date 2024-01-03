@@ -73,15 +73,18 @@ stages:
         echo $RANDOM > test
         git add test
         git commit -m "test"
+        # Force Push
         git push --set-upstream origin $SOURCE_BRANCH  -f
+        # Submit the PR
         curl -X POST -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(System.AccessToken) "$PHYNET_URL_PREFIX?api-version=7.0" -d "$BODY"
-        echo curl -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(System.AccessToken) "$PHYNET_URL_PREFIX?api-version=7.0&searchCriteria.sourceRefName=refs/heads/$SOURCE_BRANCH"
-        curl -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(System.AccessToken) "$PHYNET_URL_PREFIX?api-version=7.0&searchCriteria.sourceRefName=refs/heads/$SOURCE_BRANCH"
+        # Query the PR
         PRID=$(curl -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(System.AccessToken) "$PHYNET_URL_PREFIX?api-version=7.0&searchCriteria.sourceRefName=refs/heads/$SOURCE_BRANCH" | jq '.value[0].pullRequestId')
         if [ -z "$PRID" ]; then
             echo "Failed to query the PR" 1>&2
             exit 1
         fi
-        echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
+        # sonicbld will approve the PR for PR complete automation
         curl -X PUT -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(MSAZURE_PAT) "$PHYNET_URL_PREFIX/$PRID/reviewers/$REVIEWER_ID?api-version=7.0" -d '{"vote":10}'
+        # Print the PR link
+        echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
       displayName: "List files"
