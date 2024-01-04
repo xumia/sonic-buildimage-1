@@ -36,13 +36,18 @@ stages:
   jobs:
   - job: Publish
     steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+        architecture: 'x64'
     - checkout: self
       fetchTags: true
     - checkout: PhynetTSG
       persistCredentials: true
     - script: |
-        apt update
-        apt install -y jq python3
+        sudo apt update
+        sudo apt install -y jq python3
         ls /usr/bin/python
       displayName: "Install tools"
     - script: |
