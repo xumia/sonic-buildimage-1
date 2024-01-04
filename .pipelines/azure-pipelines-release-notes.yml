@@ -85,7 +85,7 @@ stages:
           import os
           import re
           import subprocess
-          import from yaml.loader import SafeLoader
+          import yaml
           from yaml.loader import SafeLoader
           class SafeLineLoader(SafeLoader):
           def construct_mapping(self, node, deep=False):
@@ -235,6 +235,7 @@ stages:
         git status
         echo "add *.md"
         git add '*.md'
+        git add 'wiki/toc.yml'
         git status
         git commit -m "test"
         # Force Push
