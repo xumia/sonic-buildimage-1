@@ -48,6 +48,7 @@ stages:
     - script: |
         sudo apt update
         sudo apt install -y jq python3
+        sudo pip3 install j2cli
         ls /usr/bin/python
       displayName: "Install tools"
     - script: |
