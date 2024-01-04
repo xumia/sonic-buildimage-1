@@ -43,6 +43,7 @@ stages:
     - script: |
         apt update
         apt install -y jq python3
+        ls /usr/bin/python
       displayName: "Install tools"
     - script: |
         cd PhynetTSG/wiki/sonic/release-notes
