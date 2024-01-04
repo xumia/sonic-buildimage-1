@@ -85,7 +85,7 @@ stages:
           with open('../../../../release_notes.json') as f:
             d = json.load(f)
           releaseVersions = "${{ parameters.releaseVersions }}".strip()
-          reMainVersion = re.compile("^\d{8}$")
+          reMainVersion = re.compile("^[0-9]{8}$")
           tmpfile = "tmp_data.json"
           for row in d['body']['Tables'][0]['Rows']:
             note = row[0]
