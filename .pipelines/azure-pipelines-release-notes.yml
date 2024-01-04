@@ -67,6 +67,27 @@ stages:
         workingDirectory: '$(Build.SourcesDirectory/PhynetTSG/wiki/sonic/release-notes)'
         script: |
           import json
+          import os
+          import re
+          import subprocess
+          RELEASE_NOTES_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/release-notes-template.j2"
+          with open('../../../../release_notes.json') as f:
+            d = json.load(f)
+          releaseVersions = "${{ parameters.releaseVersions }}".strip()
+          reMainVersion = re.compile("^\d{8}$")
+          tmpfile = "tmp_data.json"
+          for row in d['body']['Tables'][0]['Rows']:
+            note = row[0]
+            mainVersion = row[1]
+            subVersion = row[2]
+            version = mainVersion + "." + subVersion
+            if not reMainVersion.search(mainVersion):
+              continue
+            if not os.path.isdir(mainVersion):
+              os.mkdir(mainVersion)
+            releaseFile = os.path.join(mainVersion, version + ".md")
+            if os.path.exists(releaseFile) and not releaseVersions:
+              print("Skipped the version {0}, since the file {1} exists".format(version, releaseFile))
       displayName: "Generate release notes"
     - script: |
         ls -lt
