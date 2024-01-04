@@ -139,7 +139,7 @@ stages:
             with open(indexFile) as f:
               lines=f.readlines()
             linkVersion = 'sonic' + mainVersion + subVersion
-            releaseNoteLink = f"### ** [{version}](https://eng.ms/docs/cloud-ai-platform/azure-core/azure-networking/network-infra-nikothar/fabric-network-devices/phynettsg/wiki/sonic/release-notes/{mainVersion}/{linkVersion}) **"
+            releaseNoteLink = f"### ** [{version}](https://eng.ms/docs/cloud-ai-platform/azure-core/azure-networking/network-infra-nikothar/fabric-network-devices/phynettsg/wiki/sonic/release-notes/{mainVersion}/{linkVersion}) **\n"
             checkVersion = f"[{version}]"
             for i in range(4, len(lines)):
               line = lines[i]
