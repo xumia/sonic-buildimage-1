@@ -191,6 +191,8 @@ stages:
                         position = releaseMainVersionItems[j + 1]["__line__"]
                       else:
                         position = o["items"][1]["__line__"]
+                      if lines[position].strip() == "":
+                        position -= 1
                       lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
                       lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
                     break
@@ -199,6 +201,8 @@ stages:
                     position = releaseMainVersionItems[j + 1]["__line__"]
                   else:
                     position = o["items"][1]["__line__"]
+                  if lines[position].strip() == "":
+                    position -= 1
                   print(f"Cannot find the {mainVersion}, inserting the main version at position {position}.")
                   lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
                   lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
