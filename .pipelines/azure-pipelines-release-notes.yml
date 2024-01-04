@@ -193,7 +193,6 @@ stages:
                         position = o["items"][1]["__line__"]
                       lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
                       lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
-                      lines.insert(position, fr"      items:" + "\n")
                     break
                 if releaseMainVersion != mainVersion:
                   if j < len(releaseMainVersionItems) - 1:
