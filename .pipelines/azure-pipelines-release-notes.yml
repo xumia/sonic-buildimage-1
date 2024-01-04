@@ -24,7 +24,7 @@ pool:
 parameters:
 - name: 'releaseVersions'
   type: string
-  default: ''
+  default: ' '
 
 variables:
   DEFAULT_BRANCH_REGEX: "^refs/remotes/origin/internal-(202205|2023[0-9][0-9]|20[3-9][0-9][0-9][0-9])$"
