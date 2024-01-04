@@ -61,11 +61,16 @@ stages:
         minThreshold: '0'
         maxThreshold: '100'
         OutputFile: 'release_notes.json'
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'inline'
+        workingDirectory: '$(Build.SourcesDirectory/PhynetTSG/wiki/sonic/release-notes)'
+        script: |
+          import json
+      displayName: "Generate release notes"
     - script: |
         ls -lt
         echo "MAX_RELEASE_VERSION=$MAX_RELEASE_VERSIONS"
-        sudo apt update
-        sudo apt install -y jq
         SOURCE_BRANCH=sonic/release-notes-t1
         TARGET_BRANCH=sonic/release-notes-main
         # See https://dev.azure.com/msazure/One/_apis/git/repositories/Networking-acs-buildimage/pullrequests/9296449/reviewers?api-version=7.1
