@@ -88,7 +88,7 @@ stages:
           import yaml
           from yaml.loader import SafeLoader
           class SafeLineLoader(SafeLoader):
-          def construct_mapping(self, node, deep=False):
+            def construct_mapping(self, node, deep=False):
               mapping = super(SafeLineLoader, self).construct_mapping(node, deep=deep)
               mapping['__line__'] = node.start_mark.line + 1
               return mapping
