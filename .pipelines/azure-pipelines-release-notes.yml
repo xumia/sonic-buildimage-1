@@ -91,7 +91,7 @@ stages:
           class SafeLineLoader(SafeLoader):
             def construct_mapping(self, node, deep=False):
               mapping = super(SafeLineLoader, self).construct_mapping(node, deep=deep)
-              mapping['__line__'] = node.start_mark.line + 1
+              mapping['__line__'] = node.start_mark.line
               return mapping
           RELEASE_NOTES_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/templates/release-notes-template.j2"
           RELEASE_NOTES_INDEX_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/templates/release-notes-index-template.j2"
