@@ -91,6 +91,7 @@ stages:
           releaseVersions = "${{ parameters.releaseVersions }}".strip()
           reMainVersion = re.compile("^[0-9]{8}$")
           tmpfile = "tmp_data.json"
+          releaseNotesCount = 0
           for row in d['body']['Tables'][0]['Rows']:
             note = row[0]
             mainVersion = row[1]
@@ -112,9 +113,12 @@ stages:
             if result.returncode != 0:
               print("Failed to run the j2 command")
               exit(1)
+            releaseNotesCount += 1
+          print(f'##vso[task.setvariable variable=RELEASE_NOTES_COUNT;]{releaseNotesCount}')
     - script: |
         ls -lt
         echo "MAX_RELEASE_VERSION=$MAX_RELEASE_VERSIONS"
+        echo "RELEASE_NOTES_COUNT=$RELEASE_NOTES_COUNT"
         # See https://dev.azure.com/msazure/One/_apis/git/repositories/Networking-acs-buildimage/pullrequests/9296449/reviewers?api-version=7.1
         REVIEWER_ID=1b5f2f1b-141f-65e4-b96d-29a1a9a73edd
         TAG=20220531.11
@@ -123,7 +127,6 @@ stages:
         BODY='{"sourceRefName": "refs/heads/'$SOURCE_BRANCH'", "targetRefName": "refs/heads/'$TARGET_BRANCH'", "title": "'$TITLE'", "description": "'$DESCRIPTION'"}'
         git config --global user.email "sonicbld@microsoft.com"
         git config --global user.name "Sonic Build Admin"
-        cat release_notes.json
         cd PhynetTSG
         echo $RANDOM > test
         git add test
@@ -146,4 +149,5 @@ stages:
         curl -X PUT -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(MSAZURE_PAT) "$PHYNET_URL_PREFIX/$PRID/reviewers/$REVIEWER_ID?api-version=7.0" -d '{"vote":10}'
         # Print the PR link
         echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
+      condition: ne(variables['RELEASE_NOTES_COUNT'], '0')
       displayName: "List files"
