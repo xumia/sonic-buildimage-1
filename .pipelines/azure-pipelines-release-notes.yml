@@ -154,7 +154,7 @@ stages:
               lines[i] = lines[i].rstrip()
             tocContent = '\n'.join(lines)
             toc = yaml.load(tocContent, Loader=SafeLineLoader)
-            sonicReleaseStart = False
+            tocChanged = False
             for i in range(0, len(toc)):
               o = toc[i]
               name = o.get('name', None)
@@ -166,12 +166,20 @@ stages:
                   releaseMainVersion = releaseMainVersionItem["name"]
                   if releaseMainVersion == mainVersion:
                     releaseSubVersionItems = releaseMainVersion.get("items", [])
+                    releaseSubVersionName = None
                     for k in range(0, len(releaseSubVersionItems)):
                       subversionItem = releaseSubVersionItems[k]
-                      if subversionName == subversionItem["name"]:
+                      releaseSubVersionName = subversionItem["name"]
+                      if subversionName == releaseSubVersionName:
                         break
-                    if len(releaseSubVersionItems) <= 0 or subversionName != subversionItem["name"]:
-                      pass
+                    if subversionName != releaseSubVersionName:
+                      if k < len(releaseSubVersionItems) - 1:
+                        position = releaseSubVersionItems[k + 1]["__line__"]
+                      elif: j < len(releaseMainVersionItems) - 1:
+                        position = releaseMainVersion[j + 1]["__line__"]
+                      else:
+                        position = toc[i + 1]["__line__"]
+                      lines.insert(position, "")
                     break
                 if releaseMainVersion != mainVersion:
                   pass
