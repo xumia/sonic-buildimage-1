@@ -127,7 +127,9 @@ stages:
         cd PhynetTSG
         echo $RANDOM > test
         git add test
-        git add *.md
+        git status
+        echo "add *.md"
+        git add '*.md'
         git status
         git commit -m "test"
         # Force Push
