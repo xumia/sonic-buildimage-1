@@ -38,9 +38,12 @@ stages:
     steps:
     - checkout: self
       fetchTags: true
-      persistCredentials: true
     - checkout: PhynetTSG
       persistCredentials: true
+    - script: |
+        apt update
+        apt install -y jq python3
+      displayName: "Install tools"
     - script: |
         cd PhynetTSG/wiki/sonic/release-notes
         releasenotes=$(ls 202*/*.md | grep -iE '^[0-9]+/SONiC\.[0-9]{8}\.[0-9]{1,3}\.md')
