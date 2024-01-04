@@ -45,7 +45,7 @@ stages:
         cd PhynetTSG/wiki/sonic/release-notes
         releasenotes=$(ls 202*/*.md | grep -iE '^[0-9]+/SONiC\.[0-9]{8}\.[0-9]{1,3}\.md')
         echo "$releasenotes"
-        maxReleaseVersions=$(echo "$releasenotes" | cut -d. -f2,3 | sort -n -t. -r -k1,1 -k2 | sort -n -r -t. -k1,1 -u | xargs)
+        maxReleaseVersions=$(echo "$releasenotes" | cut -d. -f2,3 | sort -n -t. -r -k1,1 -k2 | sort -n -r -t. -k1,1 -u | xargs | tr ' ' ',')
         echo "The maximum release versions:"
         echo "$maxReleaseVersions"
         echo "##vso[task.setvariable variable=MAX_RELEASE_VERSIONS]$maxReleaseVersions"
@@ -54,8 +54,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          print A="Hello";
-          print B="Hello";
+          GetReleaseNotesByReleaseVersions("$(MAX_RELEASE_VERSIONS)")
         kustoUrls: 'https://sonic.westus2.kusto.windows.net:443?DatabaseName=internal'
         customAuth: true
         connectedServiceName: 'SONiCDataExplorer'
