@@ -126,6 +126,7 @@ stages:
         git checkout -b $SOURCE_BRANCH origin/$TARGET_BRANCH
         echo $RANDOM > test
         git add test
+        git add *.md
         git commit -m "test"
         # Force Push
         git push --set-upstream origin $SOURCE_BRANCH  -f
