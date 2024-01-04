@@ -74,6 +74,7 @@ stages:
       displayName: "Generate release notes"
       inputs:
         scriptSource: 'inline'
+        workingDirectory: '$(Build.SourcesDirectory)/PhynetTSG/wiki/sonic/release-notes'
         script: |
           print(1)
     - script: |
