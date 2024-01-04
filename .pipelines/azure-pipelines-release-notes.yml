@@ -22,9 +22,9 @@ pool:
   vmImage: 'ubuntu-20.04'
 
 parameters:
-- name: 'tags'
-  type: object
-  default: []
+- name: 'releaseVersions'
+  type: string
+  default: ''
 
 variables:
   DEFAULT_BRANCH_REGEX: "^refs/remotes/origin/internal-(202205|2023[0-9][0-9]|20[3-9][0-9][0-9][0-9])$"
@@ -54,7 +54,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          GetReleaseNotesByReleaseVersions("$(MAX_RELEASE_VERSIONS)")
+          GetReleaseNotesByReleaseVersions("$(MAX_RELEASE_VERSIONS)", "${{ parameters.releaseVersions }}")
         kustoUrls: 'https://sonic.westus2.kusto.windows.net:443?DatabaseName=internal'
         customAuth: true
         connectedServiceName: 'SONiCDataExplorer'
