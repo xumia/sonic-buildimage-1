@@ -81,7 +81,7 @@ stages:
           import os
           import re
           import subprocess
-          RELEASE_NOTES_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/release-notes-template.j2"
+          RELEASE_NOTES_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/templates/release-notes-template.j2"
           with open('../../../../release_notes.json') as f:
             d = json.load(f)
           releaseVersions = "${{ parameters.releaseVersions }}".strip()
