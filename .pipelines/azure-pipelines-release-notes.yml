@@ -157,7 +157,7 @@ stages:
             stripLines = []
             for line in lines:
               stripLines.append(line.rstrip())
-            tocContent = '\n'.join(stripLines)
+            tocContent = ''.join(stripLines)
             toc = yaml.load(tocContent, Loader=SafeLineLoader)
             tocChanged = False
             for i in range(0, len(toc)):
@@ -209,7 +209,7 @@ stages:
             if len(stripLines) != len(lines):
               with open(TOC_FILE, 'w') as f:
                 f.writelines(lines)
-                print('\n'.join(lines))
+                print(''.join(lines))
             releaseNotesCount += 1
           print("Verify the format of toc.yml is good")
           with open(TOC_FILE) as f:
@@ -217,7 +217,7 @@ stages:
           stripLines = []
           for line in lines:
             stripLines.append(line.rstrip())
-          tocContent = '\n'.join(stripLines)
+          tocContent = ''.join(stripLines)
           print(tocContent)
           toc = yaml.load(tocContent, Loader=SafeLineLoader)
           print(f"The release note count is {releaseNotesCount}.")
