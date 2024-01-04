@@ -98,7 +98,7 @@ stages:
             releaseFile = os.path.join(mainVersion, version + ".md")
             if os.path.exists(releaseFile) and not releaseVersions:
               print("Skipped the version {0}, since the file {1} exists".format(version, releaseFile))
-            data = {"SONIC_VERSION": version, "SONIC_BRANCH": branch, "RELEASE_NOTES": note}
+            data = {"SONIC_VERSION": version, "SONIC_BRANCH": branch, "RELEASE_NOTES": note, "RELEASE_DATE": "test"}
             with open(tmpfile, "w") as f:
               f.write(json.dumps(data))
             result = subprocess.run(['j2', "-o", releaseFile, RELEASE_NOTES_TEMPLATE, tmpfile], stdout=subprocess.PIPE, check=True, text=True)
