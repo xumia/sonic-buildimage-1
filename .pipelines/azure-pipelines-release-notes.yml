@@ -71,12 +71,11 @@ stages:
         maxThreshold: '100'
         OutputFile: 'release_notes.json'
     - task: PythonScript@0
+      displayName: "Generate release notes"
       inputs:
         scriptSource: 'inline'
-        workingDirectory: '$(Build.SourcesDirectory/PhynetTSG/wiki/sonic/release-notes)'
         script: |
           print(1)
-      displayName: "Generate release notes"
     - script: |
         ls -lt
         echo "MAX_RELEASE_VERSION=$MAX_RELEASE_VERSIONS"
