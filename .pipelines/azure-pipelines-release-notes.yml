@@ -50,7 +50,7 @@ stages:
     - script: |
         sudo apt update
         sudo apt install -y jq python3
-        sudo pip3 install j2cli yaml
+        sudo pip3 install j2cli PyYAML
         ls /usr/bin/python
       displayName: "Install tools"
     - script: |
