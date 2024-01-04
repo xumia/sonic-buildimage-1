@@ -128,8 +128,10 @@ stages:
               exit(1)
             if not os.path.exists(indexFile):
               data = { "SONIC_MAIN_VERSION": mainVersion }
+              with open(tmpfile, "w") as f:
+                f.write(json.dumps(data))
               print("Generate the index file for version {0}".format(mainVersion))
-              result = subprocess.run(['j2', "-o", releaseFile, RELEASE_NOTES_INDEX_TEMPLATE, indexFile], stdout=subprocess.PIPE, check=True, text=True)
+              result = subprocess.run(['j2', "-o", indexFile, RELEASE_NOTES_INDEX_TEMPLATE, tmpfile], stdout=subprocess.PIPE, check=True, text=True)
               if result.returncode != 0:
                 print("Failed to run the j2 command")
                 exit(1)
