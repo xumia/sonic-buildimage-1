@@ -127,6 +127,7 @@ stages:
         echo $RANDOM > test
         git add test
         git add *.md
+        git status
         git commit -m "test"
         # Force Push
         git push --set-upstream origin $SOURCE_BRANCH  -f
