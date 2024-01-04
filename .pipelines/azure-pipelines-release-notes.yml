@@ -107,6 +107,7 @@ stages:
             subVersion = row[2]
             releaseDate = row[3]
             version = mainVersion + "." + subVersion
+            subversionName = 'sonic.' + version
             if not reMainVersion.search(mainVersion):
               continue
             branch = mainVersion[0:6]
@@ -154,18 +155,26 @@ stages:
             tocContent = '\n'.join(lines)
             toc = yaml.load(tocContent, Loader=SafeLineLoader)
             sonicReleaseStart = False
-            for i in range(0, len(lines)):
-              line = lines[i]
-              if line == "  - name: Release Notes":
-                sonicReleaseStart = True
-                continue
-                elif sonicStart:
-                  break
-              if sonicStart:
-                lines.insert(i-1, releaseNoteLink)
-                with open(indexFile, 'w') as f:
-                  f.writelines(lines)
-                break
+            for i in range(0, len(toc)):
+              o = toc[i]
+              name = o.get('name', None)
+              if name == "SONiC":
+                releaseMainVersionItems = o["items"]
+                releaseMainVersion = None
+                for j in range(0, len(releaseMainVersionItems)):
+                  releaseMainVersionItem = releaseMainVersionItems[j]
+                  releaseMainVersion = releaseMainVersionItem["name"]
+                  if releaseMainVersion == mainVersion:
+                    releaseSubVersionItems = releaseMainVersion.get("items", [])
+                    for k in range(0, len(releaseSubVersionItems)):
+                      subversionItem = releaseSubVersionItems[k]
+                      if subversionName == subversionItem["name"]:
+                        break
+                    if len(releaseSubVersionItems) <= 0 or subversionName != subversionItem["name"]:
+                      pass
+                    break
+                if releaseMainVersion != mainVersion:
+                  pass
             releaseNotesCount += 1
           print(f'##vso[task.setvariable variable=RELEASE_NOTES_COUNT;]{releaseNotesCount}')
     - script: |
