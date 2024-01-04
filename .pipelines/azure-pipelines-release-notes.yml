@@ -77,6 +77,7 @@ stages:
           RELEASE_NOTES_TEMPLATE = "../../../../Networking-acs-buildimage/.pipelines/release-notes-template.j2"
           with open('../../../../release_notes.json') as f:
             d = json.load(f)
+          
           releaseVersions = "${{ parameters.releaseVersions }}".strip()
           reMainVersion = re.compile("^\d{8}$")
           tmpfile = "tmp_data.json"
