@@ -157,7 +157,7 @@ stages:
             stripLines = []
             for line in lines:
               stripLines.append(line.rstrip())
-            tocContent = ''.join(stripLines)
+            tocContent = '\n'.join(stripLines)
             toc = yaml.load(tocContent, Loader=SafeLineLoader)
             tocChanged = False
             for i in range(0, len(toc)):
@@ -191,9 +191,9 @@ stages:
                         position = releaseMainVersion[j + 1]["__line__"]
                       else:
                         position = o["items"][1]["__line__"]
-                      lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}")
-                      lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}")
-                      lines.insert(position, fr"      items:")
+                      lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
+                      lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
+                      lines.insert(position, fr"      items:" + "\n")
                     break
                 if releaseMainVersion != mainVersion:
                   if j < len(releaseMainVersionItems) - 1:
@@ -201,11 +201,11 @@ stages:
                   else:
                     position = o["items"][1]["__line__"]
                   print(f"Cannot find the {mainVersion}, inserting the main version at position {position}.")
-                  lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}")
-                  lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}")
-                  lines.insert(position, fr"      items:")
-                  lines.insert(position, fr"      href: sonic\release-notes\{mainVersion}\index.md")
-                  lines.insert(position, fr"    - name: '{mainVersion}'")
+                  lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
+                  lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
+                  lines.insert(position, fr"      items:" + "\n")
+                  lines.insert(position, fr"      href: sonic\release-notes\{mainVersion}\index.md" + "\n")
+                  lines.insert(position, fr"    - name: '{mainVersion}'" + "\n")
             if len(stripLines) != len(lines):
               with open(TOC_FILE, 'w') as f:
                 f.writelines(lines)
