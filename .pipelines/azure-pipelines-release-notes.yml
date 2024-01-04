@@ -176,7 +176,7 @@ stages:
                   releaseMainVersion = releaseMainVersionItem["name"]
                   if releaseMainVersion == mainVersion:
                     print(f"Found the main version {mainVersion}.")
-                    releaseSubVersionItems = releaseMainVersion.get("items", [])
+                    releaseSubVersionItems = releaseMainVersionItem.get("items", [])
                     releaseSubVersionName = None
                     for k in range(0, len(releaseSubVersionItems)):
                       subversionItem = releaseSubVersionItems[k]
