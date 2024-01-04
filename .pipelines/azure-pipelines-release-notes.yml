@@ -93,6 +93,7 @@ stages:
             version = mainVersion + "." + subVersion
             if not reMainVersion.search(mainVersion):
               continue
+            branch = mainVersion[0:6]
             if not os.path.isdir(mainVersion):
               os.mkdir(mainVersion)
             releaseFile = os.path.join(mainVersion, version + ".md")
