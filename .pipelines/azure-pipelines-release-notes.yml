@@ -212,7 +212,6 @@ stages:
             if len(stripLines) != len(lines):
               with open(TOC_FILE, 'w') as f:
                 f.writelines(lines)
-                print(''.join(lines))
             releaseNotesCount += 1
           print("Verify the format of toc.yml is good")
           with open(TOC_FILE) as f:
@@ -221,7 +220,6 @@ stages:
           for line in lines:
             stripLines.append(line.rstrip())
           tocContent = '\n'.join(stripLines)
-          print(tocContent)
           toc = yaml.load(tocContent, Loader=SafeLineLoader)
           print(f"The release note count is {releaseNotesCount}.")
           print(f'##vso[task.setvariable variable=RELEASE_NOTES_COUNT;]{releaseNotesCount}')
