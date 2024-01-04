@@ -188,7 +188,7 @@ stages:
                       if k < len(releaseSubVersionItems) - 1:
                         position = releaseSubVersionItems[k + 1]["__line__"]
                       elif j < len(releaseMainVersionItems) - 1:
-                        position = releaseMainVersion[j + 1]["__line__"]
+                        position = releaseMainVersionItems[j + 1]["__line__"]
                       else:
                         position = o["items"][1]["__line__"]
                       lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
@@ -197,7 +197,7 @@ stages:
                     break
                 if releaseMainVersion != mainVersion:
                   if j < len(releaseMainVersionItems) - 1:
-                    position = releaseMainVersion[j + 1]["__line__"]
+                    position = releaseMainVersionItems[j + 1]["__line__"]
                   else:
                     position = o["items"][1]["__line__"]
                   print(f"Cannot find the {mainVersion}, inserting the main version at position {position}.")
