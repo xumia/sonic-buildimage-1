@@ -27,7 +27,7 @@ parameters:
   default: ' '
 
 variables:
-  DEFAULT_BRANCH_REGEX: "^refs/remotes/origin/internal-(202205|2023[0-9][0-9]|20[3-9][0-9][0-9][0-9])$"
+  DEFAULT_BRANCH_REGEX: "^refs/remotes/origin/internal-(202012|202205|2023[0-9][0-9]|20[3-9][0-9][0-9][0-9])$"
   DEFAULT_TAG_REGEX: '^refs/tags/20[0-9]{6}\.[0-9]{1,3}$'
   PHYNET_URL_PREFIX: "https://dev.azure.com/msazure/PhyNet/_apis/git/repositories/PhynetTSG/pullrequests"
   SOURCE_BRANCH: sonic/release-notes-t2
@@ -229,7 +229,7 @@ stages:
         # See https://dev.azure.com/msazure/One/_apis/git/repositories/Networking-acs-buildimage/pullrequests/9296449/reviewers?api-version=7.1
         REVIEWER_ID=1b5f2f1b-141f-65e4-b96d-29a1a9a73edd
         TAG=20220531.11
-        TITLE="Add SONiC release note $TAG"
+        TITLE="Add SONiC release notes"
         DESCRIPTION=$TITLE
         BODY='{"sourceRefName": "refs/heads/'$SOURCE_BRANCH'", "targetRefName": "refs/heads/'$TARGET_BRANCH'", "title": "'$TITLE'", "description": "'$DESCRIPTION'"}'
         git config --global user.email "sonicbld@microsoft.com"
