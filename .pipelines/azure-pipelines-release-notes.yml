@@ -257,5 +257,5 @@ stages:
         curl -X PUT -L -H 'Content-Type: application/json' -H 'Accept: application/json' -u :$(MSAZURE_PAT) "$PHYNET_URL_PREFIX/$PRID/reviewers/$REVIEWER_ID?api-version=7.0" -d '{"vote":10}'
         # Print the PR link
         echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
-      condition: ne(variables['RELEASE_NOTES_COUNT'], '0')
+      condition: and(succeeded(), ne(variables['RELEASE_NOTES_COUNT'], '0'))
       displayName: "Send or update Pull Request"
