@@ -111,6 +111,7 @@ stages:
             version = mainVersion + "." + subVersion
             subversionName = "SONiC." + version
             subVersionFileName = "sonic." + version + ".md"
+            print(f"subVersionFileName={subVersionFileName}")
             if not reMainVersion.search(mainVersion):
               continue
             branch = mainVersion[0:6]
