@@ -52,7 +52,6 @@ stages:
         sudo apt install -y jq python3
         sudo pip3 install j2cli PyYAML
         pip3 install PyYAML
-        ls /usr/bin/python
       displayName: "Install tools"
     - script: |
         cd PhynetTSG
@@ -257,4 +256,4 @@ stages:
         # Print the PR link
         echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
       condition: ne(variables['RELEASE_NOTES_COUNT'], '0')
-      displayName: "List files"
+      displayName: "Send or update Pull Request"
