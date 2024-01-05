@@ -102,7 +102,7 @@ stages:
           tmpfile = "tmp_data.json"
           releaseNotesCount = 0
           rows = d['body']['Tables'][0]['Rows']
-          rows = sorted(rows, key = lambda x: (toint(x[1]), toint(x[2])))
+          rows = sorted(rows, key = lambda x: (int(x[1]), int(x[2])))
           for row in d['body']['Tables'][0]['Rows']:
             note = row[0]
             mainVersion = row[1]
