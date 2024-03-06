@@ -78,6 +78,7 @@ stages:
     - task: PythonScript@0
       displayName: "Generate release notes"
       inputs:
+        pythonInterpreter: '/usr/bin/python3'
         scriptSource: 'inline'
         workingDirectory: '$(Build.SourcesDirectory)/PhynetTSG/wiki/sonic/release-notes'
         script: |
