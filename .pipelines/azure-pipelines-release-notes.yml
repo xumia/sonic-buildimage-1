@@ -195,7 +195,7 @@ stages:
                       if lines[position].strip() == "":
                         position -= 1
                       lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
-                      lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
+                      lines.insert(position, fr"      - name: sonic.{version}" + "\n")
                     break
                 if releaseMainVersion != mainVersion:
                   if j < len(releaseMainVersionItems) - 1:
@@ -206,7 +206,7 @@ stages:
                     position -= 1
                   print(f"Cannot find the {mainVersion}, inserting the main version at position {position}.")
                   lines.insert(position, fr"        href: sonic\release-notes\{mainVersion}\{subVersionFileName}" + "\n")
-                  lines.insert(position, fr"      - name: sonic\release-notes\{mainVersion}" + "\n")
+                  lines.insert(position, fr"      - name: sonic.{version}" + "\n")
                   lines.insert(position, fr"      items:" + "\n")
                   lines.insert(position, fr"      href: sonic\release-notes\{mainVersion}\index.md" + "\n")
                   lines.insert(position, fr"    - name: '{mainVersion}'" + "\n")
@@ -259,3 +259,12 @@ stages:
         echo "Pull Request: https://dev.azure.com/msazure/PhyNet/_git/PhynetTSG/pullrequest/$PRID"
       condition: and(succeeded(), ne(variables['RELEASE_NOTES_COUNT'], '0'))
       displayName: "Send or update Pull Request"
+    - script: |
+        set -x
+        ls -l $(Build.SourcesDirectory)/
+        cp $(Build.SourcesDirectory)/release_notes.json $(Build.ArtifactStagingDirectory)/
+      workingDirectory: "$(Build.SourcesDirectory)"
+      displayName: "Prepare publish"
+    - publish: $(Build.ArtifactStagingDirectory)
+      artifact: 'artifacts'
+      displayName: "Archive artifacts"
