@@ -38,6 +38,7 @@ stages:
   - job: Publish
     steps:
     - task: UsePythonVersion@0
+      condition: false
       inputs:
         versionSpec: '3.x'
         addToPath: true
